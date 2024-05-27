@@ -34,3 +34,7 @@ h2 {
   font-size: 1.5rem;
   color: var(--secondary-text-color);
 }
+
+h3{
+  color: var(--secondary-text-color);
+}
