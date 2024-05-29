@@ -39,3 +39,7 @@ a{
   text-decoration: none;
   color: var(--primary-text-color);
 }
+
+h3{
+  color: var(--secondary-text-color);
+}
