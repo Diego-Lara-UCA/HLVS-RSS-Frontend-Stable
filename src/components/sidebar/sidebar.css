@@ -1,0 +1,36 @@
+.aside {
+  background-color: var(--primary-color);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 20%;
+  height: 100vh;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.aside__title {
+  text-transform: uppercase;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.aside__links {
+  display: flex;
+  flex-direction: column;
+}
+
+.aside__links a {
+  display: inline-block;
+  padding: 1.5rem 2rem;
+  width: 90%;
+  border-radius: 0 50px 50px 0;
+  font-family: var(--primary-font);
+}
+
+.aside__links a:first-child {
+  background-color: var(--btn-secondary-color);
+}
+
+.aside__links a:hover {
+  background-color: var(--btn-secondary-color);
+}

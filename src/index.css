@@ -34,3 +34,8 @@ h2 {
   font-size: 1.5rem;
   color: var(--secondary-text-color);
 }
+
+a{
+  text-decoration: none;
+  color: var(--primary-text-color);
+}
