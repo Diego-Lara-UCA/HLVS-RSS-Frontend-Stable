@@ -1,6 +1,6 @@
 .aside {
   background-color: var(--primary-color);
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   width: 20%;

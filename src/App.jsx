@@ -1,14 +1,13 @@
-import Sidebar from "./components/sidebar/Sidebar";
-import LogIn from './pages/login/LogIn.jsx';
-import Home from "./pages/Home/Home";
-import "./app.css";
+import { BrowserRouter as Router} from "react-router-dom";
+import AppRouter from "./routes/AppRouter.jsx";
+import 'animate.css';
 
 function App() {
-  return(
+  return (
     <div className="app">
-      <LogIn />
-      <Home/>
-      <Sidebar />
+      <Router>
+        <AppRouter />
+      </Router>
     </div>
   );
 }

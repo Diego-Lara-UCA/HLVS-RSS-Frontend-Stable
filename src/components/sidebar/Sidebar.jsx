@@ -1,23 +1,23 @@
 import React from "react";
-import links from './index.js'
-import './sidebar.css'
+import { Link } from "react-router-dom";
+
+import links from "./index.js";
+import "./sidebar.css";
 
 const Sidebar = () => {
   return (
-    <div>
       <aside className="aside">
         <div className="aside__title">
-            <h1>HLVS</h1>
+          <h1>HLVS</h1>
         </div>
         <div className="aside__links">
           {links.map((link, index) => (
-            <a key={index} href="">
-              {link}
-            </a>
+            <Link key={index} to={`/${link.to}`}>
+              {link.name}
+            </Link>
           ))}
         </div>
       </aside>
-    </div>
   );
 };
 
