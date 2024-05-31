@@ -1,23 +1,33 @@
 import React from "react";
-import { Link } from "react-router-dom";
-
+import { NavLink } from "react-router-dom";
 import links from "./index.js";
 import "./sidebar.css";
 
-const Sidebar = () => {
+
+const Sidebar = ({ isOpen }) => {
   return (
+    isOpen && (
       <aside className="aside">
-        <div className="aside__title">
+        <div className="text-xl mb-10 p-8 font-semibold uppercase">
           <h1>HLVS</h1>
         </div>
-        <div className="aside__links">
-          {links.map((link, index) => (
-            <Link key={index} to={`/${link.to}`}>
-              {link.name}
-            </Link>
-          ))}
+        <div className="aside__links font-semibold">
+          {links.map((link, index) => {
+            const Icon = link.icon;
+            return (
+              <NavLink
+                key={index}
+                to={`/${link.to}`}
+                className={({ isActive }) => `${isActive ? "active" : ""}`}
+              >
+                <Icon size={24} color="black" />
+                {link.name}
+              </NavLink>
+            );
+          })}
         </div>
       </aside>
+    )
   );
 };
 

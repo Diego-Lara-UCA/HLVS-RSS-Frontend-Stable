@@ -10,6 +10,12 @@
   }
 }
 
+@layer components {
+  .container-tab {
+    @apply flex-1 px-5 py-8 h-screen 2xl:px-12 2xl:py-12 overflow-y-auto relative;
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -28,6 +34,7 @@
   /* text colors */
   --primary-text-color: #383838;
   --secondary-text-color: #737373;
+
 }
 
 h1,

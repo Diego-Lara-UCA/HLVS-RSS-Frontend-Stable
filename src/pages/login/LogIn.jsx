@@ -24,11 +24,11 @@ const LogIn = () => {
           <h2 className="text-lg font-light text-center mb-16">
             Welcome Back!
           </h2>
-          {/* <GoogleLogin 
+          <GoogleLogin 
             clientId="TU_ID_DE_CLIENTE_DE_GOOGLE"
             onSuccess={responseMessage}
             onError={errorMessage}
-          /> */}
+          />
           <div className="flex w-full flex-col gap-4 mb-20">
             <button className="w-full border-[1px] py-4 border-gray-400 rounded-md">
               Acceder con Google

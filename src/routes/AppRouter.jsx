@@ -8,6 +8,8 @@ import PermissionsDetails from "../pages/permissionsdetails/PermissionsDetails";
 import GenerateKeys from "../pages/generatekeys/GenerateKeys";
 import { userRole } from "../components/sidebar/userRole";
 import Profile from "../pages/profile/Profile";
+import EntryHistory from "../pages/entryhistory/EntryHistory";
+
 
 const AppRouter = () => {
   const getInitialRoute = (userRole) => {
@@ -36,6 +38,7 @@ const AppRouter = () => {
           <Route path="logofentries" element={<LogsEntries />} />
           <Route path="permissiondetails" element={<PermissionsDetails />} />
           <Route path="generatekeys" element={<GenerateKeys />} />
+          <Route path="entryhistory" element={<EntryHistory />} />
           <Route path="dashboard/profile" element={<Profile />} />
         </Route>
       </Routes>

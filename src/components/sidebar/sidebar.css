@@ -3,9 +3,11 @@
   position: sticky;
   top: 0;
   left: 0;
-  width: 20%;
+  width: 100%;
+  max-width: 18%;
   height: 100vh;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
 }
 
 .aside__title {
@@ -20,17 +22,45 @@
 }
 
 .aside__links a {
-  display: inline-block;
-  padding: 1.5rem 2rem;
-  width: 90%;
+  display: flex;
+  padding: 1rem 1.5rem;
+  width: 95%;
   border-radius: 0 50px 50px 0;
   font-family: var(--primary-font);
-}
-
-.aside__links a:first-child {
-  background-color: var(--btn-secondary-color);
+  transition: all 0.1s ease-in;
+  gap: 1rem;
 }
 
 .aside__links a:hover {
   background-color: var(--btn-secondary-color);
+}
+
+.active {
+  background-color: var(--btn-secondary-color);
+}
+
+@media (max-width: 576px) {
+  .aside {
+    max-width: 100%;
+    position: fixed;
+  }
+
+  .aside__links a {
+    width: 100%;
+    border-radius: 0;
+  }
+}
+
+@media (max-width: 992px) {
+  .aside {
+    max-width: 50%;
+    position: fixed;
+  }
+}
+
+@media (max-width: 1200px) {
+  .aside {
+    max-width: 25%;
+    position: fixed;
+  }
 }

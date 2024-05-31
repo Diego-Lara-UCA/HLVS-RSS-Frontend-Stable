@@ -11,7 +11,7 @@ const Home = () => {
           </Link>
         </nav>
         <div className="flex flex-col px-8 h-[100vh] justify-center 2xl:px-36 2xl:m-auto ">
-          <h1 className="text-4xl text-center mb-8 font-bold 2xl:text-start 2xl:text-7xl ">
+          <h1 className="text-4xl text-center mb-8 font-bold 2xl:text-left 2xl:text-7xl ">
             Residential <br /> Security System
           </h1>
           <h2 className="font-light text-center mb-10 2xl:text-start 2xl:text-xl">
