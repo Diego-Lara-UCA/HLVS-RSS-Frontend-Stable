@@ -70,7 +70,7 @@ const PermissionsDetails = () => {
 
   return (
     <div className="container-tab">
-      <Title title="Current Permissions" description="" />
+      <Title title="Current Permissions" description="Permits active at this time" />
       <Card className="mb-20">
         <Table>
           <TableHead>
@@ -154,7 +154,7 @@ const PermissionsDetails = () => {
       </Card>
 
       {/* Expired Permissions */}
-      <Title title="Expired Permissions" description="" />
+      <Title title="Expired Permissions" description="Previous permissions expired" />
       <Card className="mb-20">
         <Table>
           <TableHead>

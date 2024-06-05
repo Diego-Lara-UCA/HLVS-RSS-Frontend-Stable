@@ -12,7 +12,7 @@
 
 @layer components {
   .container-tab {
-    @apply flex-1 px-5 py-8 h-screen 2xl:px-12 2xl:py-12 overflow-y-auto relative;
+    @apply px-5 py-8 2xl:px-12 2xl:py-12;
   }
 }
 
@@ -25,7 +25,7 @@
   --primary-color: #ffffff;
 
   /* buttons colors */
-  --btn-primary-color: #86a0ff;
+  --btn-primary-color: #86A0FF;
   --btn-secondary-color: #d4d9ff;
 
   /* font style */

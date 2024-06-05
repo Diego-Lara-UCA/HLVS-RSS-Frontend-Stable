@@ -12,11 +12,11 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex w-full ">
+    <div className="flex w-full h-screen">
       <Sidebar isOpen={isOpen} />
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col w-full h-full">
         <Navbar toggleMenu={toggleMenu} />
-        <div className="overflow-auto h-screen">
+        <div className="overflow-auto flex-grow">
           <Outlet />
         </div>
       </div>

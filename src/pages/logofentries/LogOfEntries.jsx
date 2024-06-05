@@ -19,7 +19,6 @@ import {
   TableRow,
 } from "@tremor/react";
 
-
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
@@ -44,10 +43,7 @@ const LogOfEntries = () => {
   const tableColumns = useMemo(() => headers, []);
 
   // Renderizar datos de la tabla
-  const tableData = useMemo(
-    () => [...logofentries],
-    []
-  );
+  const tableData = useMemo(() => [...logofentries], []);
 
   const table = useReactTable({
     data: tableData,
@@ -69,8 +65,11 @@ const LogOfEntries = () => {
   });
 
   return (
-    <div className="flex-1 px-5 py-8 h-[100vh] 2xl:px-12 2xl:py-12 overflow-y-auto relative">
-      <Title title="Log of Entries" description=""/>
+    <div className="flex-1 px-5 py-8 h-[100vh] 2xl:px-12 2xl:py-12 relative">
+      <Title
+        title="Log of Entries"
+        description="Stay on top of your information"
+      />
       <Card className="mb-20">
         <Table>
           <TableHead>
@@ -112,7 +111,7 @@ const LogOfEntries = () => {
             ))}
           </TableBody>
         </Table>
-        <div className="mt-10 flex items-center justify-between">
+        <div className="pl-3 mt-10 flex items-center justify-between">
           <p className="text-tremor-default tabular-nums text-tremor-content dark:text-dark-tremor-content">
             Page{" "}
             <span className="font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">{`${

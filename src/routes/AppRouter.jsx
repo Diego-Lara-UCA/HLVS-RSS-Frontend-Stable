@@ -9,13 +9,19 @@ import GenerateKeys from "../pages/generatekeys/GenerateKeys";
 import { userRole } from "../components/sidebar/userRole";
 import Profile from "../pages/profile/Profile";
 import EntryHistory from "../pages/entryhistory/EntryHistory";
-
+import ManageOvertime from "../pages/manageovertime/ManageOvertime";
+import ManageHouses from "../pages/managehouses/ManageHouses";
+import ManageGuards from "../pages/manageguards/ManageGuards";
+import PedestrianAccess from "../pages/pedestrianaccess/PedestrianAccess";
+import VehicularAccess from "../pages/vehicularaccess/VehicularAccess";
+import AnonymousAccess from "../pages/anonymousaccess/AnonymousAccess";
+import CreatePermission from "../pages/createpermission/CreatePermission";
 
 const AppRouter = () => {
   const getInitialRoute = (userRole) => {
     switch (userRole) {
       case "admin":
-        return "logofentries";
+        return "entryhistory";
       case "superadmin":
         return "superadmin";
       case "user":
@@ -39,6 +45,13 @@ const AppRouter = () => {
           <Route path="permissiondetails" element={<PermissionsDetails />} />
           <Route path="generatekeys" element={<GenerateKeys />} />
           <Route path="entryhistory" element={<EntryHistory />} />
+          <Route path="manageovertime" element={<ManageOvertime />} />
+          <Route path="managehouses" element={<ManageHouses />} />
+          <Route path="manageguards" element={<ManageGuards />} />
+          <Route path="pedestrianaccess" element={<PedestrianAccess />} />
+          <Route path="vehicularaccess" element={<VehicularAccess />} />
+          <Route path="anonymousaccess" element={<AnonymousAccess />} />
+          <Route path="createpermission" element={<CreatePermission />} />
           <Route path="dashboard/profile" element={<Profile />} />
         </Route>
       </Routes>

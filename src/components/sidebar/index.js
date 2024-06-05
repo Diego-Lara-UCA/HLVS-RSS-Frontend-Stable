@@ -1,5 +1,4 @@
 import { userRole } from './userRole';
-import { FaHome, FaUser, FaKey, FaCog, FaUsers,  } from 'react-icons/fa';
 import { HiOutlineBookOpen } from "react-icons/hi2";
 import { PiLockSimpleOpen, PiPersonSimpleWalk, PiCarLight } from "react-icons/pi";
 import { BsPersonGear } from "react-icons/bs";
@@ -33,9 +32,9 @@ const getLinks = (role) => {
     // Usuario guardia de seguridad
     case 'guard':
       return [  
-        { name: 'Pedestrian Access', to: 'dashboard/logofentries', icon: PiPersonSimpleWalk },
-        { name: 'Vehicular Access', to: 'dashboard/permissiondetails', icon: PiCarLight },
-        { name: 'Anonymous Access', to: 'dashboard/generatekeys', icon: LiaUserSecretSolid },
+        { name: 'Pedestrian Access', to: 'dashboard/pedestrianaccess', icon: PiPersonSimpleWalk },
+        { name: 'Vehicular Access', to: 'dashboard/vehicularaccess', icon: PiCarLight },
+        { name: 'Anonymous Access', to: 'dashboard/anonymousaccess', icon: LiaUserSecretSolid },
       ];
     // Usuario común
     case 'user':

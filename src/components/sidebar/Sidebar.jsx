@@ -8,7 +8,7 @@ const Sidebar = ({ isOpen }) => {
   return (
     isOpen && (
       <aside className="aside">
-        <div className="text-xl mb-10 p-8 font-semibold uppercase">
+        <div className="text-xl mb-10 p-8 font-semibold uppercase ">
           <h1>HLVS</h1>
         </div>
         <div className="aside__links font-semibold">
