@@ -1,2 +1,2 @@
 
-export const userRole = 'supervisor';
+export const userRole = 'guest'; 

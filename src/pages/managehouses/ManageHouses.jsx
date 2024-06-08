@@ -1,210 +1,230 @@
-import React from "react";
+import React, { useState } from "react";
 import Title from "../../components/title/Title";
 import ActionButton from "../../components/actionbutton/ActionButton";
-import { Button, Dialog, DialogPanel, TextInput, Divider } from "@tremor/react";
-import { RiSearch2Line } from "@remixicon/react";
+import {
+  Tabs,
+  Tab,
+  Input,
+  Link,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Divider,
+} from "@nextui-org/react";
 
 const ManageHouses = () => {
-  const [isOpenAdd, setIsOpenAdd] = React.useState(false);
-  const [isOpenEdit, setIsOpenEdit] = React.useState(false);
+  const [selected, setSelected] = useState("login");
+  const [houseNumber, setHouseNumber] = useState("");
+  const [address, setAddress] = useState("");
+  const [numberOfResidents, setNumberOfResidents] = useState("");
+  const [residentInCharge, setResidentInCharge] = useState("");
+
+  const handleAddHouse = async (event) => {
+    event.preventDefault();
+    const response = await fetch("http://your-backend-url.com/add-house", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        houseNumber,
+        address,
+        numberOfResidents,
+        residentInCharge,
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+  };
+
+  const handleEditHouse = async (event) => {
+    event.preventDefault();
+    const response = await fetch("http://your-backend-url.com/edit-house", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        houseNumber,
+        address,
+        numberOfResidents,
+        residentInCharge,
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+  };
+
+  const handleGetHouse = async () => {
+    const response = await fetch("http://your-backend-url.com/get-house", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    console.log(data);
+  };
+
   return (
-    <div className="container-tab">
-      <Title title="Manage Houses" description="" />
+    <div className="container-tab pb-20">
+      <Title
+        title="Manage Houses"
+        description="Manage your house list: add new entries, update existing ones, or remove as needed."
+      />
 
-      <div className="grid grid-cols-1 gap-4">
-        <ActionButton
-          title="Add new house"
-          color="bg-indigo-200"
-          hover="hover:bg-indigo-300"
-          onClick={() => setIsOpenAdd(true)}
-        />
-        <ActionButton
-          title="Edit house"
-          color="bg-indigo-400"
-          hover="hover:bg-indigo-500"
-          onClick={() => setIsOpenEdit(true)}
-        />
-      </div>
+      <Card className="m-auto max-w-3xl shadow-small">
+        <CardBody className="overflow-hidden">
+          <Tabs
+            fullWidth
+            size="lg"
+            aria-label="Tabs form"
+            selectedKey={selected}
+            onSelectionChange={setSelected}
+          >
+            <Tab key="add-house" title="Add house">
+              <form className="flex flex-col gap-4" onSubmit={handleAddHouse}>
+                <Input
+                  label="House number (ID)"
+                  type="text"
+                  value={houseNumber}
+                  onChange={(e) => setHouseNumber(e.target.value)}
+                />
+                <Input
+                  label="Address"
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                />
+                <Input
+                  label="Number of residents"
+                  type="text"
+                  value={numberOfResidents}
+                  onChange={(e) => setNumberOfResidents(e.target.value)}
+                />
+                <Input
+                  label="Resident in charge"
+                  type="text"
+                  value={residentInCharge}
+                  onChange={(e) => setResidentInCharge(e.target.value)}
+                />
+                <p className="text-center text-small text-gray-400">
+                  Remember not to share personal information about yourself or
+                  anyone else
+                </p>
+                <div className="flex mt-5 gap-2 justify-center">
+                  <Button
+                    fullWidth
+                    className="bg-indigo-500 text-white"
+                    variant="flat"
+                    type="submit"
+                  >
+                    Save changes
+                  </Button>
+                </div>
+              </form>
+            </Tab>
+            <Tab key="edit-house" title="Edit house">
+              <form className="flex flex-col gap-4" onSubmit={handleEditHouse}>
+                <div className="flex items-center gap-3">
+                  <Input
+                    label="House number (ID)"
+                    type="text"
+                    value={houseNumber}
+                    onChange={(e) => setHouseNumber(e.target.value)}
+                  />
+                  <Button
+                    className="py-7 px-8 bg-indigo-200 text-indigo-600"
+                    variant="flat"
+                    type="submit"
+                  >
+                    Search
+                  </Button>
+                </div>
+                <Input
+                  label="Address"
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                />
+                <Input
+                  label="Numbers of residents"
+                  type="text"
+                  value={numberOfResidents}
+                  onChange={(e) => setNumberOfResidents(e.target.value)}
+                />
+                <Input
+                  label="Resident in charge (email)"
+                  type="text"
+                  value={residentInCharge}
+                  onChange={(e) => setResidentInCharge(e.target.value)}
+                />
+                <Divider className="my-4" />
+                <h2 className="text-gray-600 font-semibold">
+                  Resident Details
+                </h2>
+                <div className="flex items-center gap-3">
+                  <Input
+                    label="Resident"
+                    type="text"
+                    value={houseNumber}
+                    onChange={(e) => setHouseNumber(e.target.value)}
+                  />
+                  <Button
+                    className="py-7 px-10 bg-green-200 text-green-700"
+                    variant="flat"
+                    type="submit"
+                  >
+                    Add
+                  </Button>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Input
+                    label="Resident"
+                    type="text"
+                    value={houseNumber}
+                    onChange={(e) => setHouseNumber(e.target.value)}
+                  />
+                  <Button
+                    className="py-7 px-8 bg-red-200 text-red-700"
+                    variant="flat"
+                    type="submit"
+                  >
+                    Delete
+                  </Button>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Input
+                    label="Resident"
+                    type="text"
+                    value={houseNumber}
+                    onChange={(e) => setHouseNumber(e.target.value)}
+                  />
+                  <Button
+                    className="py-7 px-8 bg-red-200 text-red-700"
+                    variant="flat"
+                    type="submit"
+                  >
+                    Delete
+                  </Button>
+                </div>
 
-      {/* Modal add house */}
-      <Dialog
-        open={isOpenAdd}
-        onClose={(val) => setIsOpenAdd(val)}
-        static={true}
-      >
-        <DialogPanel>
-          <h3 className="text-lg font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong mb-5">
-            Add House
-          </h3>
-          <form>
-            <div className="col-span-full sm:col-span-3 mb-5">
-              <label
-                htmlFor="first-name"
-                className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
-              >
-                House Number (ID)
-              </label>
-              <TextInput
-                type="number"
-                placeholder="Type..."
-                className="mt-2"
-                required
-              />
-            </div>
-            <div className="col-span-full sm:col-span-3 mb-5">
-              <label
-                htmlFor="first-name"
-                className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
-              >
-                Address
-              </label>
-              <TextInput
-                type="text"
-                placeholder="Type..."
-                className="mt-2"
-                required
-              />
-            </div>
-            <div className="col-span-full sm:col-span-3 mb-5">
-              <label
-                htmlFor="first-name"
-                className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
-              >
-                Number of Residents
-              </label>
-              <TextInput
-                type="number"
-                placeholder="Type..."
-                className="mt-2"
-                required
-              />
-            </div>
-            <div className="col-span-full sm:col-span-3 mb-5">
-              <label
-                htmlFor="first-name"
-                className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
-              >
-                Resident in charge (email)
-              </label>
-              <TextInput
-                type="number"
-                placeholder="Type..."
-                className="mt-2"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Button className="mt-2 ">Save</Button>
-              <Button
-                className="mt-2  bg-gray-400 border-gray-400 hover:bg-gray-500 hover:border-gray-500"
-                onClick={() => setIsOpenAdd(false)}
-              >
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </DialogPanel>
-      </Dialog>
-
-      {/* Modal edit house */}
-      <Dialog
-        open={isOpenEdit}
-        onClose={(val) => setIsOpenEdit(val)}
-        static={true}
-      >
-        <DialogPanel className="2xl:max-w-2xl overflow-y-auto max-h-[600px] px-8 py-12">
-          <h3 className="text-lg font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong mb-5">
-            Edit House
-          </h3>
-          <form>
-            <div className="col-span-full sm:col-span-3 mb-5">
-              <label
-                htmlFor="first-name"
-                className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
-              >
-                House Number (ID)
-              </label>
-              <div className="flex justify-center items-center mt-2 gap-2">
-                <TextInput type="number" placeholder="Type..." required />
-                <Button variant="secondary" icon={RiSearch2Line}>
-                  Search
-                </Button>
-              </div>
-            </div>
-            <div className="col-span-full sm:col-span-3 mb-5">
-              <label
-                htmlFor="first-name"
-                className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
-              >
-                Address
-              </label>
-              <TextInput
-                type="text"
-                placeholder="Type..."
-                className="mt-2"
-                required
-              />
-            </div>
-            <div className="col-span-full sm:col-span-3 mb-5">
-              <label
-                htmlFor="first-name"
-                className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
-              >
-                Number of Residents
-              </label>
-              <TextInput
-                type="number"
-                placeholder="Type..."
-                className="mt-2"
-                required
-              />
-            </div>
-            <div className="col-span-full sm:col-span-3 mb-5">
-              <label
-                htmlFor="first-name"
-                className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
-              >
-                Resident in charge (email)
-              </label>
-              <TextInput
-                type="number"
-                placeholder="Type..."
-                className="mt-2"
-                required
-              />
-            </div>
-            <Divider />
-            <h3 className="text-lg font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong mb-5">
-              Resident Details
-            </h3>
-            <div className="col-span-full sm:col-span-3 mb-5">
-              <label
-                htmlFor="first-name"
-                className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
-              >
-                Resident (email)
-              </label>
-              <div className="flex justify-center items-center mt-2 gap-2">
-                <TextInput type="number" placeholder="Type..." required />
-                <Button className="w-24" variant="secondary">Add</Button>
-              </div>
-              <div className="flex justify-center items-center mt-2 gap-2">
-                <TextInput type="number" placeholder="Type..." required />
-                <Button className="w-24 text-red-400 border-red-400 hover:bg-red-50 hover:text-red-500" variant="secondary">Delete</Button>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Button className="mt-2 ">Save</Button>
-              <Button
-                className="mt-2  bg-gray-400 border-gray-400 hover:bg-gray-500 hover:border-gray-500"
-                onClick={() => setIsOpenEdit(false)}
-              >
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </DialogPanel>
-      </Dialog>
+                <div className="flex gap-2 justify-end">
+                  <Button
+                    fullWidth
+                    className="bg-indigo-500 text-white"
+                    variant="flat"
+                    type="submit"
+                  >
+                    Save changes
+                  </Button>
+                </div>
+              </form>
+            </Tab>
+          </Tabs>
+        </CardBody>
+      </Card>
     </div>
   );
 };

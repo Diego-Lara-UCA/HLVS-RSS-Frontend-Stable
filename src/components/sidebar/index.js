@@ -4,7 +4,7 @@ import { PiLockSimpleOpen, PiPersonSimpleWalk, PiCarLight } from "react-icons/pi
 import { BsPersonGear } from "react-icons/bs";
 import { VscKey, VscShield, VscHistory, VscDashboard  } from "react-icons/vsc";
 import { LiaUserSecretSolid } from "react-icons/lia";
-import { IoCreateOutline } from "react-icons/io5";
+import { IoCreateOutline, IoLockOpenOutline  } from "react-icons/io5";
 import { MdManageSearch } from "react-icons/md";
 import { AiOutlineQrcode } from "react-icons/ai";
 
@@ -44,12 +44,12 @@ const getLinks = (role) => {
         { name: 'Generate Keys', to: 'dashboard/generatekeys', icon: AiOutlineQrcode},
       ];
   
-    // Usuario invitado 
+    // Usuario invitado (falta)
     case 'guest':
       return [  
-        { name: 'Pedestrian Access', to: 'dashboard/logofentries', icon: PiPersonSimpleWalk },
-        { name: 'Vehicular Access', to: 'dashboard/permissiondetails', icon: PiCarLight },
-        { name: 'Anonymous Access', to: 'dashboard/generatekeys', icon: LiaUserSecretSolid },
+        { name: 'Logs of Entries', to: 'dashboard/logofentries', icon: HiOutlineBookOpen },
+        { name: 'Request Permissions', to: 'dashboard/requestpermissions', icon: IoLockOpenOutline },
+        { name: 'Generate Keys', to: 'dashboard/generatekeys', icon: AiOutlineQrcode},
       ];
     default:
       return [];

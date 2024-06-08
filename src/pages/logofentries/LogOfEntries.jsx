@@ -1,156 +1,291 @@
 import React from "react";
 import Title from "../../components/title/Title";
-import { useMemo } from "react";
-import { headers, logofentries } from "./index";
-import { RiArrowLeftSLine, RiArrowRightSLine } from "@remixicon/react";
+
 import {
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import {
-  Card,
   Table,
+  TableHeader,
+  TableColumn,
   TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
   TableRow,
-} from "@tremor/react";
+  TableCell,
+  Input,
+  Button,
+  DropdownTrigger,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
+  Pagination,
+} from "@nextui-org/react";
+import { SearchIcon } from "../../components/searchicon/SearchIcon";
+import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
+import { capitalize } from "../../components/capitalize/utils";
+import { columns, users } from "../logofentries/data";
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
-
-const Button = ({ onClick, disabled, children }) => {
-  return (
-    <button
-      type="button"
-      className="group px-2.5 py-2 text-tremor-default disabled:cursor-not-allowed disabled:opacity-50"
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {children}
-    </button>
-  );
-};
+const INITIAL_VISIBLE_COLUMNS = ["hour", "date", "house", "entryPlace"];
 
 const LogOfEntries = () => {
-  const pageSize = 8;
-
-  // Renderizar encabezados de la tabla
-  const tableColumns = useMemo(() => headers, []);
-
-  // Renderizar datos de la tabla
-  const tableData = useMemo(() => [...logofentries], []);
-
-  const table = useReactTable({
-    data: tableData,
-    columns: tableColumns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      sorting: [
-        {
-          id: "Last e",
-          desc: false,
-        },
-      ],
-      pagination: {
-        pageIndex: 0,
-        pageSize: pageSize,
-      },
-    },
+  const [filterValue, setFilterValue] = React.useState("");
+  const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
+  const [visibleColumns, setVisibleColumns] = React.useState(
+    new Set(INITIAL_VISIBLE_COLUMNS)
+  );
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [sortDescriptor, setSortDescriptor] = React.useState({
+    column: "date",
+    direction: "ascending",
   });
+  const [page, setPage] = React.useState(1);
 
-  return (
-    <div className="flex-1 px-5 py-8 h-[100vh] 2xl:px-12 2xl:py-12 relative">
-      <Title
-        title="Log of Entries"
-        description="Stay on top of your information"
-      />
-      <Card className="mb-20">
-        <Table>
-          <TableHead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow
-                key={headerGroup.id}
-                className="border-b border-tremor-border dark:border-dark-tremor-border"
+  const hasSearchFilter = Boolean(filterValue);
+
+  const headerColumns = React.useMemo(() => {
+    if (visibleColumns === "all") return columns;
+
+    return columns.filter((column) =>
+      Array.from(visibleColumns).includes(column.uid)
+    );
+  }, [visibleColumns]);
+
+  const filteredItems = React.useMemo(() => {
+    let filteredUsers = [...users];
+
+    if (hasSearchFilter) {
+      filteredUsers = filteredUsers.filter(
+        (user) =>
+          user.entryPlace &&
+          user.entryPlace.toLowerCase().includes(filterValue.toLowerCase())
+      );
+    }
+
+    return filteredUsers;
+  }, [users, filterValue]);
+
+  const pages = Math.ceil(filteredItems.length / rowsPerPage);
+
+  const items = React.useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return filteredItems.slice(start, end);
+  }, [page, filteredItems, rowsPerPage]);
+
+  const sortedItems = React.useMemo(() => {
+    return [...items].sort((a, b) => {
+      const first = a[sortDescriptor.column];
+      const second = b[sortDescriptor.column];
+      const cmp = first < second ? -1 : first > second ? 1 : 0;
+
+      return sortDescriptor.direction === "descending" ? -cmp : cmp;
+    });
+  }, [sortDescriptor, items]);
+
+  const renderCell = React.useCallback((user, columnKey) => {
+    const cellValue = user[columnKey];
+
+    switch (columnKey) {
+      case "date":
+        return (
+          <div className="flex flex-col">
+            <p className="text-bold text-small capitalize">{cellValue}</p>
+          </div>
+        );
+      case "house":
+        return (
+          <div className="flex flex-col">
+            <p className="text-bold text-small capitalize">{cellValue}</p>
+          </div>
+        );
+      case "entry place":
+        return (
+          <div className="flex flex-col">
+            <p className="text-bold text-small capitalize">{cellValue}</p>
+          </div>
+        );
+      default:
+        return cellValue;
+    }
+  }, []);
+
+  const onNextPage = React.useCallback(() => {
+    if (page < pages) {
+      setPage(page + 1);
+    }
+  }, [page, pages]);
+
+  const onPreviousPage = React.useCallback(() => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  }, [page]);
+
+  const onRowsPerPageChange = React.useCallback((e) => {
+    setRowsPerPage(Number(e.target.value));
+    setPage(1);
+  }, []);
+
+  const onSearchChange = React.useCallback((value) => {
+    if (value) {
+      setFilterValue(value);
+      setPage(1);
+    } else {
+      setFilterValue("");
+    }
+  }, []);
+
+  const onClear = React.useCallback(() => {
+    setFilterValue("");
+    setPage(1);
+  }, []);
+
+  const topContent = React.useMemo(() => {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between gap-3 items-end">
+          <Input
+            isClearable
+            className="w-full sm:max-w-[44%]"
+            placeholder="Search..."
+            startContent={<SearchIcon />}
+            value={filterValue}
+            onClear={() => onClear()}
+            onValueChange={onSearchChange}
+          />
+          <div className="flex gap-3">
+            <Dropdown>
+              <DropdownTrigger className="hidden sm:flex">
+                <Button
+                  endContent={<ChevronDownIcon className="text-small" />}
+                  variant="flat"
+                >
+                  Columns
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label="Table Columns"
+                closeOnSelect={false}
+                selectedKeys={visibleColumns}
+                selectionMode="multiple"
+                onSelectionChange={setVisibleColumns}
               >
-                {headerGroup.headers.map((header) => (
-                  <TableHeaderCell
-                    key={header.id}
-                    scope="col"
-                    className={classNames(header.column.columnDef.meta.align)}
-                  >
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                  </TableHeaderCell>
+                {columns.map((column) => (
+                  <DropdownItem key={column.uid} className="capitalize">
+                    {capitalize(column.name)}
+                  </DropdownItem>
                 ))}
-              </TableRow>
-            ))}
-          </TableHead>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                className="hover:bg-gray-50 cursor-pointer"
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className={classNames(cell.column.columnDef.meta.align)}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <div className="pl-3 mt-10 flex items-center justify-between">
-          <p className="text-tremor-default tabular-nums text-tremor-content dark:text-dark-tremor-content">
-            Page{" "}
-            <span className="font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">{`${
-              table.getState().pagination.pageIndex + 1
-            }`}</span>{" "}
-            of
-            <span className="font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
-              {" "}
-              {`${table.getPageCount()}`}
-            </span>
-          </p>
-          <div className="inline-flex items-center rounded-tremor-full shadow-tremor-input ring-1 ring-inset ring-tremor-ring dark:shadow-dark-tremor-input dark:ring-dark-tremor-ring">
-            <Button
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <span className="sr-only">Previous</span>
-              <RiArrowLeftSLine
-                className="h-5 w-5 text-tremor-content-emphasis group-hover:text-tremor-content-strong dark:text-dark-tremor-content-emphasis group-hover:dark:text-dark-tremor-content-strong"
-                aria-hidden={true}
-              />
-            </Button>
-            <span
-              className="h-5 border-r border-tremor-border dark:border-dark-tremor-border"
-              aria-hidden={true}
-            />
-            <Button
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              <span className="sr-only">Next</span>
-              <RiArrowRightSLine
-                className="h-5 w-5 text-tremor-content-emphasis group-hover:text-tremor-content-strong dark:text-dark-tremor-content-emphasis group-hover:dark:text-dark-tremor-content-strong"
-                aria-hidden={true}
-              />
-            </Button>
+              </DropdownMenu>
+            </Dropdown>
           </div>
         </div>
-      </Card>
+        <div className="flex justify-between items-center">
+          <span className="text-default-400 text-small">
+            Total {users.length} logs
+          </span>
+          <label className="flex items-center text-default-400 text-small">
+            Rows per page:
+            <select
+              className="bg-transparent outline-none text-default-400 text-small"
+              onChange={onRowsPerPageChange}
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    );
+  }, [
+    filterValue,
+    visibleColumns,
+    onRowsPerPageChange,
+    users.length,
+    onSearchChange,
+    hasSearchFilter,
+  ]);
+
+  const bottomContent = React.useMemo(() => {
+    return (
+      <div className="py-2 px-2 flex justify-between items-center">
+        <span className="w-[30%] text-small text-default-400">
+          {selectedKeys === "all"
+            ? "All items selected"
+            : `${selectedKeys.size} of ${filteredItems.length} selected`}
+        </span>
+        <Pagination
+          isCompact
+          showControls
+          showShadow
+          color="primary"
+          page={page}
+          total={pages}
+          onChange={setPage}
+        />
+        <div className="hidden sm:flex w-[30%] justify-end gap-2">
+          <Button
+            className="bg-indigo-500 text-white"
+            isDisabled={pages === 1}
+            size="sm"
+            variant="flat"
+            onPress={onPreviousPage}
+          >
+            Previous
+          </Button>
+          <Button
+            className="bg-indigo-500 text-white"
+            isDisabled={pages === 1}
+            size="sm"
+            variant="flat"
+            onPress={onNextPage}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+    );
+  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+  return (
+    <div className="flex-1 px-5 py-8  2xl:px-12 2xl:py-12 relative">
+      <Title
+        title="Logs of Entries"
+        description="Stay on top of your information"
+      />
+      <Table
+        isHeaderSticky
+        bottomContent={bottomContent}
+        bottomContentPlacement="outside"
+        classNames={{
+          wrapper: "max-h-[382px]",
+        }}
+        selectedKeys={selectedKeys}
+        selectionMode="multiple"
+        sortDescriptor={sortDescriptor}
+        topContent={topContent}
+        topContentPlacement="outside"
+        onSelectionChange={setSelectedKeys}
+        onSortChange={setSortDescriptor}
+      >
+        <TableHeader columns={headerColumns}>
+          {(column) => (
+            <TableColumn
+              key={column.uid}
+              align={column.uid === "actions" ? "center" : "start"}
+              allowsSorting={column.sortable}
+            >
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody emptyContent={"No logs found"} items={sortedItems}>
+          {(item) => (
+            <TableRow key={item.id}>
+              {(columnKey) => (
+                <TableCell>{renderCell(item, columnKey)}</TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 };

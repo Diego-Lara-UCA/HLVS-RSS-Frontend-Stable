@@ -1,47 +1,79 @@
 import React from "react";
 import Title from "../../components/title/Title";
-import { Card, TextInput, Button } from "@tremor/react";
-
-import { RiSearch2Line } from "@remixicon/react";
+import { Input, Button } from "@nextui-org/react";
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  User,
+  Chip,
+  Tooltip,
+  getKeyValue,
+} from "@nextui-org/react";
+import { DeleteIcon } from "../../components/deleteicon/DeleteIcon";
+import { columns, users } from "./data";
 
 const ManageGuards = () => {
+  const renderCell = React.useCallback((user, columnKey) => {
+    const cellValue = user[columnKey];
+
+    switch (columnKey) {
+      case "actions":
+        return (
+          <div className="relative flex items-center gap-2">
+            <Tooltip color="danger" content="Delete guard">
+              <span className="text-lg text-danger cursor-pointer active:opacity-50">
+                <DeleteIcon />
+              </span>
+            </Tooltip>
+          </div>
+        );
+      default:
+        return cellValue;
+    }
+  }, []);
   return (
     <div className="container-tab">
-      <Title title="Manage Guards" />
-      <div className="mb-5">
-        <div className=" flex gap-5 flex-col mb-4 md:flex-row 2xl:flex-row">
-          <TextInput className="max-w-md" />
-          <Button className="px-10" variant="secondary">
-            Add
-          </Button>
-        </div>
-      </div>
-      <Card className="flex flex-col gap-2 ">
-        <div className="flex justify-end w-full">
+      <Title
+        title="Manage Guards"
+        description="Security is important, trust is important"
+      />
+      <form action="">
+        <div className="flex items-center max-w-6xl gap-3">
+          <Input label="Email" type="text" />
           <Button
-            className="w-24 text-red-400 border-red-400 hover:bg-red-50 hover:text-red-500"
-            variant="secondary"
+            className="py-7 px-8 bg-indigo-200 text-indigo-600"
+            variant="flat"
+            type="button"
           >
-            Delete
+            Add guard
           </Button>
         </div>
-        <div className="flex justify-end w-full">
-          <Button
-            className="w-24 text-red-400 border-red-400 hover:bg-red-50 hover:text-red-500"
-            variant="secondary"
-          >
-            Delete
-          </Button>
-        </div>
-        <div className="flex justify-end w-full">
-          <Button
-            className="w-24 text-red-400 border-red-400 hover:bg-red-50 hover:text-red-500"
-            variant="secondary"
-          >
-            Delete
-          </Button>
-        </div>
-      </Card>
+        <Table className="mt-5"  selectionMode="multiple"  aria-label="Example table with custom cells ">
+          <TableHeader columns={columns}>
+            {(column) => (
+              <TableColumn
+                key={column.uid}
+                align={column.uid === "actions" ? "center" : "start"}
+              >
+                {column.name}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody items={users}>
+            {(item) => (
+              <TableRow key={item.id}>
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </form>
     </div>
   );
 };

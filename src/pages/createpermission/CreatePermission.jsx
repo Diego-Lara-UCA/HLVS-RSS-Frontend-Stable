@@ -1,6 +1,5 @@
 import React from "react";
 import Title from "../../components/title/Title";
-import { TextInput, Button } from "@tremor/react";
 import DateHourInputs from "../../components/DateHourInputs/DateHourInputs";
 
 const CreatePermission = () => {
@@ -10,24 +9,15 @@ const CreatePermission = () => {
         title="Create Permission"
         description="Be careful who you let into your home"
       />
-      <form>
-        <label
-          htmlFor="first-name"
-          className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong"
-        >
-          Email visitant
-        </label>
-        <TextInput
-          autoComplete="email"
-          type="email"
-          placeholder="Type..."
-          className="mt-2 py-1"
-          required
-        />
-
+      <div>
         <DateHourInputs />
-        <Button className="mt-16">Create permission</Button>
-      </form>
+        <button
+          type="button"
+          class="mt-10 text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+        >
+          Create permission
+        </button>
+      </div>
     </div>
   );
 };

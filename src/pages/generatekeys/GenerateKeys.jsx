@@ -1,64 +1,47 @@
 import React from "react";
 import Title from "../../components/title/Title";
-import QrScanner from "qr-scanner";
+import QRCode from "qrcode.react";
 import { useRef, useEffect, useState } from "react";
-import { Button } from "@tremor/react";
-
 
 const GenerateKeys = () => {
+  const [qrCode, setQrCode] = useState("");
+  const [showButton, setShowButton] = useState(true);
+  const [timeLeft, setTimeLeft] = useState(600);
 
-  const scanner = useRef();
-    const videoEl = useRef(null);
-    const qrBoxEl = useRef(null);
-    const [qrOn, setQrOn] = useState(true);
+  const generateRandomString = () => {
+    return (
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15)
+    );
+  };
 
-    const onScanSuccess = (result) => {
-        // 🖨 Print the "result" to browser console.
-        alert(result?.data);
-    };
+  const handleClick = () => {
+    const randomString = generateRandomString();
+    setQrCode(randomString);
+    setShowButton(false);
+    setTimeLeft(600);
+  };
 
-    useEffect(() => {
-        if (!qrOn) console.log("QR Scanner is off");
-    }, [qrOn]);
+  useEffect(() => {
+    let timer;
+    if (!showButton && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft((prevTime) => prevTime - 1);
+      }, 1000);
+    } else if (timeLeft === 0) {
+      setShowButton(true);
+      setQrCode("");
+      setTimeLeft(600);
+    }
 
-    // Fail
-    const onScanFail = (err) => {
-        // 🖨 Print the "err" to browser console.
-        console.log(err);
-    };
+    return () => clearInterval(timer);
+  }, [showButton, timeLeft]);
 
-    useEffect(() => {
-        if (videoEl?.current && !scanner.current) {
-            // 👉 Instantiate the QR Scanner
-            scanner.current = new QrScanner(videoEl?.current, onScanSuccess, {
-                onDecodeError: onScanFail,
-                // 📷 This is the camera facing mode. In mobile devices, "environment" means back camera and "user" means front camera.
-                preferredCamera: "environment",
-                // 🖼 This will help us position our "QrFrame.svg" so that user can only scan when qr code is put in between our QrFrame.svg.
-                highlightScanRegion: true,
-                // 🔥 This will produce a yellow (default color) outline around the qr code that we scan, showing a proof that our qr-scanner is scanning that qr code.
-                highlightCodeOutline: true,
-                // 📦 A custom div which will pair with "highlightScanRegion" option above 👆. This gives us full control over our scan region.
-                overlay: qrBoxEl?.current || undefined,
-            });
-
-            // 🚀 Start QR Scanner
-            scanner?.current
-                ?.start()
-                .then(() => setQrOn(true))
-                .catch((err) => {
-                    if (err) setQrOn(false);
-                });
-        }
-
-        // 🧹 Clean up on unmount.
-        // 🚨 This removes the QR Scanner from rendering and using camera when it is closed or removed from the UI.
-        return () => {
-            if (!videoEl?.current) {
-                scanner?.current?.stop();
-            }
-        };
-    }, []);
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+  };
 
   return (
     <div className="container-tab">
@@ -66,20 +49,24 @@ const GenerateKeys = () => {
         title="Generate Key"
         description="For your safety, do not share this key with anyone"
       />
-      <div
-        style={{
-          padding: "20px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <div className="qr-reader relative max-w-xl">
-          {/* QR */}
-          <video ref={videoEl}></video>
-          <div ref={qrBoxEl} className="qr-box"></div>
-        </div>
-        
+
+      <div className="flex justify-center items-center flex-col gap-4 mt-10">
+        {showButton ? (
+          <button
+            className="font-semibold rounded-lg px-10 py-5 bg-gray-300 hover:bg-gray-400"
+            onClick={handleClick}
+          >
+            Generar código QR
+          </button>
+        ) : (
+          <>
+            <QRCode size={250} value={qrCode} />
+            <label className="mt-5 text-gray-600">
+              El código QR expirará en:{" "}
+              <span className="text-red-500">{formatTime(timeLeft)}</span>
+            </label>
+          </>
+        )}
       </div>
     </div>
   );

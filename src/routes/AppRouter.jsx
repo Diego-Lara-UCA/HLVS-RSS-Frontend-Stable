@@ -16,6 +16,7 @@ import PedestrianAccess from "../pages/pedestrianaccess/PedestrianAccess";
 import VehicularAccess from "../pages/vehicularaccess/VehicularAccess";
 import AnonymousAccess from "../pages/anonymousaccess/AnonymousAccess";
 import CreatePermission from "../pages/createpermission/CreatePermission";
+import RequestPermissions from "../pages/requestpermissions/RequestPermissions";
 
 const AppRouter = () => {
   const getInitialRoute = (userRole) => {
@@ -52,6 +53,7 @@ const AppRouter = () => {
           <Route path="vehicularaccess" element={<VehicularAccess />} />
           <Route path="anonymousaccess" element={<AnonymousAccess />} />
           <Route path="createpermission" element={<CreatePermission />} />
+          <Route path="requestpermissions" element={<RequestPermissions />} />
           <Route path="dashboard/profile" element={<Profile />} />
         </Route>
       </Routes>
