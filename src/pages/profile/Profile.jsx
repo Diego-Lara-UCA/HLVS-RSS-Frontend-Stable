@@ -10,7 +10,7 @@ const Profile = () => {
         description="Set up your environment, don't share your personal information"
       />
       <form className="mt-8">
-        <div className="grid grid-cols-2 gap-4 max-w-2xl">
+        <div className="grid grid-cols-2 gap-4 max-w-3xl">
           <Input
             className="col-span-2"
             type="text"
@@ -33,13 +33,14 @@ const Profile = () => {
             onClear={() => console.log("input cleared")}
           />
         </div>
-        <Divider className="hidden 2xl:block my-10" />
-        <Button
-          className="mt-10 2xl:mt-0 float-end 2xl:float-start text-white bg-indigo-500"
-          variant="flat"
-        >
-          Save changes
-        </Button>
+      <div className="mt-8">
+          <Button
+            color="secondary"
+            variant="shadow"
+          >
+            Save changes
+          </Button>
+      </div>
       </form>
     </div>
   );

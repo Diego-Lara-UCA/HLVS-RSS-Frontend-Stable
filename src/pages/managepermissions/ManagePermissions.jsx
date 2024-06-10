@@ -1,6 +1,5 @@
 import React from "react";
 import Title from "../../components/title/Title";
-import { Input, Button } from "@nextui-org/react";
 import {
   Table,
   TableHeader,
@@ -8,23 +7,56 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Tooltip,
-  Divider,
-  Pagination,
+  Input,
+  Button,
   DropdownTrigger,
   Dropdown,
   DropdownMenu,
   DropdownItem,
+  Chip,
+  Tooltip,
+  Pagination,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
 } from "@nextui-org/react";
-import { DeleteIcon } from "../../components/deleteicon/DeleteIcon";
-import { columns, users } from "./data";
 import { SearchIcon } from "../../components/searchicon/SearchIcon";
 import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
+import { columns, users, statusOptions, approvedOptions } from "./data";
 import { capitalize } from "../../components/capitalize/utils";
+import { DeleteIcon } from "../../components/deleteicon/DeleteIcon";
+import { EyeIcon } from "../../components/eyeicon/EyeIcon";
+import FormDetailsPermissions from "../../components/formdetailspermissions/FormDetailsPermissions";
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "email", "actions"];
+const statusColorMap = {
+  active: "success",
+  expired: "warning",
+  removed: "danger",
+};
 
-const ManageGuards = () => {
+const approvedColorMap = {
+  yes: "primary",
+  no: "default",
+};
+
+const INITIAL_VISIBLE_COLUMNS = [
+  "user",
+  "startDate",
+  "endDate",
+  "startTime",
+  "endTime",
+  "dayOfWeek",
+  "approved",
+  "status",
+  "actions",
+];
+
+const ManagePermissions = () => {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [scrollBehavior, setScrollBehavior] = React.useState("inside");
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState(
@@ -33,10 +65,11 @@ const ManageGuards = () => {
   const [statusFilter, setStatusFilter] = React.useState("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [sortDescriptor, setSortDescriptor] = React.useState({
-    column: "name",
+    column: "age",
     direction: "ascending",
   });
   const [page, setPage] = React.useState(1);
+
   const hasSearchFilter = Boolean(filterValue);
 
   const headerColumns = React.useMemo(() => {
@@ -51,10 +84,16 @@ const ManageGuards = () => {
     let filteredUsers = [...users];
 
     if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter(
-        (user) =>
-          user.name.toLowerCase().includes(filterValue.toLowerCase()) ||
-          user.email.toLowerCase().includes(filterValue.toLowerCase())
+      filteredUsers = filteredUsers.filter((user) =>
+        user.user.toLowerCase().includes(filterValue.toLowerCase())
+      );
+    }
+    if (
+      statusFilter !== "all" &&
+      Array.from(statusFilter).length !== statusOptions.length
+    ) {
+      filteredUsers = filteredUsers.filter((user) =>
+        Array.from(statusFilter).includes(user.status)
       );
     }
 
@@ -62,6 +101,7 @@ const ManageGuards = () => {
   }, [users, filterValue, statusFilter]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
+
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
@@ -83,13 +123,49 @@ const ManageGuards = () => {
     const cellValue = user[columnKey];
 
     switch (columnKey) {
+      case "approved":
+        return (
+          <Chip
+            className="capitalize"
+            color={approvedColorMap[user.approved]}
+            size="sm"
+            variant="flat"
+          >
+            {cellValue}
+          </Chip>
+        );
+      case "status":
+        return (
+          <Chip
+            className="capitalize"
+            color={statusColorMap[user.status]}
+            size="sm"
+            variant="flat"
+          >
+            {cellValue}
+          </Chip>
+        );
       case "actions":
         return (
           <div className="relative flex items-center gap-2">
-            <Tooltip color="danger" content="Delete guard">
-              <span className="text-lg text-danger cursor-pointer active:opacity-50">
+            <Tooltip content="Details">
+              <Button
+                onPress={onOpen}
+                className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                isIconOnly
+                variant="light"
+              >
+                <EyeIcon />
+              </Button>
+            </Tooltip>
+            <Tooltip color="danger" content="Delete user">
+              <Button
+                className="text-lg text-danger hover:bg-danger-50 cursor-pointer active:opacity-50"
+                isIconOnly
+                variant="light"
+              >
                 <DeleteIcon />
-              </span>
+              </Button>
             </Tooltip>
           </div>
         );
@@ -136,13 +212,37 @@ const ManageGuards = () => {
           <Input
             isClearable
             className="w-full sm:max-w-[44%]"
-            placeholder="Search by name or email..."
+            placeholder="Search by name..."
             startContent={<SearchIcon />}
             value={filterValue}
             onClear={() => onClear()}
             onValueChange={onSearchChange}
           />
           <div className="flex gap-3">
+            <Dropdown>
+              <DropdownTrigger className="hidden sm:flex">
+                <Button
+                  endContent={<ChevronDownIcon className="text-small" />}
+                  variant="flat"
+                >
+                  Status
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label="Table Columns"
+                closeOnSelect={false}
+                selectedKeys={statusFilter}
+                selectionMode="multiple"
+                onSelectionChange={setStatusFilter}
+              >
+                {statusOptions.map((status) => (
+                  <DropdownItem key={status.uid} className="capitalize">
+                    {capitalize(status.name)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
             <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
                 <Button
@@ -171,7 +271,7 @@ const ManageGuards = () => {
         </div>
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">
-            Total {users.length} members
+            Total {users.length} users
           </span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
@@ -216,7 +316,7 @@ const ManageGuards = () => {
         />
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
           <Button
-            className="bg-indigo-500 text-white"
+            className="bg-indigo-300"
             isDisabled={pages === 1}
             size="sm"
             variant="flat"
@@ -225,7 +325,7 @@ const ManageGuards = () => {
             Previous
           </Button>
           <Button
-            className="bg-indigo-500 text-white"
+            className="bg-indigo-300"
             isDisabled={pages === 1}
             size="sm"
             variant="flat"
@@ -240,62 +340,73 @@ const ManageGuards = () => {
   return (
     <div className="container-tab">
       <Title
-        title="Manage Guards"
-        description="Security is important, trust is important"
+        title="Manage Permissions"
+        description="Manage requested and granted permissions"
       />
-      <form action="">
-        <div className="flex items-center max-w-3xl gap-3">
-          <Input label="Email" type="text" />
-          <Button
-            className="py-7 px-8 bg-indigo-200 text-indigo-600"
-            variant="flat"
-            type="button"
-          >
-            Add guard
-          </Button>
-        </div>
-        <Divider className="my-10" />
-        <Table
-          isHeaderSticky
-          bottomContent={bottomContent}
-          bottomContentPlacement="outside"
-          classNames={{
-            wrapper: "max-h-[382px]",
-          }}
-          className="mt-5"
-          selectedKeys={selectedKeys}
-          selectionMode="multiple"
-          topContentPlacement="outside"
-          sortDescriptor={sortDescriptor}
-          topContent={topContent}
-          aria-label="Example table with custom cells "
-          onSelectionChange={setSelectedKeys}
-          onSortChange={setSortDescriptor}
-        >
-          <TableHeader columns={headerColumns}>
-            {(column) => (
-              <TableColumn
-                key={column.uid}
-                align={column.uid === "actions" ? "center" : "start"}
-                allowsSorting={column.sortable}
-              >
-                {column.name}
-              </TableColumn>
-            )}
-          </TableHeader>
-          <TableBody emptyContent={"No data found"} items={sortedItems}>
-            {(item) => (
-              <TableRow key={item.id}>
-                {(columnKey) => (
-                  <TableCell>{renderCell(item, columnKey)}</TableCell>
-                )}
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </form>
+
+      <Table
+        aria-label="Example table with custom cells, pagination and sorting"
+        isHeaderSticky
+        bottomContent={bottomContent}
+        bottomContentPlacement="outside"
+        classNames={{
+          wrapper: "max-h-[382px]",
+        }}
+        selectedKeys={selectedKeys}
+        selectionMode="multiple"
+        sortDescriptor={sortDescriptor}
+        topContent={topContent}
+        topContentPlacement="outside"
+        onSelectionChange={setSelectedKeys}
+        onSortChange={setSortDescriptor}
+      >
+        <TableHeader columns={headerColumns}>
+          {(column) => (
+            <TableColumn
+              key={column.uid}
+              align={column.uid === "actions" ? "center" : "start"}
+              allowsSorting={column.sortable}
+            >
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody emptyContent={"No users found"} items={sortedItems}>
+          {(item) => (
+            <TableRow key={item.id}>
+              {(columnKey) => (
+                <TableCell>{renderCell(item, columnKey)}</TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+
+      {/* Modal de Details */}
+      <Modal
+        className="py-8"
+        size="3xl"
+        scrollBehavior={scrollBehavior}
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        isDismissable={false}
+        isKeyboardDismissDisabled={true}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1 text-center">
+                Details Permissions
+              </ModalHeader>
+              <ModalBody>
+                <FormDetailsPermissions />
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 };
 
-export default ManageGuards;
+export default ManagePermissions;

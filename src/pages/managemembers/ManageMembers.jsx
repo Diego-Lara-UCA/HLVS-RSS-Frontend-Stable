@@ -1,6 +1,7 @@
 import React from "react";
 import Title from "../../components/title/Title";
 import { Input, Button } from "@nextui-org/react";
+
 import {
   Table,
   TableHeader,
@@ -24,7 +25,7 @@ import { capitalize } from "../../components/capitalize/utils";
 
 const INITIAL_VISIBLE_COLUMNS = ["name", "email", "actions"];
 
-const ManageGuards = () => {
+const ManageMembers = () => {
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState(
@@ -240,19 +241,27 @@ const ManageGuards = () => {
   return (
     <div className="container-tab">
       <Title
-        title="Manage Guards"
-        description="Security is important, trust is important"
+        title="Manage Members"
+        description="Stay aware of those who are next to you"
       />
-      <form action="">
-        <div className="flex items-center max-w-3xl gap-3">
-          <Input label="Email" type="text" />
-          <Button
-            className="py-7 px-8 bg-indigo-200 text-indigo-600"
-            variant="flat"
-            type="button"
-          >
-            Add guard
-          </Button>
+
+      <form>
+        <div className="max-w-3xl flex flex-col gap-4">
+          <Input label="House number (ID)" type="text" />
+          <Input label="Address" type="text" />
+          <Input label="Numbers of residents" type="text" />
+          <Input label="Resident in charge (email)" type="text" />
+          <h2 className="text-gray-600 font-semibold mt-5">Resident Details</h2>
+          <div className="flex items-center max-w-6xl gap-3">
+            <Input label="Email" type="text" />
+            <Button
+              className="py-7 px-8 bg-indigo-200 text-indigo-600"
+              variant="flat"
+              type="button"
+            >
+              Add member
+            </Button>
+          </div>
         </div>
         <Divider className="my-10" />
         <Table
@@ -298,4 +307,4 @@ const ManageGuards = () => {
   );
 };
 
-export default ManageGuards;
+export default ManageMembers;

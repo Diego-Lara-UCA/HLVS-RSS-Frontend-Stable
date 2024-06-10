@@ -1,19 +1,32 @@
 // Dashboard.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
+import { isMobile } from "../../components/sidebar/utils";
 
 const Dashboard = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(!isMobile());
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
+  const toggleMenu = useCallback(() => {
+    setIsOpen((prevIsOpen) => !prevIsOpen);
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsOpen(!isMobile());
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   return (
     <div className="flex w-full h-screen">
-      <Sidebar isOpen={isOpen} toggleMenu={toggleMenu} /> {/* Pasar toggleMenu a Sidebar */}
+      <Sidebar isOpen={isOpen} toggleMenu={toggleMenu} />
       <div className="flex flex-col w-full h-full">
         <Navbar toggleMenu={toggleMenu} />
         <div className="overflow-auto flex-grow">

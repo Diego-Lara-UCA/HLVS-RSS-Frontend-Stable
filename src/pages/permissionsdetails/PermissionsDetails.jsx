@@ -44,7 +44,7 @@ const PermissionsDetails = () => {
   const [statusFilter, setStatusFilter] = React.useState("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [sortDescriptor, setSortDescriptor] = React.useState({
-    column: "age",
+    column: "date",
     direction: "ascending",
   });
   const [page, setPage] = React.useState(1);
@@ -302,7 +302,7 @@ const PermissionsDetails = () => {
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
   return (
-    <div className="flex-1 px-5 py-8 2xl:px-12 2xl:py-12 relative">
+    <div className="container-tab">
       <Title
         title="Permissions details"
         description="Your permissions over time"

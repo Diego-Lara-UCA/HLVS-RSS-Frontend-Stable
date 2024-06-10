@@ -1,6 +1,13 @@
 import React from "react";
 import Title from "../../components/title/Title";
-import { Button, Divider, Input, RadioGroup, Radio, Textarea } from "@nextui-org/react";
+import {
+  Button,
+  Divider,
+  Input,
+  RadioGroup,
+  Radio,
+  Textarea,
+} from "@nextui-org/react";
 
 const AnonymousAccess = () => {
   return (
@@ -35,13 +42,11 @@ const AnonymousAccess = () => {
             <Radio value="sydney">Vehicular</Radio>
           </RadioGroup>
         </div>
-        <Divider className="hidden 2xl:block my-10" />
-        <Button
-          className="mt-10 2xl:mt-0 float-end 2xl:float-start text-white bg-indigo-500"
-          variant="flat"
-        >
-          Open entry
-        </Button>
+        <div className="mt-8">
+          <Button color="secondary" variant="shadow">
+            Open entry
+          </Button>
+        </div>
       </form>
     </div>
   );

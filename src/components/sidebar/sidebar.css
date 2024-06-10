@@ -1,6 +1,9 @@
 .aside {
   background-color: var(--primary-color);
   position: sticky;
+  display: flex;
+  flex-direction: column;
+justify-content: space-between;
   top: 0;
   left: 0;
   width: 100%;
@@ -8,6 +11,7 @@
   height: 100vh;
   background: white;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
   z-index: 30;
 }
 

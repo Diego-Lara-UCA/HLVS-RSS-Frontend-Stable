@@ -6,6 +6,7 @@ import { VscKey, VscShield, VscHistory, VscDashboard  } from "react-icons/vsc";
 import { LiaUserSecretSolid } from "react-icons/lia";
 import { IoCreateOutline, IoLockOpenOutline  } from "react-icons/io5";
 import { MdManageSearch } from "react-icons/md";
+import { BsHouseAdd } from "react-icons/bs";
 import { AiOutlineQrcode } from "react-icons/ai";
 
 
@@ -16,6 +17,7 @@ const getLinks = (role) => {
       return [
         { name: 'Entry History', to: 'dashboard/entryhistory', icon: VscHistory },
         { name: 'Manage Overtime', to: 'dashboard/manageovertime', icon: VscDashboard },
+        { name: 'Add House', to: 'dashboard/addhouse', icon: BsHouseAdd },
         { name: 'Manage Houses', to: 'dashboard/managehouses', icon: VscKey },
         { name: 'Manage Guards', to: 'dashboard/manageguards', icon: VscShield }
          

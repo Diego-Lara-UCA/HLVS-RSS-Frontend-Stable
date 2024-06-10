@@ -17,6 +17,9 @@ import VehicularAccess from "../pages/vehicularaccess/VehicularAccess";
 import AnonymousAccess from "../pages/anonymousaccess/AnonymousAccess";
 import CreatePermission from "../pages/createpermission/CreatePermission";
 import RequestPermissions from "../pages/requestpermissions/RequestPermissions";
+import ManagePermissions from "../pages/managepermissions/ManagePermissions";
+import ManageMembers from "../pages/managemembers/ManageMembers";
+import AddHouse from "../pages/addhouse/AddHouse";
 
 const AppRouter = () => {
   const getInitialRoute = (userRole) => {
@@ -47,6 +50,7 @@ const AppRouter = () => {
           <Route path="generatekeys" element={<GenerateKeys />} />
           <Route path="entryhistory" element={<EntryHistory />} />
           <Route path="manageovertime" element={<ManageOvertime />} />
+          <Route path="addhouse" element={<AddHouse />} />
           <Route path="managehouses" element={<ManageHouses />} />
           <Route path="manageguards" element={<ManageGuards />} />
           <Route path="pedestrianaccess" element={<PedestrianAccess />} />
@@ -54,6 +58,8 @@ const AppRouter = () => {
           <Route path="anonymousaccess" element={<AnonymousAccess />} />
           <Route path="createpermission" element={<CreatePermission />} />
           <Route path="requestpermissions" element={<RequestPermissions />} />
+          <Route path="managepermissions" element={<ManagePermissions />} />
+          <Route path="managemembers" element={<ManageMembers  />} />
           <Route path="dashboard/profile" element={<Profile />} />
         </Route>
       </Routes>
