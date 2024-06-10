@@ -37,7 +37,7 @@ const LogIn = () => {
               onSuccess={responseMessage}
               onError={errorMessage}
             /> */}
-            <Button variant="shadow" className="bg-indigo-500 text-white">
+            <Button variant="shadow" className="bg-slate-800 text-white">
               Acceder con Google
             </Button>
 
