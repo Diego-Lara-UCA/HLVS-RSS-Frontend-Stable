@@ -1,2 +1,2 @@
 
-export const userRole = 'guard'; 
+export const userRole = 'guest'; 

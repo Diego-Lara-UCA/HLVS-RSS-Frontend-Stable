@@ -28,7 +28,7 @@ const LogIn = () => {
           </h2>
 
           <div className="flex w-full flex-col gap-4 mb-20 ">
-            {/* <GoogleLogin
+            <GoogleLogin
               width={270}
               shape="square"
               text="continue_with"
@@ -36,7 +36,7 @@ const LogIn = () => {
               clientId="TU_ID_DE_CLIENTE_DE_GOOGLE"
               onSuccess={responseMessage}
               onError={errorMessage}
-            /> */}
+            />
             <Button variant="shadow" className="bg-slate-800 text-white">
               Acceder con Google
             </Button>
