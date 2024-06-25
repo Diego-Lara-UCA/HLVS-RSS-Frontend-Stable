@@ -1,17 +1,21 @@
 import { Button } from "@nextui-org/react";
-import { GoogleLogin } from "@react-oauth/google";
+import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 import { Link } from "react-router-dom";
+import GoogleIcon from '@mui/icons-material/Google';
 
 const LogIn = () => {
-  const responseMessage = (response) => {
-    console.log(response);
-    // Manejar la respuesta de Google
-  };
+  // function sendAuth() {
+  //   axios({
+  //     method: "post",
+  //     url: "http://localhost:8080/auth/login/${credentialResponseData}",
+  //   });
+  // }
 
-  const errorMessage = (error) => {
-    console.log(error);
-    // Manejar el error de Google
-  };
+  const loginAuth = useGoogleLogin({
+    onSuccess: (tokenResponse) => console.log(tokenResponse),
+  });
 
   return (
     <div>
@@ -28,24 +32,17 @@ const LogIn = () => {
           </h2>
 
           <div className="flex w-full flex-col gap-4 mb-20 ">
-            <GoogleLogin
-              width={270}
-              shape="square"
-              text="continue_with"
-              locale="en"
-              clientId="TU_ID_DE_CLIENTE_DE_GOOGLE"
-              onSuccess={responseMessage}
-              onError={errorMessage}
-            />
-            <Button variant="shadow" className="bg-slate-800 text-white">
-              Acceder con Google
+            <Button
+              onClick={() => loginAuth()}
+              variant="shadow"
+              className="bg-slate-800 text-white"
+              startContent={<GoogleIcon />}
+            >
+              Continue with Google
             </Button>
-
-            <Link to="/">
-              <Button variant="shadow" color="default" fullWidth>
-                Back
-              </Button>
-            </Link>
+            <Button variant="shadow" color="default" fullWidth>
+              Back
+            </Button>
           </div>
 
           <span className="text-xs text-center text-zinc-700">
