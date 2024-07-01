@@ -6,15 +6,20 @@ import { Link } from "react-router-dom";
 import GoogleIcon from '@mui/icons-material/Google';
 
 const LogIn = () => {
-  // function sendAuth() {
-  //   axios({
-  //     method: "post",
-  //     url: "http://localhost:8080/auth/login/${credentialResponseData}",
-  //   });
-  // }
+  function sendAuth(token) {
+    axios({
+      method: "post",
+      url: `http://localhost:8080/api/auth/login/${token}`,
+    }).then(respone => {
+        console.log(respone);
+    })
+  }
 
   const loginAuth = useGoogleLogin({
-    onSuccess: (tokenResponse) => console.log(tokenResponse),
+    onSuccess: (tokenResponse) => {
+      console.log(tokenResponse)
+      sendAuth(tokenResponse.access_token)
+    }
   });
 
   return (
