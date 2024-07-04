@@ -9,7 +9,7 @@ const LogIn = () => {
   function sendAuth(token) {
     axios({
       method: "post",
-      url: `http://localhost:8080/api/auth/login/${token}`,
+      url: `http://http://ncapas-api.us-east-2.elasticbeanstalk.com:8080/api/auth/login/${token}`,
     }).then(respone => {
         console.log(respone);
     })
