@@ -1,3 +1,4 @@
+// AppRouter.jsx
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LogIn from "../pages/login/LogIn";
@@ -6,7 +7,6 @@ import Dashboard from "../pages/dashboard/Dashboard";
 import LogsEntries from "../pages/logofentries/LogOfEntries";
 import PermissionsDetails from "../pages/permissionsdetails/PermissionsDetails";
 import GenerateKeys from "../pages/generatekeys/GenerateKeys";
-import { userRole } from "../components/sidebar/userRole";
 import Profile from "../pages/profile/Profile";
 import EntryHistory from "../pages/entryhistory/EntryHistory";
 import ManageOvertime from "../pages/manageovertime/ManageOvertime";
@@ -20,50 +20,179 @@ import RequestPermissions from "../pages/requestpermissions/RequestPermissions";
 import ManagePermissions from "../pages/managepermissions/ManagePermissions";
 import ManageMembers from "../pages/managemembers/ManageMembers";
 import AddHouse from "../pages/addhouse/AddHouse";
+import ErrorPage from "../pages/errorPage/ErrorPage";
+import ProtectedRoute from "./ProtectedRoute";
+import PageTitle from "../components/pageTitle/PageTitle";
 
 const AppRouter = () => {
-  const getInitialRoute = (userRole) => {
-    switch (userRole) {
-      case "admin":
-        return "entryhistory";
-      case "superadmin":
-        return "superadmin";
-      case "user":
-        return "logofentries";
-      default:
-        return "logofentries";
-    }
-  };
-
   return (
-    <div>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<LogIn />} />
-        <Route path="/dashboard/*" element={<Dashboard />}>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<LogIn />} />
+      <Route path="/dashboard/*" element={<Dashboard />}>
+        <Route
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin", "supervisor", "guard", "user", "guest"]}
+            />
+          }
+        >
+          <Route path="" element={<Navigate to="logofentries" />} />
           <Route
-            path=""
-            element={<Navigate to={getInitialRoute(userRole)} />}
+            path="logofentries"
+            element={
+              <>
+                <PageTitle title="HLVS | Logs of Entries" />
+                <LogsEntries />
+              </>
+            }
           />
-          <Route path="logofentries" element={<LogsEntries />} />
-          <Route path="permissiondetails" element={<PermissionsDetails />} />
-          <Route path="generatekeys" element={<GenerateKeys />} />
-          <Route path="entryhistory" element={<EntryHistory />} />
-          <Route path="manageovertime" element={<ManageOvertime />} />
-          <Route path="addhouse" element={<AddHouse />} />
-          <Route path="managehouses" element={<ManageHouses />} />
-          <Route path="manageguards" element={<ManageGuards />} />
-          <Route path="pedestrianaccess" element={<PedestrianAccess />} />
-          <Route path="vehicularaccess" element={<VehicularAccess />} />
-          <Route path="anonymousaccess" element={<AnonymousAccess />} />
-          <Route path="createpermission" element={<CreatePermission />} />
-          <Route path="requestpermissions" element={<RequestPermissions />} />
-          <Route path="managepermissions" element={<ManagePermissions />} />
-          <Route path="managemembers" element={<ManageMembers  />} />
-          <Route path="dashboard/profile" element={<Profile />} />
+          <Route
+            path="permissiondetails"
+            element={
+              <>
+                <PageTitle title="HLVS | Permissions Details" />
+                <PermissionsDetails />
+              </>
+            }
+          />
+          <Route
+            path="generatekeys"
+            element={
+              <>
+                <PageTitle title="HLVS | Generate Keys" /> <GenerateKeys />
+              </>
+            }
+          />
+          <Route
+            path="profile"
+            element={
+              <>
+                <PageTitle title="HLVS | Profile" />
+                <Profile />
+              </>
+            }
+          />
+          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+            <Route
+              path="entryhistory"
+              element={
+                <>
+                  <PageTitle title="HLVS | Entry History" />
+                  <EntryHistory />
+                </>
+              }
+            />
+            <Route
+              path="manageovertime"
+              element={
+                <>
+                  <PageTitle title="HLVS | Manage Overtime" />
+                  <ManageOvertime />
+                </>
+              }
+            />
+            <Route
+              path="addhouse"
+              element={
+                <>
+                  <PageTitle title="HLVS | Add House" />
+                  <AddHouse />
+                </>
+              }
+            />
+            <Route
+              path="managehouses"
+              element={
+                <>
+                  <PageTitle title="HLVS | Manage Houses" />
+                  <ManageHouses />
+                </>
+              }
+            />
+            <Route
+              path="manageguards"
+              element={
+                <>
+                  <PageTitle title="HLVS | Manage Guards" />
+                  <ManageGuards />
+                </>
+              }
+            />
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={["supervisor"]} />}>
+            <Route
+              path="createpermission"
+              element={
+                <>
+                  <PageTitle title="HLVS | Create Permission" />
+                  <CreatePermission />
+                </>
+              }
+            />
+            <Route
+              path="managepermissions"
+              element={
+                <>
+                  <PageTitle title="HLVS | Manage Permissions" />
+                  <ManagePermissions />
+                </>
+              }
+            />
+            <Route
+              path="managemembers"
+              element={
+                <>
+                  <PageTitle title="HLVS | Manage Members" />
+                  <ManageMembers />
+                </>
+              }
+            />
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={["guard"]} />}>
+            <Route
+              path="pedestrianaccess"
+              element={
+                <>
+                  <PageTitle title="HLVS | Pedestrian Access" />
+                  <PedestrianAccess />
+                </>
+              }
+            />
+            <Route
+              path="vehicularaccess"
+              element={
+                <>
+                  <PageTitle title="HLVS | Vehicular Access" />
+                  <VehicularAccess />
+                </>
+              }
+            />
+            <Route
+              path="anonymousaccess"
+              element={
+                <>
+                  <PageTitle title="HLVS | Anonymous Access" />
+                  <AnonymousAccess />
+                </>
+              }
+            />
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={["user", "guest"]} />}>
+            <Route
+              path="requestpermissions"
+              element={
+                <>
+                  <PageTitle title="HLVS | Request Permissions" />
+                  <RequestPermissions />
+                </>
+              }
+            />
+          </Route>
         </Route>
-      </Routes>
-    </div>
+      </Route>
+      <Route path="*" element={<ErrorPage />} />
+    </Routes>
   );
 };
 

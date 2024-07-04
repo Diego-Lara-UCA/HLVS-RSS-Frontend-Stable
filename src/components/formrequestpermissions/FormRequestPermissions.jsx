@@ -42,8 +42,8 @@ const FormRequestPermissions = () => {
           <Input label="Email visitant" type="text" />
           <div>
             <Button
-              className={`bg-indigo-200 text-white mr-2 ${
-                isMultipleDate ? "bg-indigo-400" : ""
+              className={`bg-zinc-300 text-white mr-2 ${
+                isMultipleDate ? "bg-zinc-500" : ""
               }`}
               variant="flat"
               onClick={() => setIsMultipleDate(true)}
@@ -51,8 +51,8 @@ const FormRequestPermissions = () => {
               Multiple date
             </Button>
             <Button
-              className={`bg-indigo-200 px-6 text-white ${
-                !isMultipleDate ? "bg-indigo-400" : ""
+              className={`bg-zinc-300 px-6 text-white ${
+                !isMultipleDate ? "bg-zinc-500" : ""
               }`}
               variant="flat"
               onClick={() => setIsMultipleDate(false)}
@@ -86,8 +86,8 @@ const FormRequestPermissions = () => {
           </div>
           <div>
             <Button
-              className={`bg-indigo-200 text-white mr-2 ${
-                isMultipleHour ? "bg-indigo-400" : ""
+              className={`bg-zinc-300 text-white mr-2 ${
+                isMultipleHour ? "bg-zinc-500" : ""
               }`}
               variant="flat"
               onClick={() => setIsMultipleHour(true)}
@@ -95,8 +95,8 @@ const FormRequestPermissions = () => {
               Multiple hours
             </Button>
             <Button
-              className={`bg-indigo-200 px-6 text-white ${
-                !isMultipleHour ? "bg-indigo-400" : ""
+              className={`bg-zinc-300 px-6 text-white ${
+                !isMultipleHour ? "bg-zinc-500" : ""
               }`}
               variant="flat"
               onClick={() => setIsMultipleHour(false)}
@@ -150,7 +150,7 @@ const FormRequestPermissions = () => {
           )}
 
           <div className="mt-8 py-4 flex justify-center lg:justify-end ">
-            <Button color="secondary" variant="shadow">
+            <Button className=" bg-zinc-700 text-white" variant="shadow">
               Request permission
             </Button>
           </div>

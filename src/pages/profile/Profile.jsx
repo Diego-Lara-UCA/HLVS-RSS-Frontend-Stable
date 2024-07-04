@@ -1,6 +1,6 @@
 import React from "react";
 import Title from "../../components/title/Title";
-import { Input, Button, Divider, Select, SelectItem } from "@nextui-org/react";
+import { Input, Button, Select, SelectItem } from "@nextui-org/react";
 
 const Profile = () => {
   return (
@@ -35,7 +35,7 @@ const Profile = () => {
         </div>
       <div className="mt-8">
           <Button
-            color="secondary"
+            className="bg-zinc-700 text-white"
             variant="shadow"
           >
             Save changes

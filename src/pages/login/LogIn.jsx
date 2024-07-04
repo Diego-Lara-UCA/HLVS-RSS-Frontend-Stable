@@ -2,7 +2,7 @@ import { Button } from "@nextui-org/react";
 import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { Link } from "react-router-dom";
+import { Link, redirect } from "react-router-dom";
 import GoogleIcon from '@mui/icons-material/Google';
 
 const LogIn = () => {
@@ -19,6 +19,7 @@ const LogIn = () => {
     onSuccess: (tokenResponse) => {
       console.log(tokenResponse)
       sendAuth(tokenResponse.access_token)
+      window.location.href = "/dashboard/profile";
     }
   });
 

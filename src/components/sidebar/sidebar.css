@@ -1,9 +1,9 @@
-.aside {
+/* .aside {
   background-color: var(--primary-color);
   position: sticky;
   display: flex;
   flex-direction: column;
-justify-content: space-between;
+  justify-content: space-between;
   top: 0;
   left: 0;
   width: 100%;
@@ -70,4 +70,4 @@ justify-content: space-between;
     width: 100%;
     border-radius: 0;
   }
-}
+} */
