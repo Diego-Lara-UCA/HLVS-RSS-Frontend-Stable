@@ -19,7 +19,7 @@ const LogIn = () => {
     onSuccess: (tokenResponse) => {
       console.log(tokenResponse)
       sendAuth(tokenResponse.access_token)
-      window.location.href = "/dashboard/profile";
+      //window.location.href = "/dashboard/profile";
     }
   });
 
