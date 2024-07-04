@@ -27,8 +27,24 @@ import PageTitle from "../components/pageTitle/PageTitle";
 const AppRouter = () => {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<LogIn />} />
+      <Route
+        path="/"
+        element={
+          <>
+            <PageTitle title="HLVS | Home" />
+            <Home />
+          </>
+        }
+      />
+      <Route
+        path="/login"
+        element={
+          <>
+            <PageTitle title="HLVS | Login" />
+            <LogIn />
+          </>
+        }
+      />
       <Route path="/dashboard/*" element={<Dashboard />}>
         <Route
           element={
