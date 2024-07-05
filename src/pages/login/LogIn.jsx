@@ -9,12 +9,12 @@ const LogIn = () => {
   function sendAuth(token) {
     axios({
       method: "post",
-      url: `http://api.securityhlvs.com:8080/api/auth/login/${token}`,
+      url: `https://api.securityhlvs.com:443/api/auth/login/${token}`,
       headers: {
         "Content-Type": "application/json",
       },
     }).then((respone) => {
-      console.log(respone.data);
+        console.log(respone);
     });
   }
 
