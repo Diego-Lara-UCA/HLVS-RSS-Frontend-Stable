@@ -3,24 +3,27 @@ import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { Link, redirect } from "react-router-dom";
-import GoogleIcon from '@mui/icons-material/Google';
+import GoogleIcon from "@mui/icons-material/Google";
 
 const LogIn = () => {
   function sendAuth(token) {
     axios({
       method: "post",
-      url: `api.securityhlvs.com:80/api/auth/login/${token}`,
-    }).then(respone => {
-        console.log(respone);
-    })
+      url: `http://api.securityhlvs.com:8080/api/auth/login/${token}`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((respone) => {
+      console.log(respone.data);
+    });
   }
 
   const loginAuth = useGoogleLogin({
     onSuccess: (tokenResponse) => {
-      console.log(tokenResponse)
-      sendAuth(tokenResponse.access_token)
+      console.log(tokenResponse);
+      sendAuth(tokenResponse.access_token);
       //window.location.href = "/dashboard/profile";
-    }
+    },
   });
 
   return (
