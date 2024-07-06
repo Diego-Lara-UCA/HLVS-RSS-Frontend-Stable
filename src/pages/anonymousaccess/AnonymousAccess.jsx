@@ -16,16 +16,20 @@ const AnonymousAccess = () => {
   const [reasonForVisit, setReasonForVisit] = React.useState("");
   const [typeOfEntrance, setTypeOfEntrance] = React.useState("");
 
+  function emptyFields() {
+    setVisitantName("");
+    setReasonForVisit("");
+    setTypeOfEntrance("");
+  }
+
   function sendAnonymousAccess() {
     const currentDate = new Date();
     const formattedDate = currentDate.toISOString().split("T")[0]; // Formato YYYY-MM-DD
     const formattedTime = currentDate.toTimeString().split(" ")[0]; // Formato HH:MM:SS
 
-    console.log(formattedDate);
-    console.log(formattedTime);
-
     if (visitantName === "" || reasonForVisit === "" || typeOfEntrance === "") {
       toast("Please fill all the fields", { type: "error" });
+      return;
     }
 
     axios({
@@ -41,8 +45,9 @@ const AnonymousAccess = () => {
         date: formattedDate,
         time: formattedTime,
       },
-    }).then((response) => {
-      console.log(response);
+    }).then(() => {
+      emptyFields();
+      toast("Entry opened successfully", { type: "success" });
     });
   }
 
@@ -79,9 +84,12 @@ const AnonymousAccess = () => {
             onValueChange={setTypeOfEntrance}
           >
             <Radio className="mr-4" value="PEDESTRIAN">
-              Pedestrian
+              <span className="text-sm">Pedestrian</span>
             </Radio>
-            <Radio value="VEHICULAR">Vehicular</Radio>
+            <Radio value="VEHICULAR">
+              {" "}
+              <span className="text-sm">Vehicular</span>
+            </Radio>
           </RadioGroup>
         </div>
         <div className="mt-8">
