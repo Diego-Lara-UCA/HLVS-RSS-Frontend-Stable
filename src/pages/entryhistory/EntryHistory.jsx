@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Title from "../../components/title/Title";
 import {
   Table,
@@ -14,7 +14,7 @@ import {
   DropdownMenu,
   DropdownItem,
   Pagination,
-  DateRangePicker,
+  DatePicker,
   Divider,
   Card,
   CardBody,
@@ -25,6 +25,8 @@ import { capitalize } from "../../components/capitalize/utils";
 import { columns, users } from "./data";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
+import axios from "axios";
+import { parseDate, parseAbsoluteToLocal } from "@internationalized/date";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -82,6 +84,7 @@ const EntryHistory = () => {
   const onDateChange = (newDateRange) => {
     setDateRange(newDateRange);
     setIsDateSelected(newDateRange[0] !== null && newDateRange[1] !== null);
+    setPage(1); // Reset to first page on date change
   };
 
   const filteredItems = React.useMemo(() => {
@@ -97,12 +100,13 @@ const EntryHistory = () => {
     }
 
     if (isDateSelected) {
-      const startDate = new Date(dateRange[0]).setHours(0, 0, 0, 0);
-      const endDate = new Date(dateRange[1]).setHours(23, 59, 59, 999);
+      const [startDate, endDate] = dateRange;
+      const start = new Date(startDate).setHours(0, 0, 0, 0);
+      const end = new Date(endDate).setHours(23, 59, 59, 999);
 
       filteredUsers = filteredUsers.filter((user) => {
         const userDate = new Date(user.date).setHours(0, 0, 0, 0);
-        return userDate >= startDate && userDate <= endDate;
+        return userDate >= start && userDate <= end;
       });
     }
 
@@ -180,53 +184,25 @@ const EntryHistory = () => {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3 items-end">
-          <div className="flex flex-1 flex-wrap 2xl:flex-nowrap gap-2">
+          <div className="flex flex-col flex-1 flex-wrap 2xl:flex-nowrap gap-4">
+            <div className="flex gap-2">
+              <DatePicker value={dateRange[0]} onChange={(date) => onDateChange([date, dateRange[1]])} />
+              <DatePicker value={dateRange[1]} onChange={(date) => onDateChange([dateRange[0], date])} />
+            </div>
             <Input
               isClearable
-              className="w-full "
+              className="w-full"
               placeholder="Search by house, entry place, or user"
               startContent={<SearchIcon />}
               value={filterValue}
               onClear={() => onClear()}
               onValueChange={onSearchChange}
             />
-            <DateRangePicker
-              value={dateRange}
-              onChange={onDateChange}
-              format="yyyy-MM-dd"
-            />
-          </div>
-
-          <div className="flex gap-3">
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button
-                  endContent={<ChevronDownIcon className="text-small" />}
-                  variant="flat"
-                >
-                  Columns
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={visibleColumns}
-                selectionMode="multiple"
-                onSelectionChange={setVisibleColumns}
-              >
-                {columns.map((column) => (
-                  <DropdownItem key={column.uid} className="capitalize">
-                    {capitalize(column.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
           </div>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">
-            Total {users.length} entry history
+            Total {filteredItems.length} entry history
           </span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
@@ -246,9 +222,8 @@ const EntryHistory = () => {
     filterValue,
     visibleColumns,
     onRowsPerPageChange,
-    users.length,
+    filteredItems.length,
     onSearchChange,
-    hasSearchFilter,
     dateRange,
   ]);
 
@@ -291,7 +266,32 @@ const EntryHistory = () => {
         </div>
       </div>
     );
-  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+  }, [selectedKeys, items.length, page, pages]);
+
+  // ############################################################################################
+  // GET request to get the entry history
+
+  const [entryHistory, setEntryHistory] = React.useState([]);
+
+  useEffect(() => {
+    getEntryHistory();
+  }, []);
+
+
+
+  function getEntryHistory() {
+    axios({
+      method: "GET",
+      url: `https://api.securityhlvs.com/api/log-of-entries`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => {
+      console.log(response);
+      setEntryHistory(response.data);
+    });
+  }
+
   return (
     <div className="container-tab">
       <Title

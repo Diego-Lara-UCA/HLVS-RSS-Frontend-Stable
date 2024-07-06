@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Title from "../../components/title/Title";
 import { Input, Button } from "@nextui-org/react";
 import {
@@ -21,6 +21,7 @@ import { columns, users } from "./data";
 import { SearchIcon } from "../../components/searchicon/SearchIcon";
 import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
 import { capitalize } from "../../components/capitalize/utils";
+import axios from "axios";
 
 const INITIAL_VISIBLE_COLUMNS = ["name", "email", "actions"];
 
@@ -238,10 +239,21 @@ const ManageGuards = () => {
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
+  const [emailGuard, setEmailGuard] = useState("");
 
+  function postManageGuards() {
+    axios({
+      method: "post",
+      url: `https://api.securityhlvs.com/api/manage-guards`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: {
+        email: "email",
+      },
+    });
+  }
 
-  
-  
   return (
     <div className="container-tab">
       <Title
@@ -250,9 +262,15 @@ const ManageGuards = () => {
       />
       <form action="">
         <div className="flex items-center max-w-3xl gap-3">
-          <Input label="Email" type="text" />
+          <Input
+            label="Email"
+            type="text"
+            size="sm"
+            value={emailGuard}
+            onValueChange={setEmailGuard}
+          />
           <Button
-            className="py-7 px-8 bg-indigo-200 text-indigo-600"
+            className="py-7 px-8 bg-zinc-700 text-white"
             variant="flat"
             type="button"
           >

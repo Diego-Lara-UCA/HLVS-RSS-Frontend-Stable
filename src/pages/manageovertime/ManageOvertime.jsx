@@ -1,8 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import Title from "../../components/title/Title";
-import { Button, Divider, Input } from "@nextui-org/react";
+import { Button, Input } from "@nextui-org/react";
+import axios from "axios";
 
 const ManageOvertime = () => {
+  const [extraTimePermits, setExtraTimePermits] = useState("");
+  const [extraKeyTime, setExtraKeyTime] = useState("");
+
+  function postManageOvertime() {
+
+    console.log(extraTimePermits);
+    console.log(extraKeyTime);
+  
+    axios({
+      method: "post",
+      url: `https://api.securityhlvs.com/api/manage-overtime`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: {
+        extraTimePermits: "extraTimePermits",
+        extraKeyTime: "extraKeyTime",
+      },
+    });
+  }
+
   return (
     <div className="container-tab">
       <Title
@@ -16,17 +38,21 @@ const ManageOvertime = () => {
             type="text"
             label="Extra time permits"
             onClear={() => console.log("input cleared")}
+            onValue={extraTimePermits}
+            onValueChange={setExtraTimePermits}
           />
           <Input
             className="col-span-2"
             type="text"
             label="Extra key time"
             onClear={() => console.log("input cleared")}
+            onValue={extraKeyTime}
+            onValueChange={setExtraKeyTime}
           />
         </div>
 
         <div className="mt-10">
-          <Button color="secondary" variant="shadow">
+          <Button onPress={postManageOvertime} className="bg-zinc-700 text-white" variant="shadow">
             Save changes
           </Button>
         </div>

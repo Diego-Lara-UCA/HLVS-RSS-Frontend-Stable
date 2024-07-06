@@ -35,6 +35,15 @@ const users = [
     hour: "12:00",
     comment: "This is a brief description for User C",
   },
+  {
+    id: 4,
+    user: "User D",
+    house: "House D",
+    entryPlace: "Vehicular",
+    date: "2024-07-05",
+    hour: "12:00",
+    comment: "This is a brief description for User C",
+  },
 ];
 
 export { columns, users };
