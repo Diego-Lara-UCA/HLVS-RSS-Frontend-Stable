@@ -270,9 +270,10 @@ const ManageGuards = () => {
             onValueChange={setEmailGuard}
           />
           <Button
-            className="py-7 px-8 bg-zinc-700 text-white"
+            className="py-6 px-8 bg-zinc-700 text-white"
             variant="flat"
             type="button"
+            onPress={postManageGuards}
           >
             Add guard
           </Button>
