@@ -18,19 +18,19 @@ const AnonymousAccess = () => {
 
   function sendAnonymousAccess() {
     const currentDate = new Date();
-    const formattedDate = currentDate.toISOString().split('T')[0]; // Formato YYYY-MM-DD
-    const formattedTime = currentDate.toTimeString().split(' ')[0]; // Formato HH:MM:SS
+    const formattedDate = currentDate.toISOString().split("T")[0]; // Formato YYYY-MM-DD
+    const formattedTime = currentDate.toTimeString().split(" ")[0]; // Formato HH:MM:SS
 
-    console.log(formattedDate)
-    console.log(formattedTime)
+    console.log(formattedDate);
+    console.log(formattedTime);
 
     if (visitantName === "" || reasonForVisit === "" || typeOfEntrance === "") {
-      toast("Please fill all the fields", {  type: "error", });
+      toast("Please fill all the fields", { type: "error" });
     }
 
     axios({
       method: "post",
-      url: `https://api.securityhlvs.com/api/anonymous-access`,
+      url: `https://api.securityhlvs.com/api/residential/entrance/anonymous-access`,
       headers: {
         "Content-Type": "application/json",
       },
@@ -94,7 +94,7 @@ const AnonymousAccess = () => {
           </Button>
         </div>
       </form>
-      <ToastContainer stacked/>
+      <ToastContainer stacked />
     </div>
   );
 };
