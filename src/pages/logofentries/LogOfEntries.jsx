@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Title from "../../components/title/Title";
 
 import {
@@ -248,6 +248,10 @@ const LogOfEntries = () => {
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
   //TODO: localstorage (id)
+
+  useEffect(() => {
+    getLogOfEntries();
+  }, []);
 
   function getLogOfEntries() {
     axios({
