@@ -9,9 +9,12 @@ const LogIn = () => {
   function sendAuth(token) {
     axios({
       method: "post",
-      url: `api.securityhlvs.com:8080/api/auth/login/${token}`,
+      url: `https://api.securityhlvs.com/api/auth/login/${token}`,
       headers: {
         "Content-Type": "application/json",
+      },
+      data: {	
+        token: token,
       },
     }).then((respone) => {
       console.log(respone);
@@ -22,7 +25,7 @@ const LogIn = () => {
     onSuccess: (tokenResponse) => {
       console.log(tokenResponse);
       sendAuth(tokenResponse.access_token);
-      //window.location.href = "/dashboard/profile";
+      window.location.href = "/dashboard/profile";
     },
   });
 

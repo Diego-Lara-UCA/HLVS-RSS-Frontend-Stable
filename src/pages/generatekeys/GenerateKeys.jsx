@@ -2,11 +2,14 @@ import React from "react";
 import Title from "../../components/title/Title";
 import QRCode from "qrcode.react";
 import { useRef, useEffect, useState } from "react";
+import axios from "axios";
 
 const GenerateKeys = () => {
   const [qrCode, setQrCode] = useState("");
   const [showButton, setShowButton] = useState(true);
   const [timeLeft, setTimeLeft] = useState(600);
+
+  const [Key, setKey] = useState("");
 
   const generateRandomString = () => {
     return (
@@ -43,6 +46,19 @@ const GenerateKeys = () => {
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
 
+  function generateKey() {
+    axios({
+      method: "get",
+      url: `https://api.securityhlvs.com/api/generate-key`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => {
+      console.log(response);
+      setKey(response.data);
+    });
+  }
+  
   return (
     <div className="container-tab">
       <Title

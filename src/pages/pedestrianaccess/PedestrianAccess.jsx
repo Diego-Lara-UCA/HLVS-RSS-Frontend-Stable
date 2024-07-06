@@ -10,26 +10,23 @@ const PedestrianAccess = () => {
   const [qrOn, setQrOn] = useState(true);
   const [client, setClient] = useState(null);
   const [connectStatus, setConnectStatus] = useState('Conectando...');
+  const [scanResult, setScanResult] = useState(null);
 
   const onScanSuccess = (result) => {
-    // Imprime el resultado en la consola del navegador
     alert(result?.data);
-    publishMessage('usuario/feeds/button1', '1');
+    setScanResult(result?.data);
   };
 
   useEffect(() => {
     if (!qrOn) console.log("QR Scanner is off");
   }, [qrOn]);
 
-  // Fallo en el escaneo
   const onScanFail = (err) => {
-    // Imprime el error en la consola del navegador
-    console.log(err);
+    // console.log("QR Scan failed: ", err);
   };
 
   useEffect(() => {
     if (videoEl?.current && !scanner.current) {
-      // Instancia el escáner QR
       scanner.current = new QrScanner(videoEl?.current, onScanSuccess, {
         onDecodeError: onScanFail,
         preferredCamera: "environment",
@@ -38,7 +35,6 @@ const PedestrianAccess = () => {
         overlay: qrBoxEl?.current || undefined,
       });
 
-      // Inicia el escáner QR
       scanner?.current
         ?.start()
         .then(() => setQrOn(true))
@@ -47,7 +43,6 @@ const PedestrianAccess = () => {
         });
     }
 
-    // Limpieza al desmontar el componente
     return () => {
       if (!videoEl?.current) {
         scanner?.current?.stop();
@@ -92,6 +87,13 @@ const PedestrianAccess = () => {
       mqttClient.end();
     };
   }, []);
+
+  useEffect(() => {
+    if (scanResult) {
+      publishMessage('usuario/feeds/button2', '1');
+      setScanResult(null);
+    }
+  }, [scanResult]);
 
   const publishMessage = (topic, message) => {
     if (client) {

@@ -237,6 +237,11 @@ const ManageGuards = () => {
       </div>
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+
+
+
+  
+  
   return (
     <div className="container-tab">
       <Title

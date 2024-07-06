@@ -10,26 +10,23 @@ const VehicularAccess = () => {
   const [qrOn, setQrOn] = useState(true);
   const [client, setClient] = useState(null);
   const [connectStatus, setConnectStatus] = useState('Conectando...');
+  const [scanResult, setScanResult] = useState(null);
 
   const onScanSuccess = (result) => {
-    // Imprime el resultado en la consola del navegador
     alert(result?.data);
-    publishMessage('usuario/feeds/button1', '1');
+    setScanResult(result?.data);
   };
 
   useEffect(() => {
     if (!qrOn) console.log("QR Scanner is off");
   }, [qrOn]);
 
-  // Fallo en el escaneo
   const onScanFail = (err) => {
-    // Imprime el error en la consola del navegador
-    console.log(err);
+    // console.log("QR Scan failed: ", err);
   };
 
   useEffect(() => {
     if (videoEl?.current && !scanner.current) {
-      // Instancia el escáner QR
       scanner.current = new QrScanner(videoEl?.current, onScanSuccess, {
         onDecodeError: onScanFail,
         preferredCamera: "environment",
@@ -38,7 +35,6 @@ const VehicularAccess = () => {
         overlay: qrBoxEl?.current || undefined,
       });
 
-      // Inicia el escáner QR
       scanner?.current
         ?.start()
         .then(() => setQrOn(true))
@@ -47,7 +43,6 @@ const VehicularAccess = () => {
         });
     }
 
-    // Limpieza al desmontar el componente
     return () => {
       if (!videoEl?.current) {
         scanner?.current?.stop();
@@ -93,6 +88,13 @@ const VehicularAccess = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (scanResult) {
+      publishMessage('usuario/feeds/button1', '1');
+      setScanResult(null);
+    }
+  }, [scanResult]);
+
   const publishMessage = (topic, message) => {
     if (client) {
       client.publish(topic, message, { qos: 0, retain: false }, (error) => {
@@ -110,8 +112,8 @@ const VehicularAccess = () => {
   return (
     <div className="container-tab">
       <Title
-        title="Vehicular Access"
-        description="Scan the QR code to give access to the vehicle entrance"
+        title="Pedestrian Access"
+        description="Scan the QR code to give access to the pedestrian entrance"
       />
 
       <div

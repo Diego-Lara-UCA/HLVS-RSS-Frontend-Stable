@@ -7,7 +7,7 @@ import "./sidebar.css";
 const Sidebar = ({ isOpen, toggleMenu }) => {
   return (
     isOpen && (
-      <aside className="bg-white fixed flex flex-col justify-between top-0 left-0 w-full max-w-[18%] md:max-w-[30%] lg:max-w-[18%] md:sticky h-screen shadow-lg transition-transform duration-300 ease-in-out z-30">
+      <aside className="bg-white fixed flex flex-col justify-between top-0 left-0 w-full md:max-w-[30%] lg:max-w-[20%] xl:max-w-[19%] 2xl:max-w-[18%] md:sticky h-screen shadow-lg transition-transform duration-300 ease-in-out z-30">
         <div>
           <div className="text-xl mb-10 p-8 font-semibold uppercase">
             <h1>HLVS</h1>

@@ -20,10 +20,12 @@ import { SearchIcon } from "../../components/searchicon/SearchIcon";
 import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
 import { capitalize } from "../../components/capitalize/utils";
 import { columns, users } from "../logofentries/data";
+import axios from "axios";
 
 const INITIAL_VISIBLE_COLUMNS = ["hour", "date", "house", "entryPlace"];
 
 const LogOfEntries = () => {
+  const [logs, setLogs] = React.useState([]);
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState(
@@ -244,6 +246,22 @@ const LogOfEntries = () => {
       </div>
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+
+  //TODO: localstorage (id)
+
+  function getLogOfEntries() {
+    axios({
+      method: "get",
+      url: `https://api.securityhlvs.com/api/log-of-entries`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => {
+      console.log(response);
+      setLogs(response.data);
+    });
+  }
+
   return (
     <div className="flex-1 px-5 py-8  2xl:px-12 2xl:py-12 relative">
       <Title
