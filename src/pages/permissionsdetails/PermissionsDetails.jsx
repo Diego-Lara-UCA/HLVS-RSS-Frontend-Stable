@@ -318,7 +318,6 @@ const PermissionsDetails = () => {
       },
     }).then((response) => {
       setPermissionDetails(response.data);
-        
     });
   }
 
