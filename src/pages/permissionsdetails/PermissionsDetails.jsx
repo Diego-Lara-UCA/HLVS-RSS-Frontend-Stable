@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Title from "../../components/title/Title";
 
 import {
@@ -21,6 +21,7 @@ import { SearchIcon } from "../../components/searchicon/SearchIcon";
 import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
 import { capitalize } from "../../components/capitalize/utils";
 import { columns, users, statusOptions } from "./data";
+import axios from "axios";
 
 const statusColorMap = {
   current: "success",
@@ -301,6 +302,26 @@ const PermissionsDetails = () => {
       </div>
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+
+  const [permissiondetails, setPermissionDetails] = useState([]);
+
+  useEffect(() => {
+    getPermissionsDetails();
+  }, []);
+
+  function getPermissionsDetails() {
+    axios({
+      method: "get",
+      url: `https://api.securityhlvs.com/api/permissions-details`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => {
+      setPermissionDetails(response.data);
+        
+    });
+  }
+
   return (
     <div className="container-tab">
       <Title
