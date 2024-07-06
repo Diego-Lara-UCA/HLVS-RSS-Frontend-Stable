@@ -84,7 +84,7 @@ const FormRequestPermissions = () => {
         secondDate: isMultipleDate ? secondDateRangeFormatted : singleDateFormatted,
         initialHour: isMultipleHour ? initialHourFormatted : singleHourFormatted,
         finalHour: isMultipleHour ? finalHourFormatted : singleHourFormatted,
-        expirationType: isMultipleHour ? expirationType: "2",
+        expirationType: isMultipleHour ? expirationType: "ByEntry",
       },
     }).then((response) => {
       console.log(response);
