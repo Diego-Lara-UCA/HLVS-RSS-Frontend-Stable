@@ -62,16 +62,17 @@ const FormRequestPermissions = () => {
     const initialHourFormatted = formatTime(initialHour);
     const finalHourFormatted = formatTime(finalHour);
     const singleHourFormatted = formatTime(singleHour);
-
+  
     console.log(emailVisitant);
-    console.log(firstDateRangeFormatted);
-    console.log(secondDateRangeFormatted);
+    console.log(isMultipleDate ? firstDateRangeFormatted : singleDateFormatted);
+    console.log(isMultipleDate ? secondDateRangeFormatted : singleDateFormatted);
     console.log(selectedDays);
-    console.log(singleDateFormatted);
-    console.log(initialHourFormatted);
-    console.log(finalHourFormatted);
-    console.log(singleHourFormatted);
+    console.log(isMultipleHour ? initialHourFormatted : singleHourFormatted);
+    console.log(isMultipleHour ? finalHourFormatted : singleHourFormatted);
 
+  
+
+  
     axios({
       method: "post",
       url: `https://api.securityhlvs.com/api/request-permissions`,
@@ -81,18 +82,17 @@ const FormRequestPermissions = () => {
       data: {
         email: emailVisitant,
         days: selectedDays,
-        firstDate: firstDateRangeFormatted,
-        secondDate: isMultipleDate ? secondDateRangeFormatted : null,
+        firstDate: isMultipleDate ? firstDateRangeFormatted : singleDateFormatted,
+        secondDate: isMultipleDate ? secondDateRangeFormatted : singleDateFormatted,
         daysOfWeek: Array.from(selectedDays),
-        singleDate: singleDateFormatted,
-        initialHour: initialHourFormatted,
-        finalHour: finalHourFormatted,
+        initialHour: isMultipleHour ? initialHourFormatted : singleHourFormatted,
+        finalHour: isMultipleHour ? finalHourFormatted : singleHourFormatted,
       },
     }).then((response) => {
       console.log(response);
     });
   }
-
+  
   return (
     <div>
       <form className="mt-5">
