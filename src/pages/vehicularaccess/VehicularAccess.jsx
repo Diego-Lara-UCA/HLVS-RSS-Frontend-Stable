@@ -128,6 +128,8 @@ const VehicularAccess = () => {
           <div ref={qrBoxEl} className="qr-box"></div>
         </div>
       </div>
+
+      <h2>Estado de la Conexión MQTT: {connectStatus}</h2>
     </div>
   );
 };
