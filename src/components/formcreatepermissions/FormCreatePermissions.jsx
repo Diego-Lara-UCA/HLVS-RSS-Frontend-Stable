@@ -2,106 +2,204 @@ import React, { useState } from "react";
 import {
   Button,
   Input,
-  DateRangePicker,
   DatePicker,
   TimeInput,
   RadioGroup,
   Radio,
-  Divider,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 import { ClockCircleLinearIcon } from "../clockcircleLinearicon/ClockCircleLinearIcon";
-import { Time } from "@internationalized/date";
+import axios from "axios";
+import { parseDate, parseAbsoluteToLocal } from "@internationalized/date";
 
-const daysOfWeek = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
+const days = [
+  { key: "1", label: "Monday" },
+  { key: "2", label: "Tuesday" },
+  { key: "3", label: "Wednesday" },
+  { key: "4", label: "Thursday" },
+  { key: "5", label: "Friday" },
+  { key: "6", label: "Saturday" },
+  { key: "7", label: "Sunday" },
 ];
 
 const FormCreatePermissions = () => {
+  let options = { year: "numeric", month: "2-digit", day: "2-digit" };
+  let currentDate = new Date()
+    .toLocaleDateString("es-ES", options)
+    .split("/")
+    .reverse()
+    .join("-");
   const [selectedDays, setSelectedDays] = useState([]);
+  const [expirationType, setExpirationType] = useState("ByRange");
   const [isMultipleDate, setIsMultipleDate] = useState(true);
   const [isMultipleHour, setIsMultipleHour] = useState(true);
+  const [emailVisitant, setEmailVisitant] = useState("");
+  const [firstDateRange, setFirstDateRange] = useState(parseDate(currentDate));
+  const [secondDateRange, setSecondDateRange] = useState(parseDate(currentDate));
+  const [singleDate, setSingleDate] = useState(parseDate(currentDate));
+  const [initialHour, setInitialHour] = useState(parseAbsoluteToLocal("2024-04-08T18:45:22Z"));
+  const [finalHour, setFinalHour] = useState(parseAbsoluteToLocal("2024-04-08T18:45:22Z"));
+  const [singleHour, setSingleHour] = useState(parseAbsoluteToLocal("2024-04-08T18:45:22Z"));
 
-  const toggleDay = (day) => {
-    setSelectedDays((prevDays) => {
-      if (prevDays.includes(day)) {
-        return prevDays.filter((d) => d !== day);
-      } else {
-        return [...prevDays, day];
-      }
-    });
+  const handleSelectionChange = (e) => {
+    setSelectedDays(new Set(e.target.value.split(",")));
   };
+
+  const formatDate = (date) => {
+    return `${date.year}-${date.month.toString().padStart(2, "0")}-${date.day
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  const formatTime = (time) => {
+    return `${time.hour.toString().padStart(2, "0")}:${time.minute
+      .toString()
+      .padStart(2, "0")}:${time.second.toString().padStart(2, "0")}`;
+  };
+
+  const handleMultipleDateClick = () => {
+    setIsMultipleDate(true);
+  };
+
+  const handleSingleDateClick = () => {
+    setIsMultipleDate(false);
+  };
+
+  const handleMultipleHourClick = () => {
+    setIsMultipleHour(true);
+    setExpirationType("ByRange");
+  };
+
+  const handleSingleHourClick = () => {
+    setIsMultipleHour(false);
+    setExpirationType("ByEntry");
+  };
+
+  function postCreatePermissions() {
+    const firstDateRangeFormatted = formatDate(firstDateRange);
+    const secondDateRangeFormatted = formatDate(secondDateRange);
+    const singleDateFormatted = formatDate(singleDate);
+    const initialHourFormatted = formatTime(initialHour);
+    const finalHourFormatted = formatTime(finalHour);
+    const singleHourFormatted = formatTime(singleHour);
+
+    console.log(emailVisitant);
+    console.log(isMultipleDate ? firstDateRangeFormatted : singleDateFormatted);
+    console.log(
+      isMultipleDate ? secondDateRangeFormatted : singleDateFormatted
+    );
+    console.log(selectedDays);
+    console.log(isMultipleHour ? initialHourFormatted : singleHourFormatted);
+    console.log(isMultipleHour ? finalHourFormatted : singleHourFormatted);
+    console.log(isMultipleHour ? expirationType : "ByEntry");
+
+    axios({
+      method: "post",
+      url: `https://api.securityhlvs.com/api/request-permissions`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: {
+        email: emailVisitant,
+        days: Array.from(selectedDays),
+        firstDate: isMultipleDate
+          ? firstDateRangeFormatted
+          : singleDateFormatted,
+        secondDate: isMultipleDate
+          ? secondDateRangeFormatted
+          : singleDateFormatted,
+        initialHour: isMultipleHour
+          ? initialHourFormatted
+          : singleHourFormatted,
+        finalHour: isMultipleHour ? finalHourFormatted : singleHourFormatted,
+        expirationType: isMultipleHour ? expirationType : "ByEntry",
+      },
+    }).then((response) => {
+      console.log(response);
+    });
+  }
 
   return (
     <div>
       <form className="mt-5">
         <div className="flex flex-col max-w-3xl gap-4">
-          <Input label="Email visitant" type="text" />
+          <Input
+            label="Email visitant"
+            type="text"
+            value={emailVisitant}
+            onChange={(e) => setEmailVisitant(e.target.value)}
+          />
           <div>
             <Button
-              className={`bg-indigo-200 text-white mr-2 ${
-                isMultipleDate ? "bg-indigo-400" : ""
+              className={`bg-zinc-300 text-white mr-2 ${
+                isMultipleDate ? "bg-zinc-500" : ""
               }`}
               variant="flat"
-              onClick={() => setIsMultipleDate(true)}
+              onClick={handleMultipleDateClick}
             >
               Multiple date
             </Button>
             <Button
-              className={`bg-indigo-200 px-6 text-white ${
-                !isMultipleDate ? "bg-indigo-400" : ""
+              className={`bg-zinc-300 px-6 text-white ${
+                !isMultipleDate ? "bg-zinc-500" : ""
               }`}
               variant="flat"
-              onClick={() => setIsMultipleDate(false)}
+              onClick={handleSingleDateClick}
             >
               Single date
             </Button>
           </div>
           {isMultipleDate ? (
-            <div>
-              <DateRangePicker label="Select a date range" />
+            <div className="flex flex-col">
+              <div className="flex gap-2 mb-4">
+                <DatePicker
+                  label="Select a initial date"
+                  value={firstDateRange}
+                  onChange={setFirstDateRange}
+                />
+                <DatePicker
+                  label="Select a final date"
+                  value={secondDateRange}
+                  onChange={setSecondDateRange}
+                />
+              </div>
+              <div className="overflow-x-auto flex flex-row flex-nowrap gap-2 ">
+                <Select
+                  label="Select days of the week"
+                  selectionMode="multiple"
+                  selectedKeys={selectedDays}
+                  onChange={handleSelectionChange}
+                >
+                  {days.map((day) => (
+                    <SelectItem key={day.label}>{day.label}</SelectItem>
+                  ))}
+                </Select>
+              </div>
             </div>
           ) : (
-            <div>
-              <DatePicker label="Select a date" />
-            </div>
+            <DatePicker
+              label="Select a date"
+              value={singleDate}
+              onChange={setSingleDate}
+            />
           )}
-          <div className="overflow-x-auto flex flex-row flex-nowrap gap-2 ">
-            {daysOfWeek.map((day, index) => (
-              <Button
-                className={`bg-gray-200 border-gray-200 text-gray-500 hover:bg-gray-300 hover:border-gray-300 px-12 lg:px-4 ${
-                  selectedDays.includes(day)
-                    ? "bg-gray-400 hover:bg-gray-400 text-white"
-                    : ""
-                }`}
-                key={index}
-                onClick={() => toggleDay(day)}
-              >
-                {day}
-              </Button>
-            ))}
-          </div>
           <div>
             <Button
-              className={`bg-indigo-200 text-white mr-2 ${
-                isMultipleHour ? "bg-indigo-400" : ""
+              className={`bg-zinc-300 text-white mr-2 ${
+                isMultipleHour ? "bg-zinc-500" : ""
               }`}
               variant="flat"
-              onClick={() => setIsMultipleHour(true)}
+              onClick={handleMultipleHourClick}
             >
               Multiple hours
             </Button>
             <Button
-              className={`bg-indigo-200 px-6 text-white ${
-                !isMultipleHour ? "bg-indigo-400" : ""
+              className={`bg-zinc-300 px-6 text-white ${
+                !isMultipleHour ? "bg-zinc-500" : ""
               }`}
               variant="flat"
-              onClick={() => setIsMultipleHour(false)}
+              onClick={handleSingleHourClick}
             >
               Single hour
             </Button>
@@ -112,47 +210,62 @@ const FormCreatePermissions = () => {
                 <TimeInput
                   label="Select the start time"
                   labelPlacement="inside"
+                  hideTimeZone
+                  hourCycle={24}
                   endContent={
                     <ClockCircleLinearIcon className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
                   }
+                  value={initialHour}
+                  onChange={setInitialHour}
                 />
                 <TimeInput
                   label="Select the end time"
                   labelPlacement="inside"
+                  hideTimeZone
+                  hourCycle={24}
                   endContent={
                     <ClockCircleLinearIcon className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
                   }
+                  value={finalHour}
+                  onChange={setFinalHour}
                 />
               </div>
               <div className="mt-2 pl-2">
                 <RadioGroup
+                  value={expirationType}
+                  onChange={(e) => setExpirationType(e.target.value)}
                   className="text-xs"
                   label="Expiration time "
                   orientation="horizontal"
                 >
-                  <Radio className="mr-2" value="1">
+                  <Radio className="mr-2" value="ByRange">
                     <span className="text-sm"> By range</span>
                   </Radio>
-                  <Radio value="2">
+                  <Radio value="ByEntry">
                     <span className="text-sm"> By entry</span>
                   </Radio>
                 </RadioGroup>
               </div>
             </div>
           ) : (
-            <div>
-              <TimeInput
-                label="Select a one hour time slot"
-                labelPlacement="inside"
-                endContent={
-                  <ClockCircleLinearIcon className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
-                }
-              />
-            </div>
+            <TimeInput
+              label="Select a one hour time slot"
+              labelPlacement="inside"
+              hideTimeZone
+              hourCycle={24}
+              endContent={
+                <ClockCircleLinearIcon className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
+              }
+              value={singleHour}
+              onChange={setSingleHour}
+            />
           )}
-
-          <div className="mt-8">
-            <Button color="secondary" variant="shadow">
+          <div className="mt-8 py-4 flex justify-center lg:justify-end ">
+            <Button
+              onClick={postCreatePermissions}
+              className=" bg-zinc-700 text-white"
+              variant="shadow"
+            >
               Create permission
             </Button>
           </div>
