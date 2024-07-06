@@ -242,6 +242,7 @@ const ManageGuards = () => {
   const [emailGuard, setEmailGuard] = useState("");
 
   function postManageGuards() {
+    console.log(emailGuard);
     axios({
       method: "post",
       url: `https://api.securityhlvs.com/api/manage-guards`,
