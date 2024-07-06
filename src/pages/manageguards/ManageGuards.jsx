@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Title from "../../components/title/Title";
 import { Input, Button } from "@nextui-org/react";
 import {
@@ -252,6 +252,23 @@ const ManageGuards = () => {
       data: {
         email: "email",
       },
+    });
+  }
+
+  useEffect(() => {
+    getManageGuards();
+  }, []);
+
+  function getManageGuards() {
+    axios({
+      method: "get",
+      url: `https://api.securityhlvs.com/api/manage-guards`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => {
+      console.log(response);
+      setLogs(response.data);
     });
   }
 
