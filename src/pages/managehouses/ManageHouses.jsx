@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Title from "../../components/title/Title";
 import { Input, Button } from "@nextui-org/react";
 import {
@@ -21,6 +21,8 @@ import { columns, users } from "./data";
 import { SearchIcon } from "../../components/searchicon/SearchIcon";
 import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
 import { capitalize } from "../../components/capitalize/utils";
+import { data } from "autoprefixer";
+import axios from "axios";
 
 const INITIAL_VISIBLE_COLUMNS = ["name", "email", "actions"];
 
@@ -236,6 +238,46 @@ const ManageHouses = () => {
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
+  const [houseNumber, setHouseNumber] = useState("");
+  const [dataHouse, setDataHouse] = useState([]);
+  const [emailResident, setEmailResident] = useState("");
+
+  // Function to post houses by ID
+  function postHousesByID() {
+    const parsedHouseNumber = parseInt(houseNumber, 10);
+    console.log(parsedHouseNumber);
+
+    axios({
+      method: "post",
+      url: `https://api.securityhlvs.com/api/houses/${houseNumber}`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: {
+        houseNumber: parsedHouseNumber,
+      }.them((response) => {
+        console.log(response);
+        setDataHouse(response.data);
+      }),
+    });
+  }
+
+  function postAddResidentDatails() {
+    console.log(emailResident);
+    axios({
+      method: "post",
+      url: `https://api.securityhlvs.com/api/houses/${houseNumber}/residents`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: {
+        email: email,
+      }.then((response) => {
+        console.log(response);
+      }),
+    });
+  }
+
   return (
     <div className="container-tab pb-20">
       <Title
@@ -243,28 +285,47 @@ const ManageHouses = () => {
         description="Manage your house list: add new entries, update existing ones, or remove as needed."
       />
 
-      <form>
+      <div>
         <div className="max-w-3xl flex flex-col gap-4">
           <div className="flex items-center gap-3">
-            <Input label="House number (ID)" type="text" />
+            <Input
+              label="House number (ID)"
+              type="text"
+              size="sm"
+              value={houseNumber}
+              onValueChange={setHouseNumber}
+            />
             <Button
-              className="py-7 px-8 bg-indigo-200 text-indigo-600"
+              className="py-6 px-8 bg-zinc-700 text-white"
               variant="flat"
               type="submit"
+              onPress={postHousesByID}
             >
               Search
             </Button>
           </div>
-          <Input label="Address" type="text" />
-          <Input label="Numbers of residents" type="text" />
-          <Input label="Resident in charge (email)" type="text" />
+          <Input label="Address" type="text" size="sm" readOnly />
+          <Input label="Numbers of residents" type="text" size="sm" readOnly />
+          <Input
+            label="Resident in charge (email)"
+            type="text"
+            size="sm"
+            readOnly
+          />
           <h2 className="text-gray-600 font-semibold mt-5">Resident Details</h2>
           <div className="flex items-center max-w-6xl gap-3">
-            <Input label="Email" type="text" />
+            <Input
+              label="Email"
+              type="text"
+              size="sm"
+              value={emailResident}
+              onValueChange={setEmailResident}
+            />
             <Button
-              className="py-7 px-8 bg-indigo-200 text-indigo-600"
+              className="py-6 px-8 bg-zinc-700 text-white"
               variant="flat"
               type="button"
+              onPress={postAddResidentDatails}
             >
               Add member
             </Button>
@@ -309,7 +370,7 @@ const ManageHouses = () => {
             )}
           </TableBody>
         </Table>
-      </form>
+      </div>
     </div>
   );
 };
