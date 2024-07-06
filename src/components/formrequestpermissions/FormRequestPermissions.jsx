@@ -31,6 +31,7 @@ const FormRequestPermissions = () => {
     .reverse()
     .join("-");
   const [selectedDays, setSelectedDays] = useState([]);
+  const [expirationType, setExpirationType] = useState("1");
   const [isMultipleDate, setIsMultipleDate] = useState(true);
   const [isMultipleHour, setIsMultipleHour] = useState(true);
   const [emailVisitant, setEmailVisitant] = useState("");
@@ -40,8 +41,6 @@ const FormRequestPermissions = () => {
   const [initialHour, setInitialHour] = useState(parseAbsoluteToLocal("2024-04-08T18:45:22Z"));
   const [finalHour, setFinalHour] = useState(parseAbsoluteToLocal("2024-04-08T18:45:22Z"));
   const [singleHour, setSingleHour] = useState(parseAbsoluteToLocal("2024-04-08T18:45:22Z"));
-
-  
 
   const handleSelectionChange = (e) => {
     setSelectedDays(new Set(e.target.value.split(",")));
@@ -62,17 +61,16 @@ const FormRequestPermissions = () => {
     const initialHourFormatted = formatTime(initialHour);
     const finalHourFormatted = formatTime(finalHour);
     const singleHourFormatted = formatTime(singleHour);
-  
+    
+
     console.log(emailVisitant);
     console.log(isMultipleDate ? firstDateRangeFormatted : singleDateFormatted);
     console.log(isMultipleDate ? secondDateRangeFormatted : singleDateFormatted);
     console.log(selectedDays);
     console.log(isMultipleHour ? initialHourFormatted : singleHourFormatted);
     console.log(isMultipleHour ? finalHourFormatted : singleHourFormatted);
+    console.log(isMultipleHour ? expirationType:"ByEntry");
 
-  
-
-  
     axios({
       method: "post",
       url: `https://api.securityhlvs.com/api/request-permissions`,
@@ -81,18 +79,18 @@ const FormRequestPermissions = () => {
       },
       data: {
         email: emailVisitant,
-        days: selectedDays,
+        days: Array.from(selectedDays),
         firstDate: isMultipleDate ? firstDateRangeFormatted : singleDateFormatted,
         secondDate: isMultipleDate ? secondDateRangeFormatted : singleDateFormatted,
-        daysOfWeek: Array.from(selectedDays),
         initialHour: isMultipleHour ? initialHourFormatted : singleHourFormatted,
         finalHour: isMultipleHour ? finalHourFormatted : singleHourFormatted,
+        expirationType: isMultipleHour ? expirationType: "2",
       },
     }).then((response) => {
       console.log(response);
     });
   }
-  
+
   return (
     <div>
       <form className="mt-5">
@@ -137,7 +135,6 @@ const FormRequestPermissions = () => {
                   onChange={setSecondDateRange}
                 />
               </div>
-
               <div className="overflow-x-auto flex flex-row flex-nowrap gap-2 ">
                 <Select
                   label="Select days of the week"
@@ -152,15 +149,12 @@ const FormRequestPermissions = () => {
               </div>
             </div>
           ) : (
-            <div>
-              <DatePicker
-                label="Select a date"
-                value={singleDate}
-                onChange={setSingleDate}
-              />
-            </div>
+            <DatePicker
+              label="Select a date"
+              value={singleDate}
+              onChange={setSingleDate}
+            />
           )}
-
           <div>
             <Button
               className={`bg-zinc-300 text-white mr-2 ${
@@ -209,35 +203,34 @@ const FormRequestPermissions = () => {
               </div>
               <div className="mt-2 pl-2">
                 <RadioGroup
+                  value={expirationType}
+                  onChange={(e) => setExpirationType(e.target.value)}
                   className="text-xs"
                   label="Expiration time "
                   orientation="horizontal"
                 >
-                  <Radio className="mr-2" value="1">
+                  <Radio className="mr-2" value="ByRange">
                     <span className="text-sm"> By range</span>
                   </Radio>
-                  <Radio value="2">
+                  <Radio value="ByEntry">
                     <span className="text-sm"> By entry</span>
                   </Radio>
                 </RadioGroup>
               </div>
             </div>
           ) : (
-            <div>
-              <TimeInput
-                label="Select a one hour time slot"
-                labelPlacement="inside"
-                hideTimeZone
-                hourCycle={24}
-                endContent={
-                  <ClockCircleLinearIcon className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
-                }
-                value={singleHour}
-                onChange={setSingleHour}
-              />
-            </div>
+            <TimeInput
+              label="Select a one hour time slot"
+              labelPlacement="inside"
+              hideTimeZone
+              hourCycle={24}
+              endContent={
+                <ClockCircleLinearIcon className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
+              }
+              value={singleHour}
+              onChange={setSingleHour}
+            />
           )}
-
           <div className="mt-8 py-4 flex justify-center lg:justify-end ">
             <Button
               onClick={postRequestPermissions}
