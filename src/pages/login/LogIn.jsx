@@ -15,17 +15,19 @@ const LogIn = () => {
         token: token,
       },
     })
-    .then((response) => {
-      console.log(response);
-      if (response.status === 200) {
-        window.location.href = "/profile";
-      } else if (response.status === 202) {
-        window.location.href = "/dashboard";
-      }
-    })
-    .catch((error) => {
-      console.error("Error during authentication:", error);
-    });
+      .then((response) => {
+        console.log(response);
+        if (response.status === 200) {
+          window.location.href = "/profile";
+        } else if (response.status === 202) {
+          const JWToken = response.data.data.token;
+          localStorage.setItem("token", JWToken);
+          window.location.href = "/dashboard";
+        }
+      })
+      .catch((error) => {
+        console.error("Error during authentication:", error);
+      });
   }
 
   const loginAuth = useGoogleLogin({
