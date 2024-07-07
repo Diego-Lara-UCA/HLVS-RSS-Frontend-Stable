@@ -38,13 +38,13 @@ const Profile = () => {
         email: email,
         documentType: typeDocument,
         documentNumber: documentNumber,
-        userType: "USER",
+        userType: "GUEST",
       },
     })
     .then(() => {
       toast.success("Profile registered successfully");
       emptyFields();
-      navigate("/dashboard");
+      navigate("/login");
     })
     .catch((error) => {
       toast.error("Error registering profile");
