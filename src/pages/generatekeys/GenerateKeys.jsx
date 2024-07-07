@@ -3,24 +3,19 @@ import Title from "../../components/title/Title";
 import QRCode from "qrcode.react";
 import { useRef, useEffect, useState } from "react";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { Button } from "@nextui-org/react";
+import { set } from "date-fns";
 
 const GenerateKeys = () => {
   const [qrCode, setQrCode] = useState("");
   const [showButton, setShowButton] = useState(true);
-  const [timeLeft, setTimeLeft] = useState(600);
-
-  const [Key, setKey] = useState("");
-
-  const generateRandomString = () => {
-    return (
-      Math.random().toString(36).substring(2, 15) +
-      Math.random().toString(36).substring(2, 15)
-    );
-  };
+  const [timeLeft, setTimeLeft] = useState();
+  const [key, setKey] = useState("");
+  const [graceTime, setGraceTime] = useState(0);
 
   const handleClick = () => {
-    const randomString = generateRandomString();
-    setQrCode(randomString);
+    setQrCode(key);
     setShowButton(false);
     setTimeLeft(600);
   };
@@ -46,19 +41,34 @@ const GenerateKeys = () => {
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
 
-  function generateKey() {
+  useEffect(() => {
+    getGenerateKey();
+  }, []);
+
+  const token = localStorage.getItem("token");
+  let emailUser = "";
+  if (token) {
+    const decodedToken = jwtDecode(token);
+    emailUser = decodedToken.email;
+  }
+
+  function getGenerateKey() {
     axios({
-      method: "get",
-      url: `https://api.securityhlvs.com/api/generate-key`,
+      method: "post",
+      url: `https://api.securityhlvs.com/api/residential/permission/create-resident`,
       headers: {
         "Content-Type": "application/json",
       },
+      data: {
+        email: emailUser,
+      },
     }).then((response) => {
       console.log(response);
-      setKey(response.data);
+      setKey(response.data.data.key);
+      setGraceTime(response.data.data.graceTime);
     });
   }
-  
+
   return (
     <div className="container-tab">
       <Title
@@ -66,21 +76,24 @@ const GenerateKeys = () => {
         description="For your safety, do not share this key with anyone"
       />
 
-      <div className="flex justify-center items-center flex-col gap-4 mt-10">
+      <div className="mt-10">
         {showButton ? (
-          <button
-            className="font-semibold rounded-lg px-10 py-5 bg-gray-300 hover:bg-gray-400"
+          <Button
+            variant="flat"
+            className="bg-zinc-700 text-white"
             onClick={handleClick}
           >
-            Generar código QR
-          </button>
+            Generate QR code
+          </Button>
         ) : (
           <>
-            <QRCode size={250} value={qrCode} />
-            <label className="mt-5 text-gray-600">
-              El código QR expirará en:{" "}
-              <span className="text-red-500">{formatTime(timeLeft)}</span>
-            </label>
+            <div className="flex justify-center  items-center  flex-col gap-4">
+              <QRCode size={250} value={qrCode} />
+              <label className=" text-gray-600 ">
+                The QR code will expire in:{" "}
+                <span className="text-red-500">{formatTime(timeLeft)}</span>
+              </label>
+            </div>
           </>
         )}
       </div>
