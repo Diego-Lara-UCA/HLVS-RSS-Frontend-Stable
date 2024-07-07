@@ -86,6 +86,17 @@ const FormCreatePermissions = () => {
     setExpirationType("ByEntry");
   };
 
+  function emptyFields() {
+    setEmailVisitant("");
+    setSelectedDays([]);
+    setFirstDateRange(parseDate(currentDate));
+    setSecondDateRange(parseDate(currentDate));
+    setSingleDate(parseDate(currentDate));
+    setInitialHour(parseAbsoluteToLocal("2024-04-08T18:45:22Z"));
+    setFinalHour(parseAbsoluteToLocal("2024-04-08T18:45:22Z"));
+    setSingleHour(parseAbsoluteToLocal("2024-04-08T18:45:22Z"));
+  }
+
   const token = localStorage.getItem("token");
   let emailUser = "";
   if (token) {
@@ -101,15 +112,10 @@ const FormCreatePermissions = () => {
     const finalHourFormatted = formatTime(finalHour);
     const singleHourFormatted = formatTime(singleHour);
 
-    console.log(emailVisitant);
-    console.log(isMultipleDate ? firstDateRangeFormatted : singleDateFormatted);
-    console.log(
-      isMultipleDate ? secondDateRangeFormatted : singleDateFormatted
-    );
-    console.log(selectedDays);
-    console.log(isMultipleHour ? initialHourFormatted : singleHourFormatted);
-    console.log(isMultipleHour ? finalHourFormatted : singleHourFormatted);
-    console.log(isMultipleHour ? expirationType : "ByEntry");
+    if (!emailVisitant || !selectedDays || !expirationType) {
+      toast("Please fill all the fields", { type: "error" });
+      return;
+    }
 
     axios({
       method: "post",
@@ -134,13 +140,14 @@ const FormCreatePermissions = () => {
         expirationType: isMultipleHour ? expirationType : "ByEntry",
       },
     })
-      .then((response) => {
+      .then(() => {
         toast("Permission created successfully", { type: "success" });
-        console.log(response);
+        emptyFields();
+        
       })
-      .catch((error) => {
+      .catch(() => {
         toast("Error creating permission", { type: "error" });
-        console.error(error);
+       
       });
   }
 
