@@ -7,30 +7,20 @@ import { Button } from "@nextui-org/react";
 
 const GenerateKeys = () => {
   const initialQrCode = localStorage.getItem("qrCode") || "";
-  const initialTimeLeft = parseInt(localStorage.getItem("timeLeft"), 10) || 0;
   const initialGraceTime = localStorage.getItem("graceTime") || "00:00";
   const initialCreationTime = localStorage.getItem("creationTime") || "";
+  const initialCreationTimeInSeconds = parseInt(localStorage.getItem("creationTimeInSeconds"), 10) || 0;
   const totalGraceTime = parseInt(localStorage.getItem("totalGraceTime"), 10) || 0;
 
-  const [qrCode, setQrCode] = useState(initialQrCode);
-  const [showButton, setShowButton] = useState(!initialQrCode);
-  const [timeLeft, setTimeLeft] = useState(initialTimeLeft);
-  const [key, setKey] = useState("");
-  const [graceTime, setGraceTime] = useState(initialGraceTime);
-  const [creationTime, setCreationTime] = useState(initialCreationTime);
-
+  // Calculate the initial time left
   const now = new Date();
   const hours = now.getHours();
   const minutes = now.getMinutes();
   const seconds = now.getSeconds();
-
   const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
-
-  console.log(`Total de segundos desde la medianoche: ${totalSeconds}`);
 
   function convertToSeconds(timeStr) {
     if (!timeStr) return 0;
-
     const parts = timeStr.split(":").map(Number);
     if (parts.length === 3) {
       const [hours, minutes, seconds] = parts;
@@ -44,6 +34,24 @@ const GenerateKeys = () => {
     return 0;
   }
 
+  const graceTimeSeconds = convertToSeconds(initialGraceTime);
+  let initialTimeLeft = initialGraceTime
+    ? graceTimeSeconds - (totalSeconds - initialCreationTimeInSeconds)
+    : 0;
+
+  if (initialTimeLeft < 0) {
+    initialTimeLeft = 0;
+  }
+
+  const [qrCode, setQrCode] = useState(initialQrCode);
+  const [showButton, setShowButton] = useState(!initialQrCode);
+  const [timeLeft, setTimeLeft] = useState(initialTimeLeft);
+  const [key, setKey] = useState("");
+  const [graceTime, setGraceTime] = useState(initialGraceTime);
+  const [creationTime, setCreationTime] = useState(initialCreationTime);
+
+  console.log(`Total de segundos desde la medianoche: ${totalSeconds}`);
+
   useEffect(() => {
     // Check if totalGraceTime has expired
     if (totalSeconds > totalGraceTime) {
@@ -54,6 +62,7 @@ const GenerateKeys = () => {
       localStorage.removeItem("graceTime");
       localStorage.removeItem("creationTime");
       localStorage.removeItem("totalGraceTime");
+      localStorage.removeItem("creationTimeInSeconds");
     }
 
     const timer = setInterval(() => {
@@ -71,6 +80,7 @@ const GenerateKeys = () => {
         localStorage.removeItem("graceTime");
         localStorage.removeItem("creationTime");
         localStorage.removeItem("totalGraceTime");
+        localStorage.removeItem("creationTimeInSeconds");
       }
     }, 1000);
 
@@ -120,6 +130,7 @@ const GenerateKeys = () => {
       localStorage.setItem("graceTime", newGraceTime);
       localStorage.setItem("creationTime", newCreationTime);
       localStorage.setItem("totalGraceTime", totalGraceTime.toString());
+      localStorage.setItem("creationTimeInSeconds", creationSeconds.toString());
 
       setShowButton(false);
     }).catch((error) => {
