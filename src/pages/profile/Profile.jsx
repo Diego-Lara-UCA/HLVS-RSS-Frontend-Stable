@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [typeDocument, setTypeDocument] = useState("");
   const [documentNumber, setDocumentNumber] = useState("");
   const navigate = useNavigate();
@@ -21,8 +20,10 @@ const Profile = () => {
     { key: "2", type: "Passport" },
   ];
 
+  const userEmail = localStorage.getItem("email");
+
   const registerProfileUser = () => {
-    if (!name || !email || !typeDocument || !documentNumber) {
+    if (!name || !typeDocument || !documentNumber) {
       toast.error("Please fill all the fields");
       return;
     }
@@ -35,26 +36,26 @@ const Profile = () => {
       },
       data: {
         name: name,
-        email: email,
+        email: userEmail,
         documentType: typeDocument,
         documentNumber: documentNumber,
         userType: "GUEST",
       },
     })
-    .then(() => {
-      toast.success("Profile registered successfully");
-      emptyFields();
-      navigate("/login");
-    })
-    .catch((error) => {
-      toast.error("Error registering profile");
-      console.error(error);
-    });
+      .then(() => {
+        toast.success("Profile registered successfully");
+        emptyFields();
+        localStorage.removeItem("email");
+        navigate("/login");
+      })
+      .catch((error) => {
+        toast.error("Error registering profile");
+        console.error(error);
+      });
   };
 
   function emptyFields() {
     setName("");
-    setEmail("");
     setTypeDocument("");
     setDocumentNumber("");
   }
@@ -80,9 +81,8 @@ const Profile = () => {
               className="col-span-2"
               type="email"
               label="Email"
-              onClear={() => console.log("input cleared")}
-              value={email}
-              onValueChange={setEmail}
+              value={userEmail}
+              disable
             />
             <Select
               label="Type of document"
