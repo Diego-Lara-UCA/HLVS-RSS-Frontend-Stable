@@ -12,6 +12,8 @@ import {
 import { ClockCircleLinearIcon } from "../clockcircleLinearicon/ClockCircleLinearIcon";
 import axios from "axios";
 import { parseDate, parseAbsoluteToLocal } from "@internationalized/date";
+import { jwtDecode } from "jwt-decode";
+import { toast, ToastContainer } from "react-toastify";
 
 const days = [
   { key: "1", label: "Monday" },
@@ -36,11 +38,19 @@ const FormCreatePermissions = () => {
   const [isMultipleHour, setIsMultipleHour] = useState(true);
   const [emailVisitant, setEmailVisitant] = useState("");
   const [firstDateRange, setFirstDateRange] = useState(parseDate(currentDate));
-  const [secondDateRange, setSecondDateRange] = useState(parseDate(currentDate));
+  const [secondDateRange, setSecondDateRange] = useState(
+    parseDate(currentDate)
+  );
   const [singleDate, setSingleDate] = useState(parseDate(currentDate));
-  const [initialHour, setInitialHour] = useState(parseAbsoluteToLocal("2024-04-08T18:45:22Z"));
-  const [finalHour, setFinalHour] = useState(parseAbsoluteToLocal("2024-04-08T18:45:22Z"));
-  const [singleHour, setSingleHour] = useState(parseAbsoluteToLocal("2024-04-08T18:45:22Z"));
+  const [initialHour, setInitialHour] = useState(
+    parseAbsoluteToLocal("2024-04-08T18:45:22Z")
+  );
+  const [finalHour, setFinalHour] = useState(
+    parseAbsoluteToLocal("2024-04-08T18:45:22Z")
+  );
+  const [singleHour, setSingleHour] = useState(
+    parseAbsoluteToLocal("2024-04-08T18:45:22Z")
+  );
 
   const handleSelectionChange = (e) => {
     setSelectedDays(new Set(e.target.value.split(",")));
@@ -76,6 +86,13 @@ const FormCreatePermissions = () => {
     setExpirationType("ByEntry");
   };
 
+  const token = localStorage.getItem("token");
+  let emailUser = "";
+  if (token) {
+    const decoded = jwtDecode(token);
+    emailUser = decoded.email;
+  }
+
   function postCreatePermissions() {
     const firstDateRangeFormatted = formatDate(firstDateRange);
     const secondDateRangeFormatted = formatDate(secondDateRange);
@@ -96,12 +113,13 @@ const FormCreatePermissions = () => {
 
     axios({
       method: "post",
-      url: `https://api.securityhlvs.com/api/request-permissions`,
+      url: `https://api.securityhlvs.com/api/residential/permission/create`,
       headers: {
         "Content-Type": "application/json",
       },
       data: {
-        email: emailVisitant,
+        email_house: emailUser,
+        email_permission: emailVisitant,
         days: Array.from(selectedDays),
         firstDate: isMultipleDate
           ? firstDateRangeFormatted
@@ -115,14 +133,20 @@ const FormCreatePermissions = () => {
         finalHour: isMultipleHour ? finalHourFormatted : singleHourFormatted,
         expirationType: isMultipleHour ? expirationType : "ByEntry",
       },
-    }).then((response) => {
-      console.log(response);
-    });
+    })
+      .then((response) => {
+        toast("Permission created successfully", { type: "success" });
+        console.log(response);
+      })
+      .catch((error) => {
+        toast("Error creating permission", { type: "error" });
+        console.error(error);
+      });
   }
 
   return (
     <div>
-      <form className="mt-5">
+      <div className="mt-5">
         <div className="flex flex-col max-w-3xl gap-4">
           <Input
             label="Email visitant"
@@ -270,7 +294,8 @@ const FormCreatePermissions = () => {
             </Button>
           </div>
         </div>
-      </form>
+      </div>
+      <ToastContainer stacked />
     </div>
   );
 };
