@@ -1,8 +1,6 @@
 import { Button } from "@nextui-org/react";
-import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import { Link, redirect } from "react-router-dom";
 import GoogleIcon from "@mui/icons-material/Google";
 
 const LogIn = () => {
@@ -13,11 +11,20 @@ const LogIn = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      data: {	
+      data: {
         token: token,
       },
-    }).then((respone) => {
-      console.log(respone);
+    })
+    .then((response) => {
+      console.log(response);
+      if (response.status === 200) {
+        window.location.href = "/profile";
+      } else if (response.status === 202) {
+        window.location.href = "/dashboard";
+      }
+    })
+    .catch((error) => {
+      console.error("Error during authentication:", error);
     });
   }
 
@@ -25,15 +32,14 @@ const LogIn = () => {
     onSuccess: (tokenResponse) => {
       console.log(tokenResponse);
       sendAuth(tokenResponse.access_token);
-      window.location.href = "/dashboard/profile";
     },
   });
 
   return (
     <div>
-      <div className="flex justify-center items-center bg-gradient-to-tr from-zinc-700 to-zinc-900  h-[100vh] w-full p-2">
+      <div className="flex justify-center items-center bg-gradient-to-tr from-zinc-700 to-zinc-900 h-[100vh] w-full p-2">
         <form
-          className="flex flex-col justify-center items-center py-14 px-10 w-full max-w-sm  2xl:max-w-sm backdrop-blur-md bg-white/70 rounded-lg"
+          className="flex flex-col justify-center items-center py-14 px-10 w-full max-w-sm 2xl:max-w-sm backdrop-blur-md bg-white/70 rounded-lg"
           action=""
         >
           <h1 className="mb-2 text-2xl text-center font-bold uppercase text-zinc-700">
@@ -43,7 +49,7 @@ const LogIn = () => {
             Welcome Back!
           </h2>
 
-          <div className="flex w-full flex-col gap-4 mb-20 ">
+          <div className="flex w-full flex-col gap-4 mb-20">
             <Button
               onClick={() => loginAuth()}
               variant="shadow"

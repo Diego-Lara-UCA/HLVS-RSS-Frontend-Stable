@@ -45,6 +45,15 @@ const AppRouter = () => {
           </>
         }
       />
+      <Route
+            path="profile"
+            element={
+              <>
+                <PageTitle title="HLVS | Profile" />
+                <Profile />
+              </>
+            }
+          />
       <Route path="/dashboard/*" element={<Dashboard />}>
         <Route
           element={
@@ -80,15 +89,7 @@ const AppRouter = () => {
               </>
             }
           />
-          <Route
-            path="profile"
-            element={
-              <>
-                <PageTitle title="HLVS | Profile" />
-                <Profile />
-              </>
-            }
-          />
+          
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route
               path="entryhistory"

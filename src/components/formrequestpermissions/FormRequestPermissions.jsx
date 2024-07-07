@@ -31,7 +31,7 @@ const FormRequestPermissions = () => {
     .reverse()
     .join("-");
   const [selectedDays, setSelectedDays] = useState([]);
-  const [expirationType, setExpirationType] = useState("1");
+  const [expirationType, setExpirationType] = useState("ByRange");
   const [isMultipleDate, setIsMultipleDate] = useState(true);
   const [isMultipleHour, setIsMultipleHour] = useState(true);
   const [emailVisitant, setEmailVisitant] = useState("");
@@ -47,11 +47,33 @@ const FormRequestPermissions = () => {
   };
 
   const formatDate = (date) => {
-    return `${date.year}-${date.month.toString().padStart(2, "0")}-${date.day.toString().padStart(2, "0")}`;
+    return `${date.year}-${date.month.toString().padStart(2, "0")}-${date.day
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   const formatTime = (time) => {
-    return `${time.hour.toString().padStart(2, "0")}:${time.minute.toString().padStart(2, "0")}:${time.second.toString().padStart(2, "0")}`;
+    return `${time.hour.toString().padStart(2, "0")}:${time.minute
+      .toString()
+      .padStart(2, "0")}:${time.second.toString().padStart(2, "0")}`;
+  };
+
+  const handleMultipleDateClick = () => {
+    setIsMultipleDate(true);
+  };
+
+  const handleSingleDateClick = () => {
+    setIsMultipleDate(false);
+  };
+
+  const handleMultipleHourClick = () => {
+    setIsMultipleHour(true);
+    setExpirationType("ByRange");
+  };
+
+  const handleSingleHourClick = () => {
+    setIsMultipleHour(false);
+    setExpirationType("ByEntry");
   };
 
   function postRequestPermissions() {
@@ -61,15 +83,16 @@ const FormRequestPermissions = () => {
     const initialHourFormatted = formatTime(initialHour);
     const finalHourFormatted = formatTime(finalHour);
     const singleHourFormatted = formatTime(singleHour);
-    
 
     console.log(emailVisitant);
     console.log(isMultipleDate ? firstDateRangeFormatted : singleDateFormatted);
-    console.log(isMultipleDate ? secondDateRangeFormatted : singleDateFormatted);
+    console.log(
+      isMultipleDate ? secondDateRangeFormatted : singleDateFormatted
+    );
     console.log(selectedDays);
     console.log(isMultipleHour ? initialHourFormatted : singleHourFormatted);
     console.log(isMultipleHour ? finalHourFormatted : singleHourFormatted);
-    console.log(isMultipleHour ? expirationType:"ByEntry");
+    console.log(isMultipleHour ? expirationType : "ByEntry");
 
     axios({
       method: "post",
@@ -80,11 +103,17 @@ const FormRequestPermissions = () => {
       data: {
         email: emailVisitant,
         days: Array.from(selectedDays),
-        firstDate: isMultipleDate ? firstDateRangeFormatted : singleDateFormatted,
-        secondDate: isMultipleDate ? secondDateRangeFormatted : singleDateFormatted,
-        initialHour: isMultipleHour ? initialHourFormatted : singleHourFormatted,
+        firstDate: isMultipleDate
+          ? firstDateRangeFormatted
+          : singleDateFormatted,
+        secondDate: isMultipleDate
+          ? secondDateRangeFormatted
+          : singleDateFormatted,
+        initialHour: isMultipleHour
+          ? initialHourFormatted
+          : singleHourFormatted,
         finalHour: isMultipleHour ? finalHourFormatted : singleHourFormatted,
-        expirationType: isMultipleHour ? expirationType: "ByEntry",
+        expirationType: isMultipleHour ? expirationType : "ByEntry",
       },
     }).then((response) => {
       console.log(response);
@@ -107,7 +136,7 @@ const FormRequestPermissions = () => {
                 isMultipleDate ? "bg-zinc-500" : ""
               }`}
               variant="flat"
-              onClick={() => setIsMultipleDate(true)}
+              onClick={handleMultipleDateClick}
             >
               Multiple date
             </Button>
@@ -116,7 +145,7 @@ const FormRequestPermissions = () => {
                 !isMultipleDate ? "bg-zinc-500" : ""
               }`}
               variant="flat"
-              onClick={() => setIsMultipleDate(false)}
+              onClick={handleSingleDateClick}
             >
               Single date
             </Button>
@@ -161,7 +190,7 @@ const FormRequestPermissions = () => {
                 isMultipleHour ? "bg-zinc-500" : ""
               }`}
               variant="flat"
-              onClick={() => setIsMultipleHour(true)}
+              onClick={handleMultipleHourClick}
             >
               Multiple hours
             </Button>
@@ -170,7 +199,7 @@ const FormRequestPermissions = () => {
                 !isMultipleHour ? "bg-zinc-500" : ""
               }`}
               variant="flat"
-              onClick={() => setIsMultipleHour(false)}
+              onClick={handleSingleHourClick}
             >
               Single hour
             </Button>
@@ -237,7 +266,7 @@ const FormRequestPermissions = () => {
               className=" bg-zinc-700 text-white"
               variant="shadow"
             >
-              Request permission
+              Create permission
             </Button>
           </div>
         </div>

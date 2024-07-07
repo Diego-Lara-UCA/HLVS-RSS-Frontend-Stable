@@ -43,67 +43,70 @@ const Profile = () => {
         email: email,
         documentType: typeDocument,
         documentNumber: documentNumber,
-        userType: "GUEST",
+        userType: "USER",
       },
     }).then((respone) => {
       console.log(respone);
+      window.location.href = "/dashboard";
     });
   };
 
   return (
-    <div className="container-tab">
-      <Title
-        title="Profile"
-        description="Set up your environment, don't share your personal information"
-      />
-      <form className="mt-8">
-        <div className="grid grid-cols-2 gap-4 max-w-3xl">
-          <Input
-            className="col-span-2"
-            type="text"
-            label="Name"
-            onClear={() => console.log("input cleared")}
-            value={name}
-            onValueChange={setName}
-          />
-          <Input
-            className="col-span-2"
-            type="email"
-            label="Email"
-            onClear={() => console.log("input cleared")}
-            value={email}
-            onValueChange={setEmail}
-          />
-          <Select
-            label="Type of document"
-            selectedKeys={[typeDocument]}
-            onChange={handleTypeDocumentChange}
-          >
-            {documents.map((document) => (
-              <SelectItem key={document.type}>
-                {document.type.toUpperCase()}
-              </SelectItem>
-            ))}
-          </Select>
-          <Input
-            type="text"
-            label="Document number"
-            onClear={() => console.log("input cleared")}
-            value={documentNumber}
-            onValueChange={setDocumentNumber}
-          />
+    <div className="container-tab flex justify-center items-center flex-col h-[100vh] bg-gradient-to-tr from-zinc-700 to-zinc-900">
+      <div className="bg-white rounded-md p-10">
+        <Title
+          title="Profile"
+          description="To continue, complete the necessary information"
+        />
+        <div className="mt-2">
+          <div className="grid grid-cols-2 gap-4 max-w-3xl">
+            <Input
+              className="col-span-2"
+              type="text"
+              label="Name"
+              onClear={() => console.log("input cleared")}
+              value={name}
+              onValueChange={setName}
+            />
+            <Input
+              className="col-span-2"
+              type="email"
+              label="Email"
+              onClear={() => console.log("input cleared")}
+              value={email}
+              onValueChange={setEmail}
+            />
+            <Select
+              label="Type of document"
+              selectedKeys={[typeDocument]}
+              onChange={handleTypeDocumentChange}
+            >
+              {documents.map((document) => (
+                <SelectItem key={document.type}>
+                  {document.type.toUpperCase()}
+                </SelectItem>
+              ))}
+            </Select>
+            <Input
+              type="text"
+              label="Document number"
+              onClear={() => console.log("input cleared")}
+              value={documentNumber}
+              onValueChange={setDocumentNumber}
+            />
+          </div>
+          <div className="mt-8 flex justify-center">
+            <Button
+              className="bg-zinc-700 text-white"
+              variant="shadow"
+              onPress={registerProfileUser}
+            >
+              Save changes
+            </Button>
+          </div>
+          <ToastContainer stacked />
         </div>
-        <div className="mt-8">
-          <Button
-            className="bg-zinc-700 text-white"
-            variant="shadow"
-            onPress={registerProfileUser}
-          >
-            Save changes
-          </Button>
-        </div>
-      <ToastContainer stacked />
-      </form>
+      </div>
     </div>
   );
 };
