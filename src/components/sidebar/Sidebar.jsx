@@ -24,7 +24,7 @@ const Sidebar = ({ isOpen, toggleMenu }) => {
                       isActive
                         ? "bg-gradient-to-tr from-zinc-700 to-zinc-900 text-white"
                         : ""
-                    } flex p-4 pl-6 w-[95%] rounded-r-full transition-all duration-100 ease-in gap-4`
+                    } flex p-4 pl-6 w-[95%] rounded-r-full transition-all duration-100 ease-in gap-4 animation-bounce`
                   }
                   onClick={() => {
                     if (isMobile()) toggleMenu();
