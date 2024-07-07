@@ -3,12 +3,14 @@ import Title from "../../components/title/Title";
 import { Input, Button, Select, SelectItem } from "@nextui-org/react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [typeDocument, setTypeDocument] = useState("");
   const [documentNumber, setDocumentNumber] = useState("");
+  const navigate = useNavigate();
 
   const handleTypeDocumentChange = (e) => {
     setTypeDocument(e.target.value);
@@ -20,15 +22,8 @@ const Profile = () => {
   ];
 
   const registerProfileUser = () => {
-    if (
-      name === "" ||
-      email === "" ||
-      typeDocument === "" ||
-      documentNumber === ""
-    ) {
-      toast("Please fill all the fields", {
-        type: "error",
-      });
+    if (!name || !email || !typeDocument || !documentNumber) {
+      toast.error("Please fill all the fields");
       return;
     }
 
@@ -45,11 +40,24 @@ const Profile = () => {
         documentNumber: documentNumber,
         userType: "USER",
       },
-    }).then((respone) => {
-      console.log(respone);
-      window.location.href = "/dashboard";
+    })
+    .then(() => {
+      toast.success("Profile registered successfully");
+      emptyFields();
+      navigate("/dashboard");
+    })
+    .catch((error) => {
+      toast.error("Error registering profile");
+      console.error(error);
     });
   };
+
+  function emptyFields() {
+    setName("");
+    setEmail("");
+    setTypeDocument("");
+    setDocumentNumber("");
+  }
 
   return (
     <div className="container-tab flex justify-center items-center flex-col h-[100vh] bg-gradient-to-tr from-zinc-700 to-zinc-900">
