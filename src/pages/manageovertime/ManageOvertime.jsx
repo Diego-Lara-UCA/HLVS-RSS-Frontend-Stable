@@ -1,28 +1,44 @@
 import React, { useState } from "react";
 import Title from "../../components/title/Title";
-import { Button, Input } from "@nextui-org/react";
+import { Button, TimeInput } from "@nextui-org/react";
+import { ClockCircleLinearIcon } from "../../components/clockcircleLinearicon/ClockCircleLinearIcon";
+import { parseDate, parseAbsoluteToLocal } from "@internationalized/date";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 
 const ManageOvertime = () => {
-  const [extraTimePermits, setExtraTimePermits] = useState("");
-  const [extraKeyTime, setExtraKeyTime] = useState("");
+  const [overtime, setOvertime] = useState(
+    parseAbsoluteToLocal("2024-04-08T18:45:00Z")
+  );
+
+  const formatTime = (time) => {
+    return `${time.hour.toString().padStart(2, "0")}:${time.minute
+      .toString()
+      .padStart(2, "0")}:${time.second.toString().padStart(2, "0")}`;
+  };
 
   function postManageOvertime() {
+    if (!overtime) {
+      toast("Please fill all the fields", { type: "error" });
+      return;
+    }
 
-    console.log(extraTimePermits);
-    console.log(extraKeyTime);
-  
     axios({
-      method: "post",
-      url: `https://api.securityhlvs.com/api/manage-overtime`,
+      method: "put",
+      url: `https://api.securityhlvs.com/api/grace-time/update`,
       headers: {
         "Content-Type": "application/json",
       },
       data: {
-        extraTimePermits: "extraTimePermits",
-        extraKeyTime: "extraKeyTime",
+        overtime: formatTime(overtime),
       },
-    });
+    })
+      .then(() => {
+        toast("Overtime updated successfully", { type: "success" });
+      })
+      .catch(() => {
+        toast("Error updating overtime", { type: "error" });
+      });
   }
 
   return (
@@ -31,32 +47,32 @@ const ManageOvertime = () => {
         title="Manage Overtime"
         description="Change these parameters only if necessary"
       />
-      <form className="mt-8 max-w-3xl">
+      <div className="mt-8 max-w-3xl">
         <div className="grid grid-cols-2 gap-4">
-          <Input
-            className="col-span-2"
-            type="text"
-            label="Extra time permits"
-            onClear={() => console.log("input cleared")}
-            onValue={extraTimePermits}
-            onValueChange={setExtraTimePermits}
-          />
-          <Input
-            className="col-span-2"
-            type="text"
-            label="Extra key time"
-            onClear={() => console.log("input cleared")}
-            onValue={extraKeyTime}
-            onValueChange={setExtraKeyTime}
+          <TimeInput
+            label="Overtime"
+            labelPlacement="inside"
+            hideTimeZone
+            hourCycle={24}
+            endContent={
+              <ClockCircleLinearIcon className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
+            }
+            value={overtime}
+            onChange={setOvertime}
           />
         </div>
 
         <div className="mt-10">
-          <Button onPress={postManageOvertime} className="bg-zinc-700 text-white" variant="shadow">
+          <Button
+            onPress={postManageOvertime}
+            className="bg-zinc-700 text-white"
+            variant="shadow"
+          >
             Save changes
           </Button>
         </div>
-      </form>
+      </div>
+      <ToastContainer />
     </div>
   );
 };
