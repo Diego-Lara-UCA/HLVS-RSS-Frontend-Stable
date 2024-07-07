@@ -5,6 +5,7 @@ import GoogleIcon from "@mui/icons-material/Google";
 import { Link } from "react-router-dom";
 
 const LogIn = () => {
+  
   function sendAuth(token) {
     axios({
       method: "post",
@@ -19,6 +20,9 @@ const LogIn = () => {
       .then((response) => {
         console.log(response);
         if (response.status === 200) {
+          const emailUser = JSON.parse(response.data.data);
+          console.log(emailUser);
+          localStorage.setItem("email", emailUser.email);
           window.location.href = "/profile";
         } else if (response.status === 202) {
           const JWToken = response.data.data.token;
