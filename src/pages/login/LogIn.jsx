@@ -2,6 +2,7 @@ import { Button } from "@nextui-org/react";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import GoogleIcon from "@mui/icons-material/Google";
+import { Link } from "react-router-dom";
 
 const LogIn = () => {
   function sendAuth(token) {
@@ -60,9 +61,11 @@ const LogIn = () => {
             >
               Continue with Google
             </Button>
-            <Button variant="shadow" color="default" fullWidth>
-              Back
-            </Button>
+            <Link to="/">
+              <Button variant="shadow" color="default" fullWidth>
+                Back
+              </Button>
+            </Link>
           </div>
 
           <span className="text-xs text-center text-zinc-700">
