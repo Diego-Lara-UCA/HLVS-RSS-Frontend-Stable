@@ -77,7 +77,7 @@ const ManageMembers = () => {
         setUsers(userData);
         if (userData.length > 0) {
           const user = userData[0];
-          setHouseID(response.data.data.id);
+          setHouseID(response.data.data.house_number);
           setAddress(response.data.data.direccion);
           setResidents(response.data.data.cantidad_residentes);
           setEmailResident(user.correo_google);
