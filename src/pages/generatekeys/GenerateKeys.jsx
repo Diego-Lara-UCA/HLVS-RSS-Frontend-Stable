@@ -10,6 +10,7 @@ const GenerateKeys = () => {
   const initialTimeLeft = parseInt(localStorage.getItem("timeLeft"), 10) || 0;
   const initialGraceTime = localStorage.getItem("graceTime") || "00:00";
   const initialCreationTime = localStorage.getItem("creationTime") || "";
+  const totalGraceTime = parseInt(localStorage.getItem("totalGraceTime"), 10) || 0;
 
   const [qrCode, setQrCode] = useState(initialQrCode);
   const [showButton, setShowButton] = useState(!initialQrCode);
@@ -43,12 +44,18 @@ const GenerateKeys = () => {
     return 0;
   }
 
-  const creationSeconds = convertToSeconds(creationTime);
-  const graceTimeSeconds = convertToSeconds(graceTime);
-  const totalGraceTime = creationSeconds + graceTimeSeconds;
-  console.log(`Total de segundos de gracia: ${totalGraceTime}`);
-
   useEffect(() => {
+    // Check if totalGraceTime has expired
+    if (totalSeconds > totalGraceTime) {
+      setShowButton(true);
+      setQrCode("");
+      localStorage.removeItem("qrCode");
+      localStorage.removeItem("timeLeft");
+      localStorage.removeItem("graceTime");
+      localStorage.removeItem("creationTime");
+      localStorage.removeItem("totalGraceTime");
+    }
+
     const timer = setInterval(() => {
       if (timeLeft > 0) {
         setTimeLeft((prevTime) => {
@@ -63,11 +70,12 @@ const GenerateKeys = () => {
         localStorage.removeItem("timeLeft");
         localStorage.removeItem("graceTime");
         localStorage.removeItem("creationTime");
+        localStorage.removeItem("totalGraceTime");
       }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft, qrCode]);
+  }, [timeLeft, qrCode, totalGraceTime, totalSeconds]);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -98,6 +106,10 @@ const GenerateKeys = () => {
       const newCreationTime = response.data.data.creationTime;
       const newTimeLeft = parseInt(newGraceTime.split(':')[1], 10) * 60;
 
+      const creationSeconds = convertToSeconds(newCreationTime);
+      const graceTimeSeconds = convertToSeconds(newGraceTime);
+      const totalGraceTime = creationSeconds + graceTimeSeconds;
+
       setKey(newKey);
       setGraceTime(newGraceTime);
       setCreationTime(newCreationTime);
@@ -107,6 +119,7 @@ const GenerateKeys = () => {
       localStorage.setItem("timeLeft", newTimeLeft.toString());
       localStorage.setItem("graceTime", newGraceTime);
       localStorage.setItem("creationTime", newCreationTime);
+      localStorage.setItem("totalGraceTime", totalGraceTime.toString());
 
       setShowButton(false);
     }).catch((error) => {
