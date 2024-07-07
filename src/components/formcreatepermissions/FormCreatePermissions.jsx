@@ -143,11 +143,9 @@ const FormCreatePermissions = () => {
       .then(() => {
         toast("Permission created successfully", { type: "success" });
         emptyFields();
-        
       })
       .catch(() => {
         toast("Error creating permission", { type: "error" });
-       
       });
   }
 
