@@ -103,7 +103,7 @@ const GenerateKeys = () => {
   function getGenerateKey() {
     axios({
       method: "post",
-      url: `https://api.securityhlvs.com/api/residential/permission/create-resident`,
+      url: `https://api.securityhlvs.com/api/entrance/key/create`,
       headers: {
         "Content-Type": "application/json",
       },
