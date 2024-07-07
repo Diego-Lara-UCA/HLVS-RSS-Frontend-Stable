@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Title from "../../components/title/Title";
 import { Input, Button } from "@nextui-org/react";
 
@@ -18,27 +18,99 @@ import {
   DropdownItem,
 } from "@nextui-org/react";
 import { DeleteIcon } from "../../components/deleteicon/DeleteIcon";
-import { columns, users } from "./data";
+import { columns } from "./data";
 import { SearchIcon } from "../../components/searchicon/SearchIcon";
 import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
 import { capitalize } from "../../components/capitalize/utils";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { add } from "date-fns";
+import { toast, ToastContainer } from "react-toastify";
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "email", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["nombre", "correo_google", "actions"];
 
 const ManageMembers = () => {
-  const [filterValue, setFilterValue] = React.useState("");
-  const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
-  const [visibleColumns, setVisibleColumns] = React.useState(
+  const [filterValue, setFilterValue] = useState("");
+  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
+  const [visibleColumns, setVisibleColumns] = useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
   );
-  const [statusFilter, setStatusFilter] = React.useState("all");
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [sortDescriptor, setSortDescriptor] = React.useState({
-    column: "name",
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [sortDescriptor, setSortDescriptor] = useState({
+    column: "nombre",
     direction: "ascending",
   });
-  const [page, setPage] = React.useState(1);
+  const [page, setPage] = useState(1);
   const hasSearchFilter = Boolean(filterValue);
+
+  const [users, setUsers] = useState([]);
+  const [houseID, setHouseID] = useState("");
+  const [address, setAddress] = useState("");
+  const [residents, setResidents] = useState("");
+  const [emailResident, setEmailResident] = useState("");
+  const [addResident, setAddResident] = useState("");
+
+  useEffect(() => {
+    getMemberDetails();
+  }, []);
+
+  const token = localStorage.getItem("token");
+  let emailSupervisor = "";
+  if (token) {
+    const decodedToken = jwtDecode(token);
+    emailSupervisor = decodedToken.email;
+  }
+
+  function emptyFields() {
+    setAddResident("");
+  }
+
+  function getMemberDetails() {
+    axios({
+      method: "GET",
+      url: `https://api.securityhlvs.com/api/residential/house/user-house/${emailSupervisor}`,
+    })
+      .then((response) => {
+        console.log(response);
+        const userData = response.data.data.users;
+        setUsers(userData);
+        if (userData.length > 0) {
+          const user = userData[0];
+          setHouseID(response.data.data.id);
+          setAddress(response.data.data.direccion);
+          setResidents(response.data.data.cantidad_residentes);
+          setEmailResident(user.correo_google);
+        }
+      })
+      .catch((error) => {
+        toast("Error getting member details", { type: "error" });
+      });
+  }
+
+  function postAddResident() {
+    if (addResident === "") {
+      toast("Please fill all the fields", { type: "error" });
+      return;
+    }
+
+    axios({
+      method: "POST",
+      url: "https://api.securityhlvs.com/api/residential/house/register-residents",
+      data: {
+        house_id: houseID,
+        email: addResident,
+      },
+    })
+      .then((response) => {
+        toast("Resident added successfully", { type: "success" });
+        emptyFields();
+        getMemberDetails();
+      })
+      .catch((error) => {
+        toast("Error adding resident", { type: "error" });
+      });
+  }
 
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;
@@ -54,8 +126,8 @@ const ManageMembers = () => {
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter(
         (user) =>
-          user.name.toLowerCase().includes(filterValue.toLowerCase()) ||
-          user.email.toLowerCase().includes(filterValue.toLowerCase())
+          user.nombre.toLowerCase().includes(filterValue.toLowerCase()) ||
+          user.correo_google.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
 
@@ -238,6 +310,7 @@ const ManageMembers = () => {
       </div>
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+
   return (
     <div className="container-tab">
       <Title
@@ -245,19 +318,40 @@ const ManageMembers = () => {
         description="Stay aware of those who are next to you"
       />
 
-      <form>
+      <div>
         <div className="max-w-3xl flex flex-col gap-4">
-          <Input label="House number (ID)" type="text" />
-          <Input label="Address" type="text" />
-          <Input label="Numbers of residents" type="text" />
-          <Input label="Resident in charge (email)" type="text" />
+          <Input
+            label="House number (ID)"
+            type="text"
+            readOnly
+            value={houseID}
+          />
+          <Input label="Address" type="text" readOnly value={address} />
+          <Input
+            label="Numbers of residents"
+            type="text"
+            readOnly
+            value={residents}
+          />
+          <Input
+            label="Resident in charge (email)"
+            type="text"
+            readOnly
+            value={emailResident}
+          />
           <h2 className="text-gray-600 font-semibold mt-5">Resident Details</h2>
           <div className="flex items-center max-w-6xl gap-3">
-            <Input label="Email" type="text" />
+            <Input
+              label="Email"
+              type="text"
+              value={addResident}
+              onChange={(e) => setAddResident(e.target.value)}
+            />
             <Button
-              className="py-7 px-8 bg-indigo-200 text-indigo-600"
+              className="py-7 px-8 bg-zinc-700 text-white"
               variant="flat"
               type="button"
+              onPress={postAddResident}
             >
               Add member
             </Button>
@@ -302,7 +396,8 @@ const ManageMembers = () => {
             )}
           </TableBody>
         </Table>
-      </form>
+      </div>
+      <ToastContainer stacked />
     </div>
   );
 };
