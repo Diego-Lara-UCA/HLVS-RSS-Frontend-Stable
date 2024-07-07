@@ -1,10 +1,35 @@
-// Sidebar.jsx
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { Navigate, NavLink, useNavigate } from "react-router-dom";
 import links from "./index.js";
 import "./sidebar.css";
+import axios from "axios";
+import { Button } from "@nextui-org/react";
+import { jwtDecode } from "jwt-decode";
 
 const Sidebar = ({ isOpen, toggleMenu }) => {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  let email;
+
+  if (token) {
+    const decodedToken = jwtDecode(token);
+    email = decodedToken.email;
+  }
+
+  function postLogOut() {
+    axios({
+      method: "post",
+      url: `https://api.securityhlvs.com/api/auth/logout/${email}`,
+    })
+      .then((response) => {
+        localStorage.removeItem("token");
+        navigate("/login");
+      })
+      .catch((err) => {
+        console;
+      });
+  }
+
   return (
     isOpen && (
       <aside className="bg-white fixed flex flex-col justify-between top-0 left-0 w-full md:max-w-[30%] lg:max-w-[20%] xl:max-w-[19%] 2xl:max-w-[18%] md:sticky h-screen shadow-lg transition-transform duration-300 ease-in-out z-30">
@@ -38,7 +63,13 @@ const Sidebar = ({ isOpen, toggleMenu }) => {
           </div>
         </div>
         <div className="flex justify-center p-10">
-          <NavLink to="/login">Log out</NavLink>
+          <Button
+            className="bg-transparent hover:bg-slate-100 uppercase"
+            variant="flat"
+            onPress={postLogOut}
+          >
+            Log out
+          </Button>
         </div>
       </aside>
     )
