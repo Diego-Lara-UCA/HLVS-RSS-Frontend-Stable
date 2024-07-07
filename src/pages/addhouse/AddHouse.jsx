@@ -18,7 +18,7 @@ const AddHouse = () => {
   }
 
   function postAddHouse() {
-    const houseNumberInt = parseInt(houseNumber, 10);
+  
     const residentsInt = parseInt(residents, 10);
 
     if (
@@ -38,7 +38,7 @@ const AddHouse = () => {
         "Content-Type": "application/json",
       },
       data: {
-        id: houseNumberInt,
+        id: houseNumber,
         direccion: address,
         cantidad_residentes: residentsInt,
         users: residentInCharge,
