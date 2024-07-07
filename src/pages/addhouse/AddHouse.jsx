@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Title from "../../components/title/Title";
 import { Input, Button } from "@nextui-org/react";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 
 const AddHouse = () => {
   const [houseNumber, setHouseNumber] = useState("");
@@ -9,25 +10,47 @@ const AddHouse = () => {
   const [residents, setResidents] = useState("");
   const [residentInCharge, setResidentInCharge] = useState("");
 
+  function emptyFields() {
+    setHouseNumber("");
+    setAddress("");
+    setResidents("");
+    setResidentInCharge("");
+  }
+
   function postAddHouse() {
-    console.log(houseNumber);
-    console.log(address);
-    console.log(residents);
-    console.log(residentInCharge);
+    const houseNumberInt = parseInt(houseNumber, 10);
+    const residentsInt = parseInt(residents, 10);
+
+    if (
+      houseNumber === "" ||
+      address === "" ||
+      residents === "" ||
+      residentInCharge === ""
+    ) {
+      toast("Please fill all the fields", { type: "error" });
+      return;
+    }
 
     axios({
       method: "post",
-      url: `https://api.securityhlvs.com/api/log-of-entries`,
+      url: "https://api.securityhlvs.com/api/residential/house/register",
       headers: {
         "Content-Type": "application/json",
       },
       data: {
-        houseNumber: houseNumber,
-        address: address,
-        residents: residents,
-        residentInCharge: residentInCharge,
+        id: houseNumberInt,
+        direccion: address,
+        cantidad_residentes: residentsInt,
+        users: residentInCharge,
       },
-    });
+    })
+      .then(() => {
+        toast("House added successfully", { type: "success" });
+        emptyFields();
+      })
+      .catch((error) => {
+        toast("Error adding house", { type: "error" });
+      });
   }
 
   return (
@@ -56,7 +79,7 @@ const AddHouse = () => {
           onValueChange={setResidents}
         />
         <Input
-          label="Resident in charge"
+          label="Resident in charge (email)"
           type="text"
           value={residentInCharge}
           onValueChange={setResidentInCharge}
@@ -67,7 +90,7 @@ const AddHouse = () => {
         </p>
         <div className="mt-5">
           <Button
-          onPress={postAddHouse}
+            onPress={postAddHouse}
             className="bg-zinc-700 text-white"
             variant="shadow"
             type="button"
@@ -76,6 +99,7 @@ const AddHouse = () => {
           </Button>
         </div>
       </div>
+      <ToastContainer stacked />
     </div>
   );
 };
