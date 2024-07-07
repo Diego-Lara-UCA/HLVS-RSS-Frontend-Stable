@@ -1,4 +1,3 @@
-// AppRouter.jsx
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LogIn from "../pages/login/LogIn";
@@ -23,6 +22,23 @@ import AddHouse from "../pages/addhouse/AddHouse";
 import ErrorPage from "../pages/errorPage/ErrorPage";
 import ProtectedRoute from "./ProtectedRoute";
 import PageTitle from "../components/pageTitle/PageTitle";
+import { userRole } from "../components/sidebar/userRole";
+
+const getDefaultRoute = (role) => {
+  switch (role) {
+    case "admin":
+      return "/dashboard/entryhistory";
+    case "supervisor":
+      return "/dashboard/createpermission";
+    case "guard":
+      return "/dashboard/pedestrianaccess";
+    case "user":
+    case "guest":
+      return "/dashboard/logofentries";
+    default:
+      return "/login";
+  }
+};
 
 const AppRouter = () => {
   return (
@@ -46,23 +62,24 @@ const AppRouter = () => {
         }
       />
       <Route
-            path="profile"
-            element={
-              <>
-                <PageTitle title="HLVS | Profile" />
-                <Profile />
-              </>
-            }
+        path="/profile"
+        element={
+          <>
+            <PageTitle title="HLVS | Profile" />
+            <Profile />
+          </>
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute
+            allowedRoles={["admin", "supervisor", "guard", "user", "guest"]}
           />
-      <Route path="/dashboard/*" element={<Dashboard />}>
-        <Route
-          element={
-            <ProtectedRoute
-              allowedRoles={["admin", "supervisor", "guard", "user", "guest"]}
-            />
-          }
-        >
-          <Route path="" element={<Navigate to="logofentries" />} />
+        }
+      >
+        <Route path="" element={<Navigate to={getDefaultRoute(userRole)} />} />
+        <Route element={<Dashboard />}>
           <Route
             path="logofentries"
             element={
@@ -89,7 +106,7 @@ const AppRouter = () => {
               </>
             }
           />
-          
+
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route
               path="entryhistory"
