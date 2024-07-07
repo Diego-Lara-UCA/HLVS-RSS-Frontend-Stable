@@ -10,14 +10,14 @@ const Navbar = ({ toggleMenu }) => {
           <MenuRoundedIcon fontSize="large" className="text-gray-600" />
         </button>
       </div>
-      <div className="flex justify-center items-center">
+      {/* <div className="flex justify-center items-center">
         <NavLink
           to="/dashboard/profile"
           className="bg-gray-200 rounded-full w-8 h-8 flex justify-center items-center hover:bg-gray-300"
         >
         
         </NavLink>
-      </div>
+      </div> */}
     </nav>
   );
 };
