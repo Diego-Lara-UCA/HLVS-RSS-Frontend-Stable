@@ -29,7 +29,7 @@ const getDefaultRoute = (role) => {
     case "admin":
       return "/dashboard/entryhistory";
     case "supervisor":
-      return "/dashboard/createpermission";
+      return "/dashboard/logofentries";
     case "guard":
       return "/dashboard/pedestrianaccess";
     case "user":
