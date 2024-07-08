@@ -22,11 +22,11 @@ import {
 import { SearchIcon } from "../../components/searchicon/SearchIcon";
 import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
 import { capitalize } from "../../components/capitalize/utils";
-import { columns, users } from "./data";
+import { columns } from "./data";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import axios from "axios";
-import { parseDate, parseAbsoluteToLocal } from "@internationalized/date";
+import { toast, ToastContainer } from "react-toastify";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -46,30 +46,44 @@ const test = {
   ],
 };
 
-const INITIAL_VISIBLE_COLUMNS = [
-  "user",
-  "house",
-  "entryPlace",
-  "date",
-  "hour",
-  "comment",
-];
+const INITIAL_VISIBLE_COLUMNS = ["email", "house", "type", "date", "hour"];
 
 const EntryHistory = () => {
-  const [isDateSelected, setIsDateSelected] = React.useState(false);
-  const [filterValue, setFilterValue] = React.useState("");
-  const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
-  const [visibleColumns, setVisibleColumns] = React.useState(
+  const [users, setUsers] = useState([]);
+  const [filterValue, setFilterValue] = useState("");
+  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
+  const [visibleColumns, setVisibleColumns] = useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
   );
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [sortDescriptor, setSortDescriptor] = React.useState({
-    column: "age",
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [sortDescriptor, setSortDescriptor] = useState({
+    column: "house",
     direction: "ascending",
   });
-  const [page, setPage] = React.useState(1);
+  const [page, setPage] = useState(1);
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [isDateSelected, setIsDateSelected] = useState(false);
 
-  const hasSearchFilter = Boolean(filterValue);
+  useEffect(() => {
+    getEntryHistory();
+  }, []);
+
+  function getEntryHistory() {
+    axios({
+      method: "GET",
+      url: `https://api.securityhlvs.com/api/residential/entrance/all`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        setUsers(response.data.data);
+        toast("Entry history loaded successfully", { type: "success" });
+      })
+      .catch((error) => {
+        toast("Error to get the entry history", { type: "error" });
+      });
+  }
 
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;
@@ -79,27 +93,28 @@ const EntryHistory = () => {
     );
   }, [visibleColumns]);
 
-  const [dateRange, setDateRange] = React.useState([null, null]);
-
   const onDateChange = (newDateRange) => {
     setDateRange(newDateRange);
     setIsDateSelected(newDateRange[0] !== null && newDateRange[1] !== null);
-    setPage(1); // Reset to first page on date change
+    setPage(1);
   };
 
   const filteredItems = React.useMemo(() => {
     let filteredUsers = [...users];
 
-    if (hasSearchFilter) {
+    if (filterValue) {
       filteredUsers = filteredUsers.filter(
         (user) =>
-          user.house.toLowerCase().includes(filterValue.toLowerCase()) ||
-          user.entryPlace.toLowerCase().includes(filterValue.toLowerCase()) ||
-          user.user.toLowerCase().includes(filterValue.toLowerCase())
+          (user.email ? user.email.toLowerCase() : "").includes(
+            filterValue.toLowerCase()
+          ) ||
+          (user.house ? user.house.toLowerCase() : "").includes(
+            filterValue.toLowerCase()
+          )
       );
     }
 
-    if (isDateSelected) {
+    if (isDateSelected && dateRange[0] && dateRange[1]) {
       const [startDate, endDate] = dateRange;
       const start = new Date(startDate).setHours(0, 0, 0, 0);
       const end = new Date(endDate).setHours(23, 59, 59, 999);
@@ -186,8 +201,14 @@ const EntryHistory = () => {
         <div className="flex justify-between gap-3 items-end">
           <div className="flex flex-col flex-1 flex-wrap 2xl:flex-nowrap gap-4">
             <div className="flex gap-2">
-              <DatePicker value={dateRange[0]} onChange={(date) => onDateChange([date, dateRange[1]])} />
-              <DatePicker value={dateRange[1]} onChange={(date) => onDateChange([dateRange[0], date])} />
+              <DatePicker
+                value={dateRange[0]}
+                onChange={(date) => onDateChange([date, dateRange[1]])}
+              />
+              <DatePicker
+                value={dateRange[1]}
+                onChange={(date) => onDateChange([dateRange[0], date])}
+              />
             </div>
             <Input
               isClearable
@@ -209,6 +230,7 @@ const EntryHistory = () => {
             <select
               className="bg-transparent outline-none text-default-400 text-small"
               onChange={onRowsPerPageChange}
+              value={rowsPerPage}
             >
               <option value="5">5</option>
               <option value="10">10</option>
@@ -247,7 +269,7 @@ const EntryHistory = () => {
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
           <Button
             className="bg-indigo-500 text-white"
-            isDisabled={pages === 1}
+            isDisabled={page <= 1}
             size="sm"
             variant="flat"
             onPress={onPreviousPage}
@@ -256,7 +278,7 @@ const EntryHistory = () => {
           </Button>
           <Button
             className="bg-indigo-500 text-white"
-            isDisabled={pages === 1}
+            isDisabled={page >= pages}
             size="sm"
             variant="flat"
             onPress={onNextPage}
@@ -266,31 +288,7 @@ const EntryHistory = () => {
         </div>
       </div>
     );
-  }, [selectedKeys, items.length, page, pages]);
-
-  // ############################################################################################
-  // GET request to get the entry history
-
-  const [entryHistory, setEntryHistory] = React.useState([]);
-
-  useEffect(() => {
-    getEntryHistory();
-  }, []);
-
-
-
-  function getEntryHistory() {
-    axios({
-      method: "GET",
-      url: `https://api.securityhlvs.com/api/log-of-entries`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((response) => {
-      console.log(response);
-      setEntryHistory(response.data);
-    });
-  }
+  }, [selectedKeys, filteredItems.length, page, pages]);
 
   return (
     <div className="container-tab">
@@ -358,6 +356,7 @@ const EntryHistory = () => {
           <Doughnut id="doughnutChart" updateMode="resize" data={test} />
         </Card>
       </div>
+      <ToastContainer stacked />
     </div>
   );
 };
