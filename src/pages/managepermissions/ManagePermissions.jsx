@@ -109,11 +109,12 @@ const ManagePermissions = () => {
       },
     })
       .then((response) => {
-        getEntryHistory();
+        getPermissionsHouse();
         toast("Entry history deleted successfully", { type: "success" });
       })
       .catch((error) => {
         toast("Error to delete the entry history", { type: "error" });
+        console.log(error)
       });
   }
 
