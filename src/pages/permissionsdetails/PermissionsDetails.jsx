@@ -23,7 +23,6 @@ import { columns, statusOptions } from "./data";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { toast, ToastContainer } from "react-toastify";
-import { set } from "date-fns";
 
 const statusColorMap = {
   true: "success",
@@ -55,13 +54,12 @@ const PermissionsDetails = () => {
     new Set(INITIAL_VISIBLE_COLUMNS)
   );
   const [statusFilter, setStatusFilter] = useState(new Set(["true", "false"]));
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [sortDescriptor, setSortDescriptor] = useState({
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [sortDescriptor, setSortDescriptor] = React.useState({
     column: "fecha_inicio",
     direction: "ascending",
   });
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [page, setPage] = React.useState(1);
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -88,7 +86,6 @@ const PermissionsDetails = () => {
     })
       .then((response) => {
         setUsers(response.data.data || []);
-        setLoading(false);
       })
       .catch(() => {
         toast("Error getting permissions details", { type: "error" });
@@ -307,8 +304,7 @@ const PermissionsDetails = () => {
         />
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
           <Button
-            className="bg-indigo-500 text-white"
-            isDisabled={page <= 1}
+            isDisabled={pages === 1}
             size="sm"
             variant="flat"
             onPress={onPreviousPage}
@@ -316,8 +312,7 @@ const PermissionsDetails = () => {
             Previous
           </Button>
           <Button
-            className="bg-indigo-500 text-white"
-            isDisabled={page >= pages}
+            isDisabled={pages === 1}
             size="sm"
             variant="flat"
             onPress={onNextPage}
@@ -327,7 +322,7 @@ const PermissionsDetails = () => {
         </div>
       </div>
     );
-  }, [selectedKeys, filteredItems.length, page, pages]);
+  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
   return (
     <div className="container-tab">
@@ -349,7 +344,6 @@ const PermissionsDetails = () => {
         topContentPlacement="outside"
         onSelectionChange={setSelectedKeys}
         onSortChange={setSortDescriptor}
-        emptyContent={loading ? "Loading..." : "No permissions found"}
       >
         <TableHeader columns={headerColumns}>
           {(column) => (
