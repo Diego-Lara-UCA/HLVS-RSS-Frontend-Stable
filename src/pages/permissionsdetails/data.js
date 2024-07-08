@@ -1,41 +1,18 @@
 const columns = [
-  { name: "HOUR", uid: "hour", sortable: true },
-  { name: "DATE", uid: "date", sortable: true },
+  { name: "EMAIL", uid: "user", sortable: true },
   { name: "HOUSE", uid: "house", sortable: true },
-  { name: "ENTRY PLACE", uid: "entryPlace", sortable: true },
-  { name: "STATUS", uid: "status", sortable: true },
+  { name: "INITIAL DATE", uid: "fecha_inicio", sortable: true },
+  { name: "EXPIRATION DATE", uid: "fecha_final", sortable: true },
+  { name: "DAYS", uid: "dias_semana", sortable: true },
+  { name: "INITIAL HOUR", uid: "hora_inicio", sortable: true },
+  { name: "FINAL HOUR", uid: "hora_fin", sortable: true },
+  { name: "EXPIRATION TYPE", uid: "tipo_expiracion", sortable: true },
+  { name: "STATUS", uid: "activo", sortable: true },
 ];
 
 const statusOptions = [
-  { name: "Current", uid: "current" },
-  { name: "Expired", uid: "expired" },
+  { name: "Active", uid: "true" },
+  { name: "Expired", uid: "false" },
 ];
 
-const users = [
-  {
-    id: 1,
-    hour: "10:00",
-    date: "2022-01-01",
-    house: "House A",
-    entryPlace: "Pedestrian",
-    status: "current",
-  },
-  {
-    id: 2,
-    hour: "11:00",
-    date: "2022-01-02",
-    house: "House B",
-    entryPlace: "Vehicular",
-    status: "current",
-  },
-  {
-    id: 3,
-    hour: "12:00",
-    date: "2022-01-03",
-    house: "House C",
-    entryPlace: "Vehicular",
-    status: "expired",
-  },
-];
-
-export { columns, users, statusOptions };
+export { columns, statusOptions };
