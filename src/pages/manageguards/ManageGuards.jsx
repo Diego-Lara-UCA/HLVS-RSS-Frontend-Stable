@@ -17,15 +17,69 @@ import {
   DropdownItem,
 } from "@nextui-org/react";
 import { DeleteIcon } from "../../components/deleteicon/DeleteIcon";
-import { columns, users } from "./data";
+import { columns } from "./data";
 import { SearchIcon } from "../../components/searchicon/SearchIcon";
 import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
 import { capitalize } from "../../components/capitalize/utils";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "email", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["nombre", "correo_google", "actions"];
 
 const ManageGuards = () => {
+  const [emailGuard, setEmailGuard] = useState("");
+  const [users, setUsers] = useState([]);
+
+  function emptyFields() {
+    setEmailGuard("");
+  }
+
+  function postManageGuards() {
+    console.log(emailGuard);
+
+    if (emailGuard === "")
+      return toast("Please enter email", { type: "error" });
+
+    axios({
+      method: "post",
+      url: `https://api.securityhlvs.com/api/users/register-guard`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: {
+        email: emailGuard,
+      },
+    })
+      .then(() => {
+        toast("Guard added successfully", { type: "success" });
+        emptyFields();
+        getManageGuards();
+      })
+      .catch((error) => {
+        toast("Error adding guard", { type: "error" });
+      });
+  }
+
+  useEffect(() => {
+    getManageGuards();
+  }, []);
+
+  function getManageGuards() {
+    axios({
+      method: "get",
+      url: `https://api.securityhlvs.com/api/users/all-guards`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        setUsers(response.data.data) || [];
+      })
+      .catch(() => {
+        toast("No guards found", { type: "warning" });
+      });
+  }
+
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState(
@@ -34,7 +88,7 @@ const ManageGuards = () => {
   const [statusFilter, setStatusFilter] = React.useState("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [sortDescriptor, setSortDescriptor] = React.useState({
-    column: "name",
+    column: "nombre",
     direction: "ascending",
   });
   const [page, setPage] = React.useState(1);
@@ -54,8 +108,8 @@ const ManageGuards = () => {
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter(
         (user) =>
-          user.name.toLowerCase().includes(filterValue.toLowerCase()) ||
-          user.email.toLowerCase().includes(filterValue.toLowerCase())
+          user.nombre.toLowerCase().includes(filterValue.toLowerCase()) ||
+          user.correo_google.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
 
@@ -172,7 +226,7 @@ const ManageGuards = () => {
         </div>
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">
-            Total {users.length} members
+            Total {users.length} guards
           </span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
@@ -239,46 +293,13 @@ const ManageGuards = () => {
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
-  const [emailGuard, setEmailGuard] = useState("");
-
-  function postManageGuards() {
-    console.log(emailGuard);
-    axios({
-      method: "post",
-      url: `https://api.securityhlvs.com/api/manage-guards`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: {
-        email: "email",
-      },
-    });
-  }
-
-  useEffect(() => {
-    getManageGuards();
-  }, []);
-
-  function getManageGuards() {
-    axios({
-      method: "get",
-      url: `https://api.securityhlvs.com/api/manage-guards`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((response) => {
-      console.log(response);
-      setLogs(response.data);
-    });
-  }
-
   return (
     <div className="container-tab">
       <Title
         title="Manage Guards"
         description="Security is important, trust is important"
       />
-      <form action="">
+      <div action="">
         <div className="flex items-center max-w-3xl gap-3">
           <Input
             label="Email"
@@ -325,7 +346,7 @@ const ManageGuards = () => {
               </TableColumn>
             )}
           </TableHeader>
-          <TableBody emptyContent={"No data found"} items={sortedItems}>
+          <TableBody emptyContent={"No guards found"} items={sortedItems}>
             {(item) => (
               <TableRow key={item.id}>
                 {(columnKey) => (
@@ -335,7 +356,8 @@ const ManageGuards = () => {
             )}
           </TableBody>
         </Table>
-      </form>
+      </div>
+      <ToastContainer stacked />
     </div>
   );
 };
