@@ -19,13 +19,40 @@ import {
 import { SearchIcon } from "../../components/searchicon/SearchIcon";
 import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
 import { capitalize } from "../../components/capitalize/utils";
-import { columns, users } from "../logofentries/data";
+import { columns } from "../logofentries/data";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
-const INITIAL_VISIBLE_COLUMNS = ["hour", "date", "house", "entryPlace"];
+const INITIAL_VISIBLE_COLUMNS = ["email", "house", "hour", "date", "type"];
 
 const LogOfEntries = () => {
-  const [logs, setLogs] = React.useState([]);
+  const [users, setUsers] = React.useState([]);
+
+  const token = localStorage.getItem("token");
+  let emailUser = "";
+  if (token) {
+    const decodeToken = jwtDecode(token);
+    emailUser = decodeToken.email;
+    console.log(emailUser);
+  }
+
+  useEffect(() => {
+    getLogsofEntries();
+  }, []);
+
+  function getLogsofEntries() {
+    axios({
+      method: "get",
+      url: `https://api.securityhlvs.com/api/residential/entrance/all/${emailUser}`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => {
+      console.log(response);
+      setUsers(response.data.data);
+    });
+  }
+
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState(
@@ -246,25 +273,6 @@ const LogOfEntries = () => {
       </div>
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
-
-  //TODO: localstorage (id)
-
-  useEffect(() => {
-    getLogOfEntries();
-  }, []);
-
-  function getLogOfEntries() {
-    axios({
-      method: "get",
-      url: `https://api.securityhlvs.com/api/log-of-entries`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((response) => {
-      console.log(response);
-      setLogs(response.data);
-    });
-  }
 
   return (
     <div className="flex-1 px-5 py-8  2xl:px-12 2xl:py-12 relative">

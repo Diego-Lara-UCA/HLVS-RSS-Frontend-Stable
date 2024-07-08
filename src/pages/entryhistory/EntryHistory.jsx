@@ -23,12 +23,31 @@ import { SearchIcon } from "../../components/searchicon/SearchIcon";
 import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
 import { capitalize } from "../../components/capitalize/utils";
 import { columns } from "./data";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, LineElement, BarElement, CategoryScale, LinearScale, PointElement } from "chart.js";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  LineElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+} from "chart.js";
 import { Doughnut, Line, Bar } from "react-chartjs-2";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 
-ChartJS.register(ArcElement, Tooltip, Legend, LineElement, BarElement, CategoryScale, LinearScale, PointElement);
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend,
+  LineElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  PointElement
+);
 
 const INITIAL_VISIBLE_COLUMNS = ["email", "house", "type", "date", "hour"];
 
@@ -36,46 +55,57 @@ const EntryHistory = () => {
   const [users, setUsers] = useState([]);
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
-  const [visibleColumns, setVisibleColumns] = useState(new Set(INITIAL_VISIBLE_COLUMNS));
+  const [visibleColumns, setVisibleColumns] = useState(
+    new Set(INITIAL_VISIBLE_COLUMNS)
+  );
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [sortDescriptor, setSortDescriptor] = useState({ column: "house", direction: "ascending" });
+  const [sortDescriptor, setSortDescriptor] = useState({
+    column: "house",
+    direction: "ascending",
+  });
   const [page, setPage] = useState(1);
   const [dateRange, setDateRange] = useState([null, null]);
   const [isDateSelected, setIsDateSelected] = useState(false);
   const [chartData, setChartData] = useState({
     labels: [],
-    datasets: [{
-      label: "Type of entry",
-      data: [],
-      backgroundColor: [
-        "rgb(255, 99, 132)",
-        "rgb(54, 162, 235)",
-        "rgb(255, 205, 86)",
-      ],
-      hoverOffset: 4,
-    }],
+    datasets: [
+      {
+        label: "Type of entry",
+        data: [],
+        backgroundColor: [
+          "rgb(255, 99, 132)",
+          "rgb(54, 162, 235)",
+          "rgb(255, 205, 86)",
+        ],
+        hoverOffset: 4,
+      },
+    ],
   });
 
   const [lineChartData, setLineChartData] = useState({
     labels: [],
-    datasets: [{
-      label: "Entries per day",
-      data: [],
-      fill: false,
-      borderColor: 'rgb(75, 192, 192)',
-      tension: 0.1
-    }],
+    datasets: [
+      {
+        label: "Entries per day",
+        data: [],
+        fill: false,
+        borderColor: "rgb(75, 192, 192)",
+        tension: 0.1,
+      },
+    ],
   });
 
   const [barChartData, setBarChartData] = useState({
     labels: [],
-    datasets: [{
-      label: "House visits",
-      data: [],
-      backgroundColor: 'rgba(75, 192, 192, 0.2)',
-      borderColor: 'rgba(75, 192, 192, 1)',
-      borderWidth: 1
-    }],
+    datasets: [
+      {
+        label: "House visits",
+        data: [],
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1,
+      },
+    ],
   });
 
   useEffect(() => {
@@ -110,16 +140,18 @@ const EntryHistory = () => {
 
     setChartData({
       labels: Object.keys(typeCounts),
-      datasets: [{
-        label: "Type of entry",
-        data: Object.values(typeCounts),
-        backgroundColor: [
-          "rgb(255, 99, 132)",
-          "rgb(54, 162, 235)",
-          "rgb(255, 205, 86)",
-        ],
-        hoverOffset: 4,
-      }],
+      datasets: [
+        {
+          label: "Type of entry",
+          data: Object.values(typeCounts),
+          backgroundColor: [
+            "rgb(255, 99, 132)",
+            "rgb(54, 162, 235)",
+            "rgb(255, 205, 86)",
+          ],
+          hoverOffset: 4,
+        },
+      ],
     });
   }
 
@@ -132,13 +164,15 @@ const EntryHistory = () => {
 
     setLineChartData({
       labels: Object.keys(dateCounts),
-      datasets: [{
-        label: "Entries per day",
-        data: Object.values(dateCounts),
-        fill: false,
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1
-      }],
+      datasets: [
+        {
+          label: "Entries per day",
+          data: Object.values(dateCounts),
+          fill: false,
+          borderColor: "rgb(75, 192, 192)",
+          tension: 0.1,
+        },
+      ],
     });
   }
 
@@ -150,20 +184,24 @@ const EntryHistory = () => {
 
     setBarChartData({
       labels: Object.keys(houseCounts),
-      datasets: [{
-        label: "House visits",
-        data: Object.values(houseCounts),
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1
-      }],
+      datasets: [
+        {
+          label: "House visits",
+          data: Object.values(houseCounts),
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          borderColor: "rgba(75, 192, 192, 1)",
+          borderWidth: 1,
+        },
+      ],
     });
   }
 
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;
 
-    return columns.filter((column) => Array.from(visibleColumns).includes(column.uid));
+    return columns.filter((column) =>
+      Array.from(visibleColumns).includes(column.uid)
+    );
   }, [visibleColumns]);
 
   const onDateChange = (newDateRange) => {
@@ -178,8 +216,12 @@ const EntryHistory = () => {
     if (filterValue) {
       filteredUsers = filteredUsers.filter(
         (user) =>
-          (user.email ? user.email.toLowerCase() : "").includes(filterValue.toLowerCase()) ||
-          (user.house ? user.house.toLowerCase() : "").includes(filterValue.toLowerCase())
+          (user.email ? user.email.toLowerCase() : "").includes(
+            filterValue.toLowerCase()
+          ) ||
+          (user.house ? user.house.toLowerCase() : "").includes(
+            filterValue.toLowerCase()
+          )
       );
     }
 
@@ -414,8 +456,8 @@ const EntryHistory = () => {
         description="See the entry history in a visual way!"
       />
 
-      <div className="grid grid-cols-3 gap-4">
-        <Card className="max-w-xs px-5 py-8">
+      <div className="grid grid-cols-1  xl:grid-cols-3 gap-4">
+        <Card className="px-5 py-8 w-full">
           <label
             className="text-sm font-bold text-center mb-2"
             htmlFor="doughnutChart"
@@ -425,7 +467,7 @@ const EntryHistory = () => {
           <Doughnut id="doughnutChart" updateMode="resize" data={chartData} />
         </Card>
 
-        <Card className="max-w-xs px-5 py-8">
+        <Card className="px-5 py-8 col-span-2 w-full">
           <label
             className="text-sm font-bold text-center mb-2"
             htmlFor="lineChart"
@@ -435,7 +477,7 @@ const EntryHistory = () => {
           <Line id="lineChart" updateMode="resize" data={lineChartData} />
         </Card>
 
-        <Card className="max-w-xs px-5 py-8">
+        <Card className="px-5 py-8 col-span-2">
           <label
             className="text-sm font-bold text-center mb-2"
             htmlFor="barChart"
