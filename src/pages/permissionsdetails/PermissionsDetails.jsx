@@ -23,6 +23,7 @@ import { columns, statusOptions } from "./data";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { toast, ToastContainer } from "react-toastify";
+import { set } from "date-fns";
 
 const statusColorMap = {
   true: "success",
@@ -86,12 +87,12 @@ const PermissionsDetails = () => {
       },
     })
       .then((response) => {
-        setUsers(response.data.data);
+        setUsers(response.data.data || []);
         setLoading(false);
       })
-      .catch((error) => {
+      .catch(() => {
         toast("Error getting permissions details", { type: "error" });
-        setLoading(false);
+        setUsers([]);
       });
   }
 
@@ -154,7 +155,7 @@ const PermissionsDetails = () => {
             {statusTextMap[user.activo]}
           </Chip>
         );
-      case "dias_semana": // Añade este caso para manejar la columna de días de la semana
+      case "dias_semana":
         return cellValue.join(", ");
       default:
         return cellValue;
