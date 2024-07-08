@@ -29,7 +29,7 @@ const getLinks = (role) => {
           icon: VscDashboard,
         },
         { name: "Add House", to: "dashboard/addhouse", icon: BsHouseAdd },
-        { name: "Manage Houses", to: "dashboard/managehouses", icon: VscKey },
+        // { name: "Manage Houses", to: "dashboard/managehouses", icon: VscKey },
         {
           name: "Manage Guards",
           to: "dashboard/manageguards",

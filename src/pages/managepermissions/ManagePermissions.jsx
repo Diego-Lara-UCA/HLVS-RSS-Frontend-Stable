@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import Title from "../../components/title/Title";
 import {
   Table,
@@ -25,54 +25,99 @@ import {
 } from "@nextui-org/react";
 import { SearchIcon } from "../../components/searchicon/SearchIcon";
 import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
-import { columns, users, statusOptions, approvedOptions } from "./data";
+import { columns, statusOptions } from "./data";
 import { capitalize } from "../../components/capitalize/utils";
 import { DeleteIcon } from "../../components/deleteicon/DeleteIcon";
 import { EyeIcon } from "../../components/eyeicon/EyeIcon";
 import FormDetailsPermissions from "../../components/formdetailspermissions/FormDetailsPermissions";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { set } from "date-fns";
+import { id } from "date-fns/locale";
+import { toast, ToastContainer } from "react-toastify";
 
 const statusColorMap = {
-  active: "success",
-  expired: "warning",
-  removed: "danger",
+  true: "success",
+  false: "warning",
 };
 
-const approvedColorMap = {
-  yes: "primary",
-  no: "default",
+const statusTextMap = {
+  true: "Approve",
+  false: "No approve",
 };
 
 const INITIAL_VISIBLE_COLUMNS = [
+  "id",
   "user",
-  "startDate",
-  "endDate",
-  "startTime",
-  "endTime",
-  "dayOfWeek",
-  "approved",
-  "status",
+  "house",
+  "fecha_inicio",
+  "fecha_final",
+  "hora_inicio",
+  "hora_fin",
+  "aprovado",
   "actions",
 ];
 
 const ManagePermissions = () => {
+  const [users, setUsers] = useState([]);
+  const [id_permission, setIdPermission] = useState("");
+  const token = localStorage.getItem("token");
+  let houseNumber = "";
+  if (token) {
+    const decodedToken = jwtDecode(token);
+    houseNumber = decodedToken.house_number;
+  }
+
+  useEffect(() => {
+    getPermissionsHouse();
+  }, []);
+
+  function getPermissionsHouse() {
+    axios({
+      method: "get",
+      url: `https://api.securityhlvs.com/api/residential/permission/manage-permission/${houseNumber}`,
+    })
+      .then((response) => {
+        setUsers(response.data.data);
+        setIdPermission(response.data.data[0].id);
+      })
+      .catch((error) => {
+        console.error("error", error);
+      });
+  }
+
+  function postApprovePermission(id_permission) {
+    axios({
+      method: "post",
+      url: `https://api.securityhlvs.com/api/residential/permission/approve/${id_permission}`,
+    })
+      .then((response) => {
+        toast("Permission approved successfully", { type: "success" });
+        getPermissionsHouse();
+      })
+      .catch((error) => {
+        toast("Error to approve the permission", { type: "error" });
+      });
+  }
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [scrollBehavior, setScrollBehavior] = React.useState("inside");
-  const [filterValue, setFilterValue] = React.useState("");
-  const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
-  const [visibleColumns, setVisibleColumns] = React.useState(
+  const [scrollBehavior, setScrollBehavior] = useState("inside");
+  const [filterValue, setFilterValue] = useState("");
+  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
+  const [visibleColumns, setVisibleColumns] = useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
   );
-  const [statusFilter, setStatusFilter] = React.useState("all");
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [sortDescriptor, setSortDescriptor] = React.useState({
-    column: "age",
+  const [statusFilter, setStatusFilter] = useState(new Set(["true", "false"]));
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [sortDescriptor, setSortDescriptor] = useState({
+    column: "id",
     direction: "ascending",
   });
-  const [page, setPage] = React.useState(1);
+  const [page, setPage] = useState(1);
 
   const hasSearchFilter = Boolean(filterValue);
 
-  const headerColumns = React.useMemo(() => {
+  const headerColumns = useMemo(() => {
     if (visibleColumns === "all") return columns;
 
     return columns.filter((column) =>
@@ -80,7 +125,7 @@ const ManagePermissions = () => {
     );
   }, [visibleColumns]);
 
-  const filteredItems = React.useMemo(() => {
+  const filteredItems = useMemo(() => {
     let filteredUsers = [...users];
 
     if (hasSearchFilter) {
@@ -88,12 +133,9 @@ const ManagePermissions = () => {
         user.user.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
-    if (
-      statusFilter !== "all" &&
-      Array.from(statusFilter).length !== statusOptions.length
-    ) {
+    if (statusFilter.size && statusFilter.size !== statusOptions.length) {
       filteredUsers = filteredUsers.filter((user) =>
-        Array.from(statusFilter).includes(user.status)
+        statusFilter.has(String(user.aprovado))
       );
     }
 
@@ -102,14 +144,14 @@ const ManagePermissions = () => {
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
-  const items = React.useMemo(() => {
+  const items = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
     return filteredItems.slice(start, end);
   }, [page, filteredItems, rowsPerPage]);
 
-  const sortedItems = React.useMemo(() => {
+  const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
       const first = a[sortDescriptor.column];
       const second = b[sortDescriptor.column];
@@ -119,79 +161,71 @@ const ManagePermissions = () => {
     });
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((user, columnKey) => {
-    const cellValue = user[columnKey];
+  const renderCell = useCallback(
+    (user, columnKey) => {
+      const cellValue = user[columnKey];
 
-    switch (columnKey) {
-      case "approved":
-        return (
-          <Chip
-            className="capitalize"
-            color={approvedColorMap[user.approved]}
-            size="sm"
-            variant="flat"
-          >
-            {cellValue}
-          </Chip>
-        );
-      case "status":
-        return (
-          <Chip
-            className="capitalize"
-            color={statusColorMap[user.status]}
-            size="sm"
-            variant="flat"
-          >
-            {cellValue}
-          </Chip>
-        );
-      case "actions":
-        return (
-          <div className="relative flex items-center gap-2">
-            <Tooltip content="Details">
-              <Button
-                onPress={onOpen}
-                className="text-lg text-default-400 cursor-pointer active:opacity-50"
-                isIconOnly
-                variant="light"
-              >
-                <EyeIcon />
-              </Button>
-            </Tooltip>
-            <Tooltip color="danger" content="Delete user">
-              <Button
-                className="text-lg text-danger hover:bg-danger-50 cursor-pointer active:opacity-50"
-                isIconOnly
-                variant="light"
-              >
-                <DeleteIcon />
-              </Button>
-            </Tooltip>
-          </div>
-        );
-      default:
-        return cellValue;
-    }
-  }, []);
+      switch (columnKey) {
+        case "aprovado":
+          return (
+            <Chip
+              className="capitalize"
+              color={statusColorMap[String(user.aprovado)]}
+              size="sm"
+              variant="flat"
+            >
+              {statusTextMap[String(user.aprovado)]}
+            </Chip>
+          );
+        case "actions":
+          return (
+            <div className="relative flex items-center gap-2">
+              <Tooltip content="Approve">
+                <Button
+                  onPress={() => postApprovePermission(user.id)} // Modificado aquí
+                  className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                  isIconOnly
+                  variant="light"
+                >
+                  <EyeIcon />
+                </Button>
+              </Tooltip>
+              <Tooltip color="danger" content="Reject">
+                <Button
+                  className="text-lg text-danger hover:bg-danger-50 cursor-pointer active:opacity-50"
+                  isIconOnly
+                  variant="light"
+                >
+                  <DeleteIcon />
+                </Button>
+              </Tooltip>
+            </div>
+          );
+        default:
+          return cellValue;
+      }
+    },
+    [postApprovePermission]
+  );
 
-  const onNextPage = React.useCallback(() => {
+  const onNextPage = useCallback(() => {
     if (page < pages) {
       setPage(page + 1);
     }
   }, [page, pages]);
 
-  const onPreviousPage = React.useCallback(() => {
+  const onPreviousPage = useCallback(() => {
     if (page > 1) {
       setPage(page - 1);
     }
   }, [page]);
 
-  const onRowsPerPageChange = React.useCallback((e) => {
+  const onRowsPerPageChange = useCallback((e) => {
     setRowsPerPage(Number(e.target.value));
     setPage(1);
   }, []);
 
-  const onSearchChange = React.useCallback((value) => {
+  const onSearchChange = useCallback((value) => {
     if (value) {
       setFilterValue(value);
       setPage(1);
@@ -200,12 +234,12 @@ const ManagePermissions = () => {
     }
   }, []);
 
-  const onClear = React.useCallback(() => {
+  const onClear = useCallback(() => {
     setFilterValue("");
     setPage(1);
   }, []);
 
-  const topContent = React.useMemo(() => {
+  const topContent = useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3 items-end">
@@ -215,7 +249,7 @@ const ManagePermissions = () => {
             placeholder="Search by name..."
             startContent={<SearchIcon />}
             value={filterValue}
-            onClear={() => onClear()}
+            onClear={onClear}
             onValueChange={onSearchChange}
           />
           <div className="flex gap-3">
@@ -271,13 +305,14 @@ const ManagePermissions = () => {
         </div>
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">
-            Total {users.length} users
+            Total {users.length} permissions
           </span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
               className="bg-transparent outline-none text-default-400 text-small"
               onChange={onRowsPerPageChange}
+              value={rowsPerPage}
             >
               <option value="5">5</option>
               <option value="10">10</option>
@@ -295,9 +330,11 @@ const ManagePermissions = () => {
     users.length,
     onSearchChange,
     hasSearchFilter,
+    onClear,
+    rowsPerPage,
   ]);
 
-  const bottomContent = React.useMemo(() => {
+  const bottomContent = useMemo(() => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
         <span className="w-[30%] text-small text-default-400">
@@ -317,7 +354,7 @@ const ManagePermissions = () => {
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
           <Button
             className="bg-indigo-300"
-            isDisabled={pages === 1}
+            isDisabled={page <= 1}
             size="sm"
             variant="flat"
             onPress={onPreviousPage}
@@ -326,7 +363,7 @@ const ManagePermissions = () => {
           </Button>
           <Button
             className="bg-indigo-300"
-            isDisabled={pages === 1}
+            isDisabled={page >= pages}
             size="sm"
             variant="flat"
             onPress={onNextPage}
@@ -336,7 +373,8 @@ const ManagePermissions = () => {
         </div>
       </div>
     );
-  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+  }, [selectedKeys, filteredItems.length, page, pages]);
+
   return (
     <div className="container-tab">
       <Title
@@ -371,7 +409,7 @@ const ManagePermissions = () => {
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody emptyContent={"No users found"} items={sortedItems}>
+        <TableBody emptyContent={"No permissions found"} items={sortedItems}>
           {(item) => (
             <TableRow key={item.id}>
               {(columnKey) => (
@@ -381,8 +419,8 @@ const ManagePermissions = () => {
           )}
         </TableBody>
       </Table>
-
-      {/* Modal de Details */}
+      <ToastContainer stacked />
+      {/* Modal de Details
       <Modal
         className="py-8"
         size="3xl"
@@ -404,7 +442,7 @@ const ManagePermissions = () => {
             </>
           )}
         </ModalContent>
-      </Modal>
+      </Modal> */}
     </div>
   );
 };

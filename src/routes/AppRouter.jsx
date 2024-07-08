@@ -135,7 +135,7 @@ const AppRouter = () => {
                 </>
               }
             />
-            <Route
+            {/* <Route
               path="managehouses"
               element={
                 <>
@@ -143,7 +143,7 @@ const AppRouter = () => {
                   <ManageHouses />
                 </>
               }
-            />
+            /> */}
             <Route
               path="manageguards"
               element={
