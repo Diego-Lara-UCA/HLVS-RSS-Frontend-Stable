@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Title from "../../components/title/Title";
-
 import {
   Table,
   TableHeader,
@@ -20,20 +19,32 @@ import {
 import { SearchIcon } from "../../components/searchicon/SearchIcon";
 import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
 import { capitalize } from "../../components/capitalize/utils";
-import { columns, users, statusOptions } from "./data";
+import { columns, statusOptions } from "./data";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { toast, ToastContainer } from "react-toastify";
 
 const statusColorMap = {
-  current: "success",
-  expired: "danger",
+  true: "success",
+  false: "warning",
+};
+
+const statusTextMap = {
+  true: "Active",
+  false: "Expired",
 };
 
 const INITIAL_VISIBLE_COLUMNS = [
-  "hour",
-  "date",
+  "user",
   "house",
-  "entryPlace",
-  "status",
+  "fecha_inicio",
+  "fecha_final",
+  "dias_semana",
+  "hora_inicio",
+  "hora_fin",
+  "tipo_expiracion",
+  "activo",
+  "acciones",
 ];
 
 const PermissionsDetails = () => {
@@ -42,15 +53,46 @@ const PermissionsDetails = () => {
   const [visibleColumns, setVisibleColumns] = React.useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
   );
-  const [statusFilter, setStatusFilter] = React.useState("all");
+  const [statusFilter, setStatusFilter] = React.useState(
+    new Set(["true", "false"])
+  );
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [sortDescriptor, setSortDescriptor] = React.useState({
-    column: "date",
+    column: "fecha_inicio",
     direction: "ascending",
   });
   const [page, setPage] = React.useState(1);
 
   const hasSearchFilter = Boolean(filterValue);
+
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    getPermissionsDetails();
+  }, []);
+
+  const token = localStorage.getItem("token");
+  let emailUser = "";
+  if (token) {
+    const decoded = jwtDecode(token);
+    emailUser = decoded.email;
+  }
+
+  function getPermissionsDetails() {
+    axios({
+      method: "get",
+      url: `https://api.securityhlvs.com/api/residential/permission/permission-details/${emailUser}`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        setUsers(response.data.data);
+      })
+      .catch((error) => {
+        toast("Error getting permissions details", { type: "error" });
+      });
+  }
 
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;
@@ -64,18 +106,13 @@ const PermissionsDetails = () => {
     let filteredUsers = [...users];
 
     if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter(
-        (user) =>
-          user.house.toLowerCase().includes(filterValue.toLowerCase()) ||
-          user.entryPlace.toLowerCase().includes(filterValue.toLowerCase())
+      filteredUsers = filteredUsers.filter((user) =>
+        user.house.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
-    if (
-      statusFilter !== "all" &&
-      Array.from(statusFilter).length !== statusOptions.length
-    ) {
+    if (statusFilter.size !== statusOptions.length) {
       filteredUsers = filteredUsers.filter((user) =>
-        Array.from(statusFilter).includes(user.status)
+        statusFilter.has(String(user.activo))
       );
     }
 
@@ -105,33 +142,15 @@ const PermissionsDetails = () => {
     const cellValue = user[columnKey];
 
     switch (columnKey) {
-      case "date":
-        return (
-          <div className="flex flex-col">
-            <p className="text-bold text-small capitalize">{cellValue}</p>
-          </div>
-        );
-      case "house":
-        return (
-          <div className="flex flex-col">
-            <p className="text-bold text-small capitalize">{cellValue}</p>
-          </div>
-        );
-      case "entry place":
-        return (
-          <div className="flex flex-col">
-            <p className="text-bold text-small capitalize">{cellValue}</p>
-          </div>
-        );
-      case "status":
+      case "activo":
         return (
           <Chip
             className="capitalize"
-            color={statusColorMap[user.status]}
+            color={statusColorMap[user.activo]}
             size="sm"
             variant="flat"
           >
-            {cellValue}
+            {statusTextMap[user.activo]}
           </Chip>
         );
       default:
@@ -177,7 +196,7 @@ const PermissionsDetails = () => {
           <Input
             isClearable
             className="w-full sm:max-w-[44%]"
-            placeholder="Search by house or entry place..."
+            placeholder="Search by house..."
             startContent={<SearchIcon />}
             value={filterValue}
             onClear={() => onClear()}
@@ -303,24 +322,6 @@ const PermissionsDetails = () => {
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
-  const [permissiondetails, setPermissionDetails] = useState([]);
-
-  useEffect(() => {
-    getPermissionsDetails();
-  }, []);
-
-  function getPermissionsDetails() {
-    axios({
-      method: "get",
-      url: `https://api.securityhlvs.com/api/permissions-details`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((response) => {
-      setPermissionDetails(response.data);
-    });
-  }
-
   return (
     <div className="container-tab">
       <Title
@@ -353,7 +354,7 @@ const PermissionsDetails = () => {
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody emptyContent={"No logs found"} items={sortedItems}>
+        <TableBody emptyContent={"No permissions found"} items={sortedItems}>
           {(item) => (
             <TableRow key={item.id}>
               {(columnKey) => (
@@ -363,6 +364,8 @@ const PermissionsDetails = () => {
           )}
         </TableBody>
       </Table>
+
+      <ToastContainer stacked/>
     </div>
   );
 };
