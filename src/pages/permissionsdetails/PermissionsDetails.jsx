@@ -21,7 +21,7 @@ import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIco
 import { capitalize } from "../../components/capitalize/utils";
 import { columns, statusOptions } from "./data";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import { toast, ToastContainer } from "react-toastify";
 
 const statusColorMap = {
@@ -62,6 +62,7 @@ const PermissionsDetails = () => {
     direction: "ascending",
   });
   const [page, setPage] = React.useState(1);
+  const [loading, setLoading] = React.useState(true);
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -88,9 +89,11 @@ const PermissionsDetails = () => {
     })
       .then((response) => {
         setUsers(response.data.data);
+        setLoading(false);
       })
       .catch((error) => {
         toast("Error getting permissions details", { type: "error" });
+        setLoading(false);
       });
   }
 
@@ -301,7 +304,7 @@ const PermissionsDetails = () => {
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
           <Button
             className="bg-indigo-500 text-white"
-            isDisabled={pages === 1}
+            isDisabled={page <= 1}
             size="sm"
             variant="flat"
             onPress={onPreviousPage}
@@ -310,7 +313,7 @@ const PermissionsDetails = () => {
           </Button>
           <Button
             className="bg-indigo-500 text-white"
-            isDisabled={pages === 1}
+            isDisabled={page >= pages}
             size="sm"
             variant="flat"
             onPress={onNextPage}
@@ -342,12 +345,13 @@ const PermissionsDetails = () => {
         topContentPlacement="outside"
         onSelectionChange={setSelectedKeys}
         onSortChange={setSortDescriptor}
+        emptyContent={loading ? "Loading..." : "No permissions found"}
       >
         <TableHeader columns={headerColumns}>
           {(column) => (
             <TableColumn
               key={column.uid}
-              align={column.uid === "actions" ? "center" : "start"}
+              align={column.uid === "acciones" ? "center" : "start"}
               allowsSorting={column.sortable}
             >
               {column.name}
@@ -365,7 +369,7 @@ const PermissionsDetails = () => {
         </TableBody>
       </Table>
 
-      <ToastContainer stacked/>
+      <ToastContainer stacked />
     </div>
   );
 };
