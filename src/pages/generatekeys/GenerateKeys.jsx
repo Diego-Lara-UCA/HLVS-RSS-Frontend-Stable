@@ -111,6 +111,7 @@ const GenerateKeys = () => {
         email: emailUser,
       },
     }).then((response) => {
+
       const newKey = response.data.data.key;
       const newGraceTime = response.data.data.graceTime;
       const newCreationTime = response.data.data.creationTime;
@@ -135,6 +136,7 @@ const GenerateKeys = () => {
       setShowButton(false);
     }).catch((error) => {
       console.error('Error al generar la clave:', error);
+      console.log(error);
     });
   }
 
