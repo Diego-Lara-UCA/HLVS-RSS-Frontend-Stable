@@ -65,10 +65,13 @@ const PedestrianAccess = () => {
         });
     }
 
+    const scanInterval = setInterval(() => {
+      scanner.current?.scan().then(onScanSuccess).catch(onScanFail);
+    }, 10000); // 4000 ms = 4 seconds
+
     return () => {
-      if (!videoEl?.current) {
-        scanner?.current?.stop();
-      }
+      clearInterval(scanInterval);
+      scanner?.current?.stop();
     };
   }, []);
 

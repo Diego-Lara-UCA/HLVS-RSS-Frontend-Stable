@@ -23,28 +23,12 @@ import { SearchIcon } from "../../components/searchicon/SearchIcon";
 import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
 import { capitalize } from "../../components/capitalize/utils";
 import { columns } from "./data";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Doughnut } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, LineElement, BarElement, CategoryScale, LinearScale, PointElement } from "chart.js";
+import { Doughnut, Line, Bar } from "react-chartjs-2";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
-
-const test = {
-  labels: ["Red", "Blue", "Yellow"],
-  datasets: [
-    {
-      label: "My First Dataset",
-      data: [300, 50, 100],
-      backgroundColor: [
-        "rgb(255, 99, 132)",
-        "rgb(54, 162, 235)",
-        "rgb(255, 205, 86)",
-      ],
-      hoverOffset: 4,
-    },
-  ],
-};
+ChartJS.register(ArcElement, Tooltip, Legend, LineElement, BarElement, CategoryScale, LinearScale, PointElement);
 
 const INITIAL_VISIBLE_COLUMNS = ["email", "house", "type", "date", "hour"];
 
@@ -52,17 +36,47 @@ const EntryHistory = () => {
   const [users, setUsers] = useState([]);
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
-  const [visibleColumns, setVisibleColumns] = useState(
-    new Set(INITIAL_VISIBLE_COLUMNS)
-  );
+  const [visibleColumns, setVisibleColumns] = useState(new Set(INITIAL_VISIBLE_COLUMNS));
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [sortDescriptor, setSortDescriptor] = useState({
-    column: "house",
-    direction: "ascending",
-  });
+  const [sortDescriptor, setSortDescriptor] = useState({ column: "house", direction: "ascending" });
   const [page, setPage] = useState(1);
   const [dateRange, setDateRange] = useState([null, null]);
   const [isDateSelected, setIsDateSelected] = useState(false);
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: [{
+      label: "Type of entry",
+      data: [],
+      backgroundColor: [
+        "rgb(255, 99, 132)",
+        "rgb(54, 162, 235)",
+        "rgb(255, 205, 86)",
+      ],
+      hoverOffset: 4,
+    }],
+  });
+
+  const [lineChartData, setLineChartData] = useState({
+    labels: [],
+    datasets: [{
+      label: "Entries per day",
+      data: [],
+      fill: false,
+      borderColor: 'rgb(75, 192, 192)',
+      tension: 0.1
+    }],
+  });
+
+  const [barChartData, setBarChartData] = useState({
+    labels: [],
+    datasets: [{
+      label: "House visits",
+      data: [],
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      borderColor: 'rgba(75, 192, 192, 1)',
+      borderWidth: 1
+    }],
+  });
 
   useEffect(() => {
     getEntryHistory();
@@ -78,6 +92,9 @@ const EntryHistory = () => {
     })
       .then((response) => {
         setUsers(response.data.data);
+        updateChartData(response.data.data);
+        updateLineChartData(response.data.data);
+        updateBarChartData(response.data.data);
         toast("Entry history loaded successfully", { type: "success" });
       })
       .catch((error) => {
@@ -85,12 +102,68 @@ const EntryHistory = () => {
       });
   }
 
+  function updateChartData(data) {
+    const typeCounts = data.reduce((acc, entry) => {
+      acc[entry.type] = (acc[entry.type] || 0) + 1;
+      return acc;
+    }, {});
+
+    setChartData({
+      labels: Object.keys(typeCounts),
+      datasets: [{
+        label: "Type of entry",
+        data: Object.values(typeCounts),
+        backgroundColor: [
+          "rgb(255, 99, 132)",
+          "rgb(54, 162, 235)",
+          "rgb(255, 205, 86)",
+        ],
+        hoverOffset: 4,
+      }],
+    });
+  }
+
+  function updateLineChartData(data) {
+    const dateCounts = data.reduce((acc, entry) => {
+      const date = new Date(entry.date).toLocaleDateString();
+      acc[date] = (acc[date] || 0) + 1;
+      return acc;
+    }, {});
+
+    setLineChartData({
+      labels: Object.keys(dateCounts),
+      datasets: [{
+        label: "Entries per day",
+        data: Object.values(dateCounts),
+        fill: false,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+      }],
+    });
+  }
+
+  function updateBarChartData(data) {
+    const houseCounts = data.reduce((acc, entry) => {
+      acc[entry.house] = (acc[entry.house] || 0) + 1;
+      return acc;
+    }, {});
+
+    setBarChartData({
+      labels: Object.keys(houseCounts),
+      datasets: [{
+        label: "House visits",
+        data: Object.values(houseCounts),
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1
+      }],
+    });
+  }
+
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;
 
-    return columns.filter((column) =>
-      Array.from(visibleColumns).includes(column.uid)
-    );
+    return columns.filter((column) => Array.from(visibleColumns).includes(column.uid));
   }, [visibleColumns]);
 
   const onDateChange = (newDateRange) => {
@@ -105,12 +178,8 @@ const EntryHistory = () => {
     if (filterValue) {
       filteredUsers = filteredUsers.filter(
         (user) =>
-          (user.email ? user.email.toLowerCase() : "").includes(
-            filterValue.toLowerCase()
-          ) ||
-          (user.house ? user.house.toLowerCase() : "").includes(
-            filterValue.toLowerCase()
-          )
+          (user.email ? user.email.toLowerCase() : "").includes(filterValue.toLowerCase()) ||
+          (user.house ? user.house.toLowerCase() : "").includes(filterValue.toLowerCase())
       );
     }
 
@@ -345,7 +414,7 @@ const EntryHistory = () => {
         description="See the entry history in a visual way!"
       />
 
-      <div className="grid grid-cols-3">
+      <div className="grid grid-cols-3 gap-4">
         <Card className="max-w-xs px-5 py-8">
           <label
             className="text-sm font-bold text-center mb-2"
@@ -353,7 +422,27 @@ const EntryHistory = () => {
           >
             Type of entry
           </label>
-          <Doughnut id="doughnutChart" updateMode="resize" data={test} />
+          <Doughnut id="doughnutChart" updateMode="resize" data={chartData} />
+        </Card>
+
+        <Card className="max-w-xs px-5 py-8">
+          <label
+            className="text-sm font-bold text-center mb-2"
+            htmlFor="lineChart"
+          >
+            Entries per day
+          </label>
+          <Line id="lineChart" updateMode="resize" data={lineChartData} />
+        </Card>
+
+        <Card className="max-w-xs px-5 py-8">
+          <label
+            className="text-sm font-bold text-center mb-2"
+            htmlFor="barChart"
+          >
+            House visits
+          </label>
+          <Bar id="barChart" updateMode="resize" data={barChartData} />
         </Card>
       </div>
       <ToastContainer stacked />
