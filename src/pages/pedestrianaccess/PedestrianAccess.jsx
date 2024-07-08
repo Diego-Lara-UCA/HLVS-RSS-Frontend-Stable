@@ -2,6 +2,8 @@ import React, { useRef, useEffect, useState } from "react";
 import Title from "../../components/title/Title";
 import QrScanner from "qr-scanner";
 import mqtt from "mqtt";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 
 const PedestrianAccess = () => {
   const scanner = useRef();
@@ -9,12 +11,32 @@ const PedestrianAccess = () => {
   const qrBoxEl = useRef(null);
   const [qrOn, setQrOn] = useState(true);
   const [client, setClient] = useState(null);
-  const [connectStatus, setConnectStatus] = useState('Conectando...');
+  const [connectStatus, setConnectStatus] = useState("Conectando...");
   const [scanResult, setScanResult] = useState(null);
+  const [getResponse, setGetResponse] = useState("");
 
   const onScanSuccess = (result) => {
-    alert(result?.data);
-    setScanResult(result?.data);
+    // alert(result?.data);
+    axios({
+      method: "POST",
+      url: `https://api.securityhlvs.com/api/entrance/key/verify-key`,
+      data: {
+        key: result?.data,
+        terminal: "PEDESTRIAN",
+      },
+    })
+      .then((response) => {
+        console.log("response", response);
+        if (response.status === 200) {
+          setScanResult(result?.data);
+          toast("QR code scanned successfully", { type: "success" });
+        } else {
+          toast("Error to scan the QR code", { type: "error" });
+        }
+      })
+      .catch((error) => {
+        console.error("error", error);
+      });
   };
 
   useEffect(() => {
@@ -51,33 +73,34 @@ const PedestrianAccess = () => {
   }, []);
 
   useEffect(() => {
-    const connectUrl = 'wss://d326e3e9.ala.dedicated.aws.emqxcloud.com:8084/mqtt';
+    const connectUrl =
+      "wss://d326e3e9.ala.dedicated.aws.emqxcloud.com:8084/mqtt";
     const options = {
       keepalive: 30,
       clientId: `mqtt_${Math.random().toString(16).slice(3)}`,
-      protocolId: 'MQTT',
+      protocolId: "MQTT",
       protocolVersion: 4,
       clean: true,
       reconnectPeriod: 1000,
       connectTimeout: 30 * 1000,
-      username: 'adminHLVS',
-      password: 'oscarin777',
+      username: "adminHLVS",
+      password: "oscarin777",
       will: {
-        topic: 'WillMsg',
-        payload: 'Connection Closed abnormally..!',
+        topic: "WillMsg",
+        payload: "Connection Closed abnormally..!",
         qos: 0,
-        retain: false
+        retain: false,
       },
-      rejectUnauthorized: false
+      rejectUnauthorized: false,
     };
 
     const mqttClient = mqtt.connect(connectUrl, options);
-    mqttClient.on('connect', () => {
-      setConnectStatus('Conectado');
+    mqttClient.on("connect", () => {
+      setConnectStatus("Conectado");
     });
-    mqttClient.on('error', (err) => {
-      console.error('Error de conexión:', err);
-      setConnectStatus('Error de conexión');
+    mqttClient.on("error", (err) => {
+      console.error("Error de conexión:", err);
+      setConnectStatus("Error de conexión");
       mqttClient.end();
     });
 
@@ -90,7 +113,7 @@ const PedestrianAccess = () => {
 
   useEffect(() => {
     if (scanResult) {
-      publishMessage('usuario/feeds/button2', '1');
+      publishMessage("usuario/feeds/button2", "1");
       setScanResult(null);
     }
   }, [scanResult]);
@@ -99,13 +122,13 @@ const PedestrianAccess = () => {
     if (client) {
       client.publish(topic, message, { qos: 0, retain: false }, (error) => {
         if (error) {
-          console.log('Error al publicar:', error);
+          console.log("Error al publicar:", error);
         } else {
           console.log(`Mensaje publicado al tópico ${topic}: ${message}`);
         }
       });
     } else {
-      console.log('No conectado a MQTT');
+      console.log("No conectado a MQTT");
     }
   };
 
@@ -132,6 +155,7 @@ const PedestrianAccess = () => {
       </div>
 
       <h2>Estado de la Conexión MQTT: {connectStatus}</h2>
+      <ToastContainer stacked />
     </div>
   );
 };

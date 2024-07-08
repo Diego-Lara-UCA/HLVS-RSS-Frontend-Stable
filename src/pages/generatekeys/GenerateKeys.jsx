@@ -125,6 +125,7 @@ const GenerateKeys = () => {
       setGraceTime(newGraceTime);
       setCreationTime(newCreationTime);
       setTimeLeft(newTimeLeft);
+      setQrCode(newKey);
 
       localStorage.setItem("qrCode", newKey);
       localStorage.setItem("timeLeft", newTimeLeft.toString());

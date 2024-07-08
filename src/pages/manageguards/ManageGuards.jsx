@@ -35,8 +35,6 @@ const ManageGuards = () => {
   }
 
   function postManageGuards() {
-    console.log(emailGuard);
-
     if (emailGuard === "")
       return toast("Please enter email", { type: "error" });
 
