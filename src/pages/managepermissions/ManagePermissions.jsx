@@ -100,6 +100,23 @@ const ManagePermissions = () => {
       });
   }
 
+  function deletePermission(id_permission) {
+    axios({
+      method: "DELETE",
+      url: `https://api.securityhlvs.com/api/residential/permission/delete/${id_permission}`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        getEntryHistory();
+        toast("Entry history deleted successfully", { type: "success" });
+      })
+      .catch((error) => {
+        toast("Error to delete the entry history", { type: "error" });
+      });
+  }
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [scrollBehavior, setScrollBehavior] = useState("inside");
   const [filterValue, setFilterValue] = useState("");
@@ -182,7 +199,7 @@ const ManagePermissions = () => {
             <div className="relative flex items-center gap-2">
               <Tooltip content="Approve">
                 <Button
-                  onPress={() => postApprovePermission(user.id)} // Modificado aquí
+                  onPress={() => postApprovePermission(user.id)}
                   className="text-lg text-default-400 cursor-pointer active:opacity-50"
                   isIconOnly
                   variant="light"
@@ -192,6 +209,7 @@ const ManagePermissions = () => {
               </Tooltip>
               <Tooltip color="danger" content="Reject">
                 <Button
+                  onPress={() => deletePermission(user.id)}
                   className="text-lg text-danger hover:bg-danger-50 cursor-pointer active:opacity-50"
                   isIconOnly
                   variant="light"
@@ -205,7 +223,7 @@ const ManagePermissions = () => {
           return cellValue;
       }
     },
-    [postApprovePermission]
+    [postApprovePermission, deletePermission]
   );
 
   const onNextPage = useCallback(() => {
