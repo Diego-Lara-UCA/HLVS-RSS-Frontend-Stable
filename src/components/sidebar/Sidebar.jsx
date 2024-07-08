@@ -62,7 +62,7 @@ const Sidebar = ({ isOpen, toggleMenu }) => {
             })}
           </div>
         </div>
-        <div className="flex justify-center p-10">
+        <div className="flex justify-center px-10 pt-10 pb-20">
           <Button
             className="bg-transparent hover:bg-slate-100 uppercase"
             variant="flat"
