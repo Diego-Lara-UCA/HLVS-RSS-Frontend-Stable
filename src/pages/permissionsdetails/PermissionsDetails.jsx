@@ -21,7 +21,7 @@ import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIco
 import { capitalize } from "../../components/capitalize/utils";
 import { columns, statusOptions } from "./data";
 import axios from "axios";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { toast, ToastContainer } from "react-toastify";
 
 const statusColorMap = {
@@ -48,21 +48,19 @@ const INITIAL_VISIBLE_COLUMNS = [
 ];
 
 const PermissionsDetails = () => {
-  const [filterValue, setFilterValue] = React.useState("");
-  const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
-  const [visibleColumns, setVisibleColumns] = React.useState(
+  const [filterValue, setFilterValue] = useState("");
+  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
+  const [visibleColumns, setVisibleColumns] = useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
   );
-  const [statusFilter, setStatusFilter] = React.useState(
-    new Set(["true", "false"])
-  );
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [sortDescriptor, setSortDescriptor] = React.useState({
+  const [statusFilter, setStatusFilter] = useState(new Set(["true", "false"]));
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [sortDescriptor, setSortDescriptor] = useState({
     column: "fecha_inicio",
     direction: "ascending",
   });
-  const [page, setPage] = React.useState(1);
-  const [loading, setLoading] = React.useState(true);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -156,6 +154,8 @@ const PermissionsDetails = () => {
             {statusTextMap[user.activo]}
           </Chip>
         );
+      case "dias_semana": // Añade este caso para manejar la columna de días de la semana
+        return cellValue.join(", ");
       default:
         return cellValue;
     }
@@ -265,6 +265,7 @@ const PermissionsDetails = () => {
             <select
               className="bg-transparent outline-none text-default-400 text-small"
               onChange={onRowsPerPageChange}
+              value={rowsPerPage}
             >
               <option value="5">5</option>
               <option value="10">10</option>
@@ -282,6 +283,8 @@ const PermissionsDetails = () => {
     users.length,
     onSearchChange,
     hasSearchFilter,
+    rowsPerPage,
+    onClear,
   ]);
 
   const bottomContent = React.useMemo(() => {
@@ -323,7 +326,7 @@ const PermissionsDetails = () => {
         </div>
       </div>
     );
-  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+  }, [selectedKeys, filteredItems.length, page, pages]);
 
   return (
     <div className="container-tab">
@@ -368,7 +371,6 @@ const PermissionsDetails = () => {
           )}
         </TableBody>
       </Table>
-
       <ToastContainer stacked />
     </div>
   );
