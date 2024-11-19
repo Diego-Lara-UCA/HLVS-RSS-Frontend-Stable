@@ -19,7 +19,7 @@ import {
 import { SearchIcon } from "../../components/searchicon/SearchIcon";
 import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
 import { capitalize } from "../../components/capitalize/utils";
-import { columns } from "../logofentries/data";
+import { columns } from "./data";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 

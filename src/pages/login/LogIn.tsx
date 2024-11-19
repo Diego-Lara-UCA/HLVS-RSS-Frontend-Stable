@@ -1,44 +1,24 @@
 import { Button } from "@nextui-org/react";
 import { useGoogleLogin } from "@react-oauth/google";
-import axios from "axios";
 import GoogleIcon from "@mui/icons-material/Google";
 import { Link } from "react-router-dom";
+import { sendAuth } from "@/auth/authService";
+import { useState } from "react";
 
-const LogIn = () => {
-  
-  function sendAuth(token) {
-    axios({
-      method: "post",
-      url: `https://api.securityhlvs.com/api/auth/login/${token}`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: {
-        token: token,
-      },
-    })
-      .then((response) => {
-        console.log(response);
-        if (response.status === 200) {
-          const emailUser = JSON.parse(response.data.data);
-          console.log(emailUser);
-          localStorage.setItem("email", emailUser.email);
-          window.location.href = "/profile";
-        } else if (response.status === 202) {
-          const JWToken = response.data.data.token;
-          localStorage.setItem("token", JWToken);
-          window.location.href = "/dashboard";
-        }
-      })
-      .catch((error) => {
-        console.error("Error during authentication:", error);
-      });
-  }
+const LogIn: React.FC = () => {
+  const [error, setError] = useState<string | null>(null);
 
   const loginAuth = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
-      console.log(tokenResponse);
-      sendAuth(tokenResponse.access_token);
+    onSuccess: async (tokenResponse) => {
+      try {
+        await sendAuth(tokenResponse.access_token);
+      } catch (err) {
+        setError('Error during authentication');
+      }
+    },
+    onError: (error) => {
+      console.error('Google login failed:', error);
+      setError('Google login failed');
     },
   });
 
