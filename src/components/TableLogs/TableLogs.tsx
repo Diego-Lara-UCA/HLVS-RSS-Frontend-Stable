@@ -72,7 +72,7 @@ const DynamicTable = <T extends object>({
           ))}
         </tbody>
       </table>
-      <div className="pagination">
+      <div className="pagination relative lg:static">
         <button
           disabled={page === 1}
           onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
