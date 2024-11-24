@@ -3,12 +3,11 @@ import { NavLink } from "react-router-dom";
 import links from "./index.js";
 import "./sidebar.css";
 import { Button } from "@nextui-org/react";
-import { isMobile } from "./utils";
+import { isMobile } from "./utils.js";
 import { logout } from "@/auth/authService.js";
 import { getFromLocalStorage } from "@/utils/storageUtils.js";
 import { redirectUser } from "@/utils/navigationUtils.js";
 import { decodeToken } from "@/utils/decodeToken.js";
-import { get } from "http";
 
 interface SidebarProps {
   isOpen: boolean;
