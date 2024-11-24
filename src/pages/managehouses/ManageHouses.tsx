@@ -16,10 +16,10 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@nextui-org/react";
-import { DeleteIcon } from "../../components/deleteicon/DeleteIcon";
+import { DeleteIcon } from "../../assets/icons/DeleteIcon";
 import { columns, users } from "./data";
-import { SearchIcon } from "../../components/searchicon/SearchIcon";
-import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
+import { SearchIcon } from "../../assets/icons/SearchIcon";
+import { ChevronDownIcon } from "../../assets/icons/ChevronDownIcon";
 import { capitalize } from "../../components/capitalize/utils";
 import { data } from "autoprefixer";
 import axios from "axios";
