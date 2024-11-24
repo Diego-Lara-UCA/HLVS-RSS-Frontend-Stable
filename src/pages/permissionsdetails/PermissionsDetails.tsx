@@ -16,8 +16,8 @@ import {
   Pagination,
   Chip,
 } from "@nextui-org/react";
-import { SearchIcon } from "../../components/searchicon/SearchIcon";
-import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
+import { SearchIcon } from "../../assets/icons/SearchIcon";
+import { ChevronDownIcon } from "../../assets/icons/ChevronDownIcon";
 import { capitalize } from "../../components/capitalize/utils";
 import { columns, statusOptions } from "./data";
 import axios from "axios";

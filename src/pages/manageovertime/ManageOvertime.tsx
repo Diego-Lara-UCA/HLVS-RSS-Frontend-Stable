@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Title from "../../components/title/Title";
 import { Button, TimeInput } from "@nextui-org/react";
-import { ClockCircleLinearIcon } from "../../components/clockcircleLinearicon/ClockCircleLinearIcon";
+import { ClockCircleLinearIcon } from "../../assets/icons/ClockCircleLinearIcon";
 import { parseDate, parseAbsoluteToLocal } from "@internationalized/date";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
