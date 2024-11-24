@@ -15,19 +15,25 @@ export const sendAuth = async (
       { token }
     );
 
-    const { status, data } = response;
+    const { data, message } = response.data || {};
 
-    if (data && data.data.token) {
-      const { token: JWToken } = data.data;
+    if (data?.token) {
+      const { token: JWToken } = data;
       saveToLocalStorage("token", JWToken);
-
-      if (status === 200) {
-        redirectUser("/profile");
-      } else if (status === 202) {
-        redirectUser("/dashboard");
+      switch (response.status) {
+        case 200:
+          redirectUser("/profile");
+          break;
+        case 202:
+          redirectUser("/dashboard");
+          break;
+        default:
+          throw new Error(`Unexpected status code: ${response.status}`);
       }
+    } else if (message === "Redirecting to register user form") {
+      redirectUser("/profile");
     } else {
-      throw new Error("Token is missing in the response data");
+      throw new Error("Unexpected response format");
     }
   } catch (error) {
     console.error("Error during authentication:", error);
