@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Outlet } from "react-router-dom";
-import Sidebar from "../../components/sidebar/Sidebar";
-import Navbar from "../../components/navbar/Navbar";
-import { isMobile } from "../../components/sidebar/utils";
+import Sidebar from "../../components/Sidebar/Sidebar";
+import Navbar from "../../components/Navbar/Navbar";
+import { isMobile } from "../../components/Sidebar/utils";
 
 const Dashboard = () => {
   const [isOpen, setIsOpen] = useState(!isMobile());

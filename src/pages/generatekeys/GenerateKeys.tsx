@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Title from "../../components/title/Title";
+import Title from "../../components/Title/Title";
 import QRCode from "qrcode.react";
 import axios from "axios";
 import {jwtDecode} from "jwt-decode";

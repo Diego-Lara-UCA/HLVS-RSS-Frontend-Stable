@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Title from "../../components/title/Title";
+import Title from "../../components/Title/Title";
 import { Input, Button } from "@nextui-org/react";
 
 import {
