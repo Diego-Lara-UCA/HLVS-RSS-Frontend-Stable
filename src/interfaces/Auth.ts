@@ -1,7 +1,6 @@
 export interface IApiAuthResponse {
   data: {
     token?: string;
-    email?: string;
   };
 }
 

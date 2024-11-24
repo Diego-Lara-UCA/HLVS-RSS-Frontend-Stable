@@ -23,12 +23,12 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@nextui-org/react";
-import { SearchIcon } from "../../components/searchicon/SearchIcon";
-import { ChevronDownIcon } from "../../components/chevrondownicon/ChevronDownIcon";
+import { SearchIcon } from "../../assets/icons/SearchIcon";
+import { ChevronDownIcon } from "../../assets/icons/ChevronDownIcon";
 import { columns, statusOptions } from "./data";
 import { capitalize } from "../../components/capitalize/utils";
-import { DeleteIcon } from "../../components/deleteicon/DeleteIcon";
-import { EyeIcon } from "../../components/eyeicon/EyeIcon";
+import { DeleteIcon } from "../../assets/icons/DeleteIcon";
+import { EyeIcon } from "../../assets/icons/EyeIcon";
 import FormDetailsPermissions from "../../components/formdetailspermissions/FormDetailsPermissions";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
