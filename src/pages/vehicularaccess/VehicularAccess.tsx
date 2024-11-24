@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import Title from "../../components/title/Title";
+import Title from "../../components/Title/Title";
 import QrScanner from "qr-scanner";
 import mqtt from "mqtt";
 import axios from "axios";

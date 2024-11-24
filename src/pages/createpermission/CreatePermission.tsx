@@ -1,6 +1,6 @@
 import React from "react";
-import Title from "../../components/title/Title";
-import FormCreatePermissions from "../../components/formcreatepermissions/FormCreatePermissions";
+import Title from "../../components/Title/Title";
+import FormCreatePermissions from "../../components/FormCreatePermissions/FormCreatePermissions";
 
 const CreatePermission = () => {
   return (

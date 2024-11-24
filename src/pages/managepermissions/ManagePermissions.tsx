@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import Title from "../../components/title/Title";
+import Title from "../../components/Title/Title";
 import {
   Table,
   TableHeader,
@@ -29,7 +29,7 @@ import { columns, statusOptions } from "./data";
 import { capitalize } from "../../components/capitalize/utils";
 import { DeleteIcon } from "../../assets/icons/DeleteIcon";
 import { EyeIcon } from "../../assets/icons/EyeIcon";
-import FormDetailsPermissions from "../../components/formdetailspermissions/FormDetailsPermissions";
+import FormDetailsPermissions from "../../components/FormDetailsPermissions/FormDetailsPermissions";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { set } from "date-fns";

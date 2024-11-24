@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Title from "../../components/title/Title";
+import Title from "../../components/Title/Title";
 import {
   Button,
   Divider,

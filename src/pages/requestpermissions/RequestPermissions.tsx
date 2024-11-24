@@ -1,7 +1,7 @@
 import React from "react";
-import Title from "../../components/title/Title";
+import Title from "../../components/Title/Title";
 import { Input } from "@nextui-org/react";
-import FormRequestPermissions from "../../components/formrequestpermissions/FormRequestPermissions";
+import FormRequestPermissions from "../../components/FormRequestPermissions/FormRequestPermissions";
 
 const RequestPermissions = () => {
   return (

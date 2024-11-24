@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import Title from "../../components/title/Title";
+import Title from "../../components/Title/Title";
 
 import {
   Table,
