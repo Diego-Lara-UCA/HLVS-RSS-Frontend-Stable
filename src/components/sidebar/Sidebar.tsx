@@ -7,6 +7,8 @@ import { isMobile } from "./utils";
 import { logout } from "@/auth/authService.js";
 import { getFromLocalStorage } from "@/utils/storageUtils.js";
 import { redirectUser } from "@/utils/navigationUtils.js";
+import { decodeToken } from "@/utils/decodeToken.js";
+import { get } from "http";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -14,7 +16,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleMenu }) => {
-  const email = getFromLocalStorage("email");
+  const email = decodeToken()?.email;
 
   const handleLogout = () => {
     if (email) {
@@ -26,7 +28,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleMenu }) => {
           console.error(err);
         });
     } else {
-      console.error("No email found in localStorage");
+      console.error("No email found");
     }
   };
 

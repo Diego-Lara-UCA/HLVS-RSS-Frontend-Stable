@@ -1,8 +1,10 @@
 import apiClient from "@/api/axios/axiosInstance";
 import { IGoogleLoginResponse, IApiAuthResponse } from "@/interfaces/Auth";
 import { redirectUser } from "@/utils/navigationUtils";
-import { removeFromLocalStorage, saveToLocalStorage } from "@/utils/storageUtils";
-
+import {
+  removeFromLocalStorage,
+  saveToLocalStorage,
+} from "@/utils/storageUtils";
 
 export const sendAuth = async (
   token: IGoogleLoginResponse["access_token"]
@@ -14,18 +16,18 @@ export const sendAuth = async (
     );
 
     const { status, data } = response;
-    const parsedData = typeof data.data === "string" ? JSON.parse(data.data) : data.data;
 
-    if (parsedData) {
-      const { email, token: JWToken } = parsedData;
+    if (data && data.data.token) {
+      const { token: JWToken } = data.data;
+      saveToLocalStorage("token", JWToken);
 
-      if (status === 200 && email) {
-        saveToLocalStorage("email", email);
+      if (status === 200) {
         redirectUser("/profile");
-      } else if (status === 202 && JWToken) {
-        saveToLocalStorage("token", JWToken);
+      } else if (status === 202) {
         redirectUser("/dashboard");
       }
+    } else {
+      throw new Error("Token is missing in the response data");
     }
   } catch (error) {
     console.error("Error during authentication:", error);
@@ -33,11 +35,11 @@ export const sendAuth = async (
   }
 };
 
-
 export const logout = async (email: string): Promise<void> => {
   try {
     await apiClient.post(`/auth/logout/${email}`);
     removeFromLocalStorage("token");
+    removeFromLocalStorage("email");
     redirectUser("/login");
   } catch (error) {
     console.error("Error during logout:", error);

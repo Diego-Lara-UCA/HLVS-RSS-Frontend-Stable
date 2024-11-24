@@ -9,7 +9,7 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
-import { ClockCircleLinearIcon } from "../clockcircleLinearicon/ClockCircleLinearIcon";
+import { ClockCircleLinearIcon } from "../../assets/icons/ClockCircleLinearIcon";
 import axios from "axios";
 import { parseDate, parseAbsoluteToLocal } from "@internationalized/date";
 import { jwtDecode } from "jwt-decode";

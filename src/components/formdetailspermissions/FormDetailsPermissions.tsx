@@ -8,7 +8,7 @@ import {
   RadioGroup,
   Radio,
 } from "@nextui-org/react";
-import { ClockCircleLinearIcon } from "../clockcircleLinearicon/ClockCircleLinearIcon";
+import { ClockCircleLinearIcon } from "../../assets/icons/ClockCircleLinearIcon";
 
 const daysOfWeek = [
   "Sunday",
