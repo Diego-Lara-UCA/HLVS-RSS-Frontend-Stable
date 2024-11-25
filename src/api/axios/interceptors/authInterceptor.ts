@@ -7,6 +7,7 @@ export const authInterceptor = (
   const token = getFromLocalStorage("token");
 
   if (token) {
+    console.log("Adding Authorization header:", token);
     config.headers.set("Authorization", `Bearer ${token}`);
   }
 

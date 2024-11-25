@@ -6,6 +6,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { NextUIProvider } from "@nextui-org/react";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
+
   <React.StrictMode>
     <GoogleOAuthProvider clientId="11731933429-21c5ut2ulla3bnsvstos1uv91jq4j278.apps.googleusercontent.com">
       <NextUIProvider>
@@ -13,6 +14,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       </NextUIProvider>
     </GoogleOAuthProvider>
   </React.StrictMode>
+
 );
 
 
