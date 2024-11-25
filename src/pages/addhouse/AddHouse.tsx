@@ -1,26 +1,24 @@
 import React, { useState } from "react";
 import Title from "../../components/Title/Title";
 import { Input, Button } from "@nextui-org/react";
-import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import { addHouse } from "@/services/addHouseService";
+import { IAddHouseRequest } from "@/interfaces/AddHouse";
 
-const AddHouse = () => {
-  const [houseNumber, setHouseNumber] = useState("");
-  const [address, setAddress] = useState("");
-  const [residents, setResidents] = useState("");
-  const [residentInCharge, setResidentInCharge] = useState("");
+const AddHouse: React.FC = () => {
+  const [houseNumber, setHouseNumber] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
+  const [residents, setResidents] = useState<string>("");
+  const [residentInCharge, setResidentInCharge] = useState<string>("");
 
-  function emptyFields() {
+  function emptyFields(): void {
     setHouseNumber("");
     setAddress("");
     setResidents("");
     setResidentInCharge("");
   }
 
-  function postAddHouse() {
-  
-    const residentsInt = parseInt(residents, 10);
-
+  const postAddHouse = async (): Promise<void> => {
     if (
       houseNumber === "" ||
       address === "" ||
@@ -31,27 +29,24 @@ const AddHouse = () => {
       return;
     }
 
-    axios({
-      method: "post",
-      url: "https://api.securityhlvs.com/api/residential/house/register",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: {
-        id: houseNumber,
-        direccion: address,
-        cantidad_residentes: residentsInt,
-        users: residentInCharge,
-      },
-    })
-      .then(() => {
-        toast("House added successfully", { type: "success" });
-        emptyFields();
-      })
-      .catch((error) => {
-        toast("Error adding house", { type: "error" });
-      });
-  }
+    const residentsInt = parseInt(residents, 10);
+
+    const houseData: IAddHouseRequest = {
+      id: houseNumber,
+      direccion: address,
+      cantidad_residentes: residentsInt,
+      users: residentInCharge,
+    };
+
+    try {
+      await addHouse(houseData);
+      toast("House added successfully", { type: "success" });
+      emptyFields();
+    } catch (error) {
+      toast("Error adding house", { type: "error" });
+      console.error("Error adding house:", error);
+    }
+  };
 
   return (
     <div className="container-tab">

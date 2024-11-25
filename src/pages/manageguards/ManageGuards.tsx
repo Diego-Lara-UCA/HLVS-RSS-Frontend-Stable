@@ -23,60 +23,52 @@ import { ChevronDownIcon } from "../../assets/icons/ChevronDownIcon";
 import { capitalize } from "../../components/capitalize/utils";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import { getAllGuards, registerGuard } from "@/services/guardService";
+import { IRegisterGuardRequest, IGuard } from "@/interfaces/ManageGuard";
 
 const INITIAL_VISIBLE_COLUMNS = ["nombre", "correo_google", "actions"];
 
 const ManageGuards = () => {
   const [emailGuard, setEmailGuard] = useState("");
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<IGuard[]>([]);
 
   function emptyFields() {
     setEmailGuard("");
   }
 
-  function postManageGuards() {
-    if (emailGuard === "")
-      return toast("Please enter email", { type: "error" });
+  const postManageGuards = async (): Promise<void> => {
+    if (!emailGuard.trim()) {
+      toast("Please enter email", { type: "error" });
+      return;
+    }
 
-    axios({
-      method: "post",
-      url: `https://api.securityhlvs.com/api/users/register-guard`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: {
-        email: emailGuard,
-      },
-    })
-      .then(() => {
-        toast("Guard added successfully", { type: "success" });
-        emptyFields();
-        getManageGuards();
-      })
-      .catch((error) => {
-        toast("Error adding guard", { type: "error" });
-      });
-  }
+    const guardData: IRegisterGuardRequest = { email: emailGuard };
 
+    try {
+      await registerGuard(guardData);
+      toast("Guard added successfully", { type: "success" });
+      emptyFields();
+      fetchGuards();
+    } catch (error) {
+      toast("Error adding guard", { type: "error" });
+      console.error("Error adding guard:", error);
+    }
+  };
+
+  const fetchGuards = async (): Promise<void> => {
+    try {
+      const guards = await getAllGuards();
+      setUsers(guards);
+    } catch (error) {
+      toast("No guards found", { type: "warning" });
+      console.error("Error fetching guards:", error);
+    }
+  };
+
+  // Cargar los guardias al montar el componente
   useEffect(() => {
-    getManageGuards();
+    fetchGuards();
   }, []);
-
-  function getManageGuards() {
-    axios({
-      method: "get",
-      url: `https://api.securityhlvs.com/api/users/all-guards`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
-        setUsers(response.data.data) || [];
-      })
-      .catch(() => {
-        toast("No guards found", { type: "warning" });
-      });
-  }
 
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));

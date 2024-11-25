@@ -22,6 +22,7 @@ import {
   Pagination,
 } from "@nextui-org/react";
 import { toast, ToastContainer } from "react-toastify";
+import { decodeToken } from "@/utils/decodeToken";
 
 const INITIAL_VISIBLE_COLUMNS = ["email", "house", "hour", "date", "type"];
 
@@ -38,6 +39,10 @@ const LogOfEntries = () => {
     })();
     return [];
   });
+
+
+  const role = decodeToken()?.rol;
+  console.log("Role: ", role);
 
 
   const [filterValue, setFilterValue] = React.useState("");
