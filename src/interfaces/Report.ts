@@ -1,12 +1,12 @@
 export type ReportType = "SUSPICIOUS_ACTIVITY" | "PROPERTY_DAMAGE" | "EXCESSIVE_NOISE";
 
 export interface IReport {
-    id: string;
+    email: string;
     description: string;
     type: ReportType;
-    createdAt: string;
-    user: {
+    //createdAt: string;
+    /*user: {
         id: string;
         name: string;
-    }
+    }*/
 }

@@ -1,4 +1,4 @@
-import { userRole } from "./userRole";
+import { userRole } from "@/components/Sidebar/userRole";
 import { HiOutlineBookOpen } from "react-icons/hi2";
 import {
   PiLockSimpleOpen,
@@ -13,7 +13,7 @@ import { MdManageSearch } from "react-icons/md";
 import { BsHouseAdd } from "react-icons/bs";
 import { AiOutlineQrcode } from "react-icons/ai";
 
-const getLinks = (role) => {
+const getLinks = (role: string) => {
   switch (role) {
     // Usuario administrador de la residencial
     case "admin":
@@ -158,6 +158,6 @@ const getLinks = (role) => {
   }
 };
 
-const links = getLinks(userRole);
+const links = getLinks(userRole ?? "guest");
 
 export default links;
