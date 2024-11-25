@@ -1,7 +1,8 @@
 import apiClient from "@/api/axios/axiosInstance";
 import {
   ICreatePermissionRequest,
-  IPermissionDetailsRequest,
+  IManagePermissionsRequest,
+  IPermissionDetailsResponse,
 } from "@/interfaces/Permissions";
 
 export const createPermission = async (
@@ -17,14 +18,29 @@ export const createPermission = async (
 
 export const getPermissionsDetails = async (
   email: string
-): Promise<IPermissionDetailsRequest[]> => {
-  try {
-    const response = await apiClient.get<{ data: IPermissionDetailsRequest[] }>(
-      `/residential/permission/permission-details/${email}`
-    );
-    return response.data.data || [];
-  } catch (error) {
-    console.error("Error fetching permission details:", error);
-    throw error;
-  }
+): Promise<IPermissionDetailsResponse> => {
+  const response = await apiClient.get(
+    `/residential/permission/permission-details/${email}`
+  );
+  return response.data;
+};
+
+// Obtener permisos
+export const getPermissionsHouse = async (
+  houseNumber: string
+): Promise<IManagePermissionsRequest[]> => {
+  const response = await apiClient.get<IPermissionDetailsResponse>(
+    `/residential/permission/manage-permission/${houseNumber}`
+  );
+  return response.data.data;
+};
+
+// Aprobar permiso
+export const approvePermission = async (id_permission: string): Promise<void> => {
+  await apiClient.post(`/residential/permission/approve/${id_permission}`);
+};
+
+// Eliminar permiso
+export const deletePermission = async (id_permission: string): Promise<void> => {
+  await apiClient.delete(`/residential/permission/delete/${id_permission}`);
 };

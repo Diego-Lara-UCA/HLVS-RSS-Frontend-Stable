@@ -1,9 +1,10 @@
-import React, { useRef, useEffect, useState } from "react";
-import Title from "../../components/Title/Title";
+import React, { useRef, useEffect, useState, useCallback } from "react";
+import Title from "@/components/Title/Title"; 
 import QrScanner from "qr-scanner";
 import mqtt from "mqtt";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import { verifyKey } from "@/services/guardService";
 
 const PedestrianAccess = () => {
   const scanner = useRef();
@@ -12,32 +13,24 @@ const PedestrianAccess = () => {
   const [qrOn, setQrOn] = useState(true);
   const [client, setClient] = useState(null);
   const [connectStatus, setConnectStatus] = useState("Conectando...");
-  const [scanResult, setScanResult] = useState(null);
+  const [scanResult, setScanResult] = useState<string | null>(null);
   const [getResponse, setGetResponse] = useState("");
+  
 
-  const onScanSuccess = (result) => {
-    // alert(result?.data);
-    axios({
-      method: "POST",
-      url: `https://api.securityhlvs.com/api/entrance/key/verify-key`,
-      data: {
-        key: result?.data,
-        terminal: "PEDESTRIAN",
-      },
-    })
-      .then((response) => {
-        console.log("response", response);
-        if (response.status === 200) {
-          setScanResult(result?.data);
-          toast("QR code scanned successfully", { type: "success" });
-        } else {
-          toast("Error to scan the QR code", { type: "error" });
-        }
-      })
-      .catch((error) => {
-        console.error("error", error);
-      });
-  };
+  const handleScanSuccess = useCallback(async (result: QrScanner.ScanResult) => {
+    try {
+      const { success, message } = await verifyKey(result.data);
+      if (success) {
+        setScanResult(result.data);
+        toast.success("QR code scanned successfully");
+      } else {
+        toast.error(message || "Error scanning the QR code");
+      }
+    } catch (error) {
+      console.error("Error verifying QR code:", error);
+      toast.error("Error scanning the QR code");
+    }
+  }, []);
 
   useEffect(() => {
     if (!qrOn) console.log("QR Scanner is off");
@@ -49,7 +42,7 @@ const PedestrianAccess = () => {
 
   useEffect(() => {
     if (videoEl?.current && !scanner.current) {
-      scanner.current = new QrScanner(videoEl?.current, onScanSuccess, {
+      scanner.current = new QrScanner(videoEl?.current, handleScanSuccess, {
         onDecodeError: onScanFail,
         preferredCamera: "environment",
         highlightScanRegion: true,
