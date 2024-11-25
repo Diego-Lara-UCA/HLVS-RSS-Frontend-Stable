@@ -1,6 +1,4 @@
-# HLVS-RSS-Frontend-Stable
-
-# Proyecto Final - Ingeniería de software
+# HLVS-RSS-Frontend-Stable | Proyecto Final - Ingeniería de software
 
 ## Equipo
 
@@ -39,11 +37,11 @@ Puedes acceder a las aplicaciones desplegadas mediante las siguientes direccione
 
 ## Estructura del proyecto
 
-```
+```bash
 ├── public/                   # Public static files and PWA Config
 ├── src/                      # Main source code
 │   ├── api/                  # API-related modules
-│   │   └── axiosInstance.ts  # Axios configuration for HTTP requests
+│   │   └── axios/            # Axios configuration for HTTP requests
 │   ├── assets/               # Static assets like fonts or additional files
 │   ├── auth/                 # Authentication-related logic
 │   ├── components/           # Reusable UI components
@@ -69,25 +67,24 @@ Puedes acceder a las aplicaciones desplegadas mediante las siguientes direccione
 ├── vite.config.ts            # Vite configuration
 ```
 
-# Instalación y Configuración
+## Instalación y Configuración
 
-Sigue los siguientes pasos para configurar el proyecto en tu entorno local:
-
-## Instalaciones previas
+### Instalaciones previas
 
 - Node.js
 - npm o yarn
 - Git
 
-## Pasos
+### Sigue los siguientes pasos para configurar el proyecto en tu entorno local:
 
-1. Clona el Repositorio
+1. **Clona el Repositorio:** Abre tu terminal y ejecuta el siguiente comando:
 
 ```bash
 git clone <repositorio_url>
 cd <nombre_proyecto>
 ```
-2. Instala las dependencias
+
+1. **Instala las dependencias:** Instala las dependencias del proyecto:
 
 ```bash
 npm install
@@ -95,9 +92,9 @@ npm install
 yarn install
 ```
 
-3. Especifica las variables de entorno en tu archivo .env
+3. **Especifica las variables de entorno en tu archivo .env:** Abre el archivo .env y especifica las variables de entorno necesarias para tu proyecto.
 
-4. Ejecuta el servidor de desarrollo
+4. **Ejecuta el servidor de desarrollo:** Ejecuta el servidor de desarrollo para ver tu aplicación en tu navegador:
 
 ```bash
 npm run dev
