@@ -1,109 +1,82 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { getReports } from "@/services/reportService"; // Asegúrate de que el servicio esté configurado
 import {
-  Card,
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
   Button,
+  Card,
+  CardBody,
+  CardFooter
 } from "@nextui-org/react";
-import axios from "axios";
-import PropTypes from "prop-types";
 
-const ReportDetails = ({ reportId }) => {
-  const [report, setReport] = useState(null);
+export interface Report {
+  id: string; // UUID en formato string
+  nombre: string;
+  description: string;
+  type: string;
+  date: string; // ISO-8601 date string
+}
+
+const ReportList = () => {
+  const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const fetchReport = async () => {
-    setLoading(true);
-    setError("");
-
-    try {
-      // Llamada al backend con el ID del reporte
-      const response = await axios.get(
-        `http://54.85.119.151:80/api/report/all`
-      );
-
-      // Asignar los datos del reporte
-      setReport(response.data.data);
-    } catch (err) {
-      console.error("Error al obtener el reporte:", err);
-      setError("No se pudo cargar el reporte. Intenta nuevamente.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    if (reportId) fetchReport(); // Solo llama al backend si hay un ID disponible
-  }, [reportId]);
+    const fetchReports = async () => {
+      try {
+        const token = localStorage.getItem("token") || ""; // Obtén el token
+        const fetchedReports = await getReports(token);
+
+        // Ordenar por fecha descendente
+        const sortedReports = fetchedReports.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+
+        setReports(sortedReports);
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, []);
+
+  if (loading) {
+    return <div>Cargando reportes...</div>;
+  }
+
+  if (reports.length === 0) {
+    return <div>No hay reportes disponibles.</div>;
+  }
 
   return (
-    <div className="mt-5 flex flex-col max-w-4xl mx-auto">
-      <Card className="mb-4 p-4">
-        <h1 className="text-2xl font-bold">Detalles del Reporte</h1>
-      </Card>
-
-      {loading ? (
-        <div className="flex justify-center py-10">
-          <span className="text-lg text-gray-600">Cargando reporte...</span>
+    <div className="mt-5 px-4"> {/* Añadimos un padding general al contenedor */}
+      <div className="flex flex-col max-w-3xl gap-6 mx-auto"> {/* Alineamos al centro con mx-auto */}
+        <h2 className="text-2xl font-bold mb-4">Lista de Reportes</h2>
+        
+        <div className="overflow-y-auto max-h-[600px]"> {/* Activamos el scroll y limitamos la altura */}
+          <div className="flex flex-col gap-6">
+            {reports.map((report) => (
+              <Card key={report.id} className="border border-gray-300 shadow-md">
+                <CardBody>
+                  <h3 className="text-lg font-bold mb-2">{report.nombre}</h3>
+                  <div className="text-sm text-gray-600 mb-4">
+                    Tipo: {report.type}
+                  </div>
+                  <div>{report.description}</div>
+                </CardBody>
+                <CardFooter className="flex justify-between text-sm text-gray-500">
+                  <div>
+                    Fecha: {new Date(report.date).toLocaleString()}
+                  </div>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
         </div>
-      ) : error ? (
-        <div className="flex justify-center py-10">
-          <span className="text-lg text-red-500">{error}</span>
-        </div>
-      ) : report ? (
-        <Table
-          aria-label="Detalles del reporte"
-          className="max-w-full overflow-x-auto"
-          shadow
-        >
-          <TableHeader>
-            <TableColumn>Campo</TableColumn>
-            <TableColumn>Valor</TableColumn>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>{report.id}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Usuario</TableCell>
-              <TableCell>{report.nombre || "Desconocido"}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Descripción</TableCell>
-              <TableCell>{report.description}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Tipo</TableCell>
-              <TableCell>{report.type}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Fecha</TableCell>
-              <TableCell>{new Date(report.date).toLocaleString()}</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      ) : (
-        <div className="flex justify-center py-10">
-          <span className="text-lg text-gray-600">No se encontró el reporte.</span>
-        </div>
-      )}
-
-      <Button onPress={fetchReport} color="secondary" className="mt-5">
-        Recargar
-      </Button>
+      </div>
     </div>
   );
 };
 
-// Validar las props esperadas
-ReportDetails.propTypes = {
-  reportId: PropTypes.string.isRequired, // Se espera un ID como string
-};
-
-export default ReportDetails;
+export default ReportList;

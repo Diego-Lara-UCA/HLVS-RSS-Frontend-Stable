@@ -1,25 +1,26 @@
-import React, { useState } from "react";
-import {
-  Button,
-  Input,
-  Select,
-  SelectItem,
-  Textarea,
-} from "@nextui-org/react";
+import React, { useState } from "react"; 
+import { Button, Select, SelectItem, Textarea } from "@nextui-org/react";
 import { toast, ToastContainer } from "react-toastify";
-import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
+import { createReport } from "@/services/reportService";
+import { jwtDecode } from "jwt-decode";
 
 const reportTypes = [
   { key: "SUSPICIOUS_ACTIVITY", label: "Actividad sospechosa" },
   { key: "PROPERTY_DAMAGE", label: "Daño en la propiedad" },
   { key: "EXCESSIVE_NOISE", label: "Exceso de ruido" },
-  { key: "INCIDENT", label: "Incidente" },
 ];
 
 const FormCreateReport = () => {
   const [description, setDescription] = useState("");
-  const [type, setType] = useState("SUSPICIOUS_ACTIVITY");
+  const [type, setType] = useState("SUSPICIOUS_ACTIVITY"); // Inicializamos con una cadena
+
+  const token = localStorage.getItem("token"); // Obtener el token del localStorage
+  let email = "";
+  if (token) {
+    const decodedToken: any = jwtDecode(token);
+    email = decodedToken.email;
+  }
 
   const handleSubmit = async () => {
     if (!description || !type) {
@@ -27,34 +28,18 @@ const FormCreateReport = () => {
       return;
     }
 
-    const token = localStorage.getItem("token"); // Obtener el token de autenticación
-    if (!token) {
-      toast.error("No se encontró un token de autenticación. Por favor, inicia sesión.");
-      return;
-    }
+    const data = {
+      description,
+      type, // Aquí será una cadena simple
+      email,
+    };
 
     try {
-      // Realizar la solicitud al backend
-      const response = await axios.post(
-        "http://54.85.119.151:80/api/report/create",
-        {
-          description,
-          type,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Incluir el token en los headers
-          },
-        }
-      );
-
-      if (response.status === 201) {
-        toast.success("Reporte creado exitosamente.");
-        setDescription(""); // Limpiar los campos
-        setType("SUSPICIOUS_ACTIVITY");
-      }
-    } catch (error) {
+      await createReport(data); // Llama al servicio con datos y token
+      toast.success("Reporte creado exitosamente.");
+      setDescription(""); // Limpia los campos del formulario
+      setType("SUSPICIOUS_ACTIVITY");
+    } catch (error: any) {
       console.error("Error al crear el reporte:", error);
       const errorMessage =
         error.response?.data?.message || "Hubo un error al crear el reporte.";
@@ -76,8 +61,11 @@ const FormCreateReport = () => {
         />
         <Select
           label="Tipo de Reporte"
-          selectedKeys={type}
-          onSelectionChange={(value) => setType(value as string)}
+          selectedKeys={new Set([type])} // Ajustamos para que acepte un conjunto
+          onSelectionChange={(keys) => {
+            const selectedKey = Array.from(keys).join(""); // Convertimos el Set a una cadena
+            setType(selectedKey);
+          }}
           required
         >
           {reportTypes.map((report) => (
