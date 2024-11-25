@@ -1,6 +1,11 @@
-import React, { useEffect } from "react";
-import Title from "../../components/Title/Title";
-
+import React, { useEffect, useState } from "react";
+import { SearchIcon } from "@/assets/icons/SearchIcon";
+import { ChevronDownIcon } from "@/assets/icons/ChevronDownIcon";
+import { capitalize } from "@/components/capitalize/utils";
+import { columns } from "./data"; 
+import { getLogsOfEntries } from "@/services/entryLogsService";
+import { ILogEntry } from "@/interfaces/LogsEntries";
+import Title from "@/components/Title/Title";
 import {
   Table,
   TableHeader,
@@ -16,42 +21,24 @@ import {
   DropdownItem,
   Pagination,
 } from "@nextui-org/react";
-import { SearchIcon } from "../../assets/icons/SearchIcon";
-import { ChevronDownIcon } from "../../assets/icons/ChevronDownIcon";
-import { capitalize } from "../../components/capitalize/utils";
-import { columns } from "./data";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import { toast, ToastContainer } from "react-toastify";
 
 const INITIAL_VISIBLE_COLUMNS = ["email", "house", "hour", "date", "type"];
 
 const LogOfEntries = () => {
-  const [users, setUsers] = React.useState([]);
 
-  const token = localStorage.getItem("token");
-  let emailUser = "";
-  if (token) {
-    const decodeToken = jwtDecode(token);
-    emailUser = decodeToken.email;
-    console.log(emailUser);
-  }
+  const [users, setUsers] = useState<ILogEntry[]>(() => {
+    (async () => {
+      try {
+        const logs = await getLogsOfEntries();
+        setUsers(logs);
+      } catch (error) {
+        toast.error("Error fetching logs");
+      }
+    })();
+    return [];
+  });
 
-  useEffect(() => {
-    getLogsofEntries();
-  }, []);
-
-  function getLogsofEntries() {
-    axios({
-      method: "get",
-      url: `https://api.securityhlvs.com/api/residential/entrance/all/${emailUser}`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((response) => {
-      console.log(response);
-      setUsers(response.data.data);
-    });
-  }
 
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
@@ -316,6 +303,7 @@ const LogOfEntries = () => {
           )}
         </TableBody>
       </Table>
+      <ToastContainer stacked/>
     </div>
   );
 };
