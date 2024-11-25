@@ -19,9 +19,11 @@ import {
   ManagePermissions,
   ManageMembers,
   AddHouse,
+  CreateReport,
 } from "@/pages";
+import ReportList from "@/components/reportlist/ReportList";
 import { ErrorPage, PageTitle, ProtectedRoute } from "@/components";
-import { userRole } from "@/components/sidebar/userRole";
+import { userRole } from "@/components/Sidebar/userRole";
 
 const getDefaultRoute = (role) => {
   switch (role) {
@@ -222,7 +224,9 @@ const AppRouter = () => {
               }
             />
           </Route>
+          <Route  path="createreport" element={<CreateReport />} />
         </Route>
+        <Route path="reports" element={<ReportList />} />
       </Route>
       <Route path="*" element={<ErrorPage />} />
     </Routes>

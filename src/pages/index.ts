@@ -17,3 +17,4 @@ export { default as RequestPermissions } from './requestpermissions/RequestPermi
 export { default as ManagePermissions } from './managepermissions/ManagePermissions';
 export { default as ManageMembers } from './managemembers/ManageMembers';
 export { default as AddHouse } from './addhouse/AddHouse';
+export { default as CreateReport } from './createreport/CreateReport';

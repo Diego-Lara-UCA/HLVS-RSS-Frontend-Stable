@@ -35,6 +35,11 @@ const getLinks = (role) => {
           to: "dashboard/manageguards",
           icon: VscShield,
         },
+        {
+          name: "Report List",
+          to: "dashboard/reports",
+          icon: VscHistory,
+        },
       ];
     // Usuario encargado de cada casa
     case "supervisor":
@@ -64,6 +69,11 @@ const getLinks = (role) => {
           to: "dashboard/generatekeys",
           icon: AiOutlineQrcode,
         },
+        {
+          name: "Create Report",
+          to: "dashboard/createreport",
+          icon: IoCreateOutline,
+        },
       ];
     // Usuario guardia de seguridad
     case "guard":
@@ -82,6 +92,11 @@ const getLinks = (role) => {
           name: "Anonymous Access",
           to: "dashboard/anonymousaccess",
           icon: LiaUserSecretSolid,
+        },
+        {
+          name: "Report List",
+          to: "dashboard/reports",
+          icon: VscHistory,
         },
       ];
     // Usuario invitado
@@ -102,6 +117,16 @@ const getLinks = (role) => {
           to: "dashboard/generatekeys",
           icon: AiOutlineQrcode,
         },
+        {
+          name: "Create Report",
+          to: "dashboard/createreport",
+          icon: IoCreateOutline,
+        },
+        {
+          name: "Report List",
+          to: "dashboard/reports",
+          icon: VscHistory,
+        },
       ];
 
     // Usuario común
@@ -121,6 +146,11 @@ const getLinks = (role) => {
           name: "Generate Keys",
           to: "dashboard/generatekeys",
           icon: AiOutlineQrcode,
+        },
+        {
+          name: "Create Report",
+          to: "dashboard/createreport",
+          icon: IoCreateOutline,
         },
       ];
     default:
