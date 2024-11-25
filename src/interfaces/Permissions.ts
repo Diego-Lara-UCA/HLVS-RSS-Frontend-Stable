@@ -21,3 +21,21 @@ export interface IPermissionDetailsRequest {
   tipo_expiracion: string;
   activo: boolean;
 }
+
+export interface IManagePermissionsRequest {
+  id: string;
+  user: string;
+  house: string;
+  fecha_inicio: string;
+  fecha_final: string;
+  hora_inicio: string;
+  hora_fin: string;
+  aprovado: boolean;
+  actions?: string;
+}
+
+export interface IPermissionDetailsResponse {
+  message: string;
+  data: IManagePermissionsRequest[];
+}
+

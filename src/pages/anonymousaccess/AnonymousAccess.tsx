@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Title from "../../components/Title/Title";
+import Title from "@/components/Title/Title";
 import {
   Button,
   Divider,
@@ -8,9 +8,10 @@ import {
   Radio,
   Textarea,
 } from "@nextui-org/react";
-import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import mqtt from "mqtt";
+import { sendAnonymousAccess } from "@/services/guardService";
+import { IAnonymousAccessRequest } from "@/interfaces/Guard";
 
 const AnonymousAccess = () => {
   const [visitantName, setVisitantName] = useState("");
@@ -63,40 +64,36 @@ const AnonymousAccess = () => {
     setTypeOfEntrance("");
   }
 
-  function sendAnonymousAccess() {
+  const handleSendAccess = async () => {
+    if (!visitantName || !reasonForVisit || !typeOfEntrance) {
+      toast.error("Please fill all the fields");
+      return;
+    }
+
     const currentDate = new Date();
     const formattedDate = currentDate.toISOString().split("T")[0];
     const formattedTime = currentDate.toTimeString().split(" ")[0];
 
-    if (visitantName === "" || reasonForVisit === "" || typeOfEntrance === "") {
-      toast("Please fill all the fields", { type: "error" });
-      return;
-    }
+    const requestData: IAnonymousAccessRequest = {
+      name: visitantName,
+      reason: reasonForVisit,
+      type: typeOfEntrance,
+      date: formattedDate,
+      time: formattedTime,
+    };
 
-    axios({
-      method: "post",
-      url: `https://api.securityhlvs.com/api/residential/entrance/anonymous-access`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: {
-        name: visitantName,
-        reason: reasonForVisit,
-        type: typeOfEntrance,
-        date: formattedDate,
-        time: formattedTime,
-      },
-    }).then(() => {
-      // Envía un mensaje MQTT diferente según el tipo de entrada
-      if (typeOfEntrance === 'VEHICULAR') {
-        publishMessage('usuario/feeds/button1', '1');
-      } else if (typeOfEntrance === 'PEDESTRIAN') {
-        publishMessage('usuario/feeds/button2', '1');
+    try {
+      const response = await sendAnonymousAccess(requestData);
+      if (response.success) {
+        toast.success(response.message || "Entry opened successfully");
+        emptyFields();
+      } else {
+        toast.error(response.message || "Failed to open entry");
       }
-      emptyFields();
-      toast("Entry opened successfully", { type: "success" });
-    });
-  }
+    } catch (error) {
+      toast.error("Error sending anonymous access request");
+    }
+  };
 
   const publishMessage = (topic, message) => {
     if (client) {
@@ -154,7 +151,7 @@ const AnonymousAccess = () => {
         </div>
         <div className="mt-8">
           <Button
-            onPress={sendAnonymousAccess}
+            onPress={handleSendAccess}
             className="bg-zinc-700 text-white"
             variant="shadow"
           >

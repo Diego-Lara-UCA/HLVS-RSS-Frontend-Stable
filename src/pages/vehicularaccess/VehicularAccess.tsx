@@ -4,6 +4,8 @@ import QrScanner from "qr-scanner";
 import mqtt from "mqtt";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import { IVerifyKeyRequest } from "@/interfaces/Guard";
+import { verifyKey, verifyVehicularKey } from "@/services/guardService";
 
 const VehicularAccess = () => {
   const scanner = useRef();
@@ -15,28 +17,23 @@ const VehicularAccess = () => {
   const [scanResult, setScanResult] = useState(null);
   const [getResponse, setGetResponse] = useState("");
 
-  const onScanSuccess = (result) => {
-    // alert(result?.data);
-    axios({
-      method: "POST",
-      url: `https://api.securityhlvs.com/api/entrance/key/verify-key`,
-      data: {
-        key: result?.data,
-        terminal: "VEHICULAR",
-      },
-    })
-      .then((response) => {
-        console.log("response", response);
-        if (response.status === 200) {
-          setScanResult(result?.data);
-          toast("QR code scanned successfully", { type: "success" });
-        } else {
-          toast("Error to scan the QR code", { type: "error" });
-        }
-      })
-      .catch((error) => {
-        console.error("error", error);
-      });
+  const handleScanSuccess = async (result: QrScanner.ScanResult) => {
+    const requestData: IVerifyKeyRequest = {
+      key: result.data,
+      terminal: "VEHICULAR",
+    };
+
+    try {
+      const response = await verifyVehicularKey(requestData);
+      if (response.success) {
+        toast.success("QR code scanned successfully for vehicular access");
+      } else {
+        toast.error(response.message || "Error scanning the QR code");
+      }
+    } catch (error) {
+      console.error("Error verifying QR code:", error);
+      toast.error("Error scanning the QR code");
+    }
   };
 
   useEffect(() => {
@@ -49,7 +46,7 @@ const VehicularAccess = () => {
 
   useEffect(() => {
     if (videoEl?.current && !scanner.current) {
-      scanner.current = new QrScanner(videoEl?.current, onScanSuccess, {
+      scanner.current = new QrScanner(videoEl?.current, handleScanSuccess, {
         onDecodeError: onScanFail,
         preferredCamera: "environment",
         highlightScanRegion: true,

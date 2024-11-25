@@ -20,11 +20,10 @@ import { SearchIcon } from "@/assets/icons/SearchIcon";
 import { ChevronDownIcon } from "@/assets/icons/ChevronDownIcon";
 import { capitalize } from "@/components/capitalize/utils";
 import { columns, statusOptions } from "./data";
-import { jwtDecode } from "jwt-decode";
 import { toast, ToastContainer } from "react-toastify";
 import { getPermissionsDetails } from "@/services/permissionService";
-import { IPermissionDetailsRequest } from "@/interfaces/Permissions";
 import { decodeToken } from "@/utils/decodeToken";
+import { IPermissionDetailsRequest } from "@/interfaces/House";
 
 const statusColorMap = {
   true: "success",
@@ -65,29 +64,27 @@ const PermissionsDetails = () => {
 
   const hasSearchFilter = Boolean(filterValue);
 
-  const [users, setUsers] = useState([]);
-  
-  const [permissions, setPermissions] = useState<IPermissionDetailsRequest[]>([]);
+  const [users, setUsers] = useState<IPermissionDetailsRequest[]>([]);
 
   const emailUser = decodeToken()?.email;
-
-  const fetchPermissions = useCallback(async () => {
+  const fetchUsers = useCallback(async () => {
     if (!emailUser) {
       toast.error("Error: User email is undefined");
       return;
     }
     try {
-      const data = await getPermissionsDetails(emailUser);
-      setPermissions(data);
+      const response = await getPermissionsDetails(emailUser);
+      setUsers(response.data);
     } catch (error) {
       toast.error("Error getting permissions details");
-      setPermissions([]);
+      console.error("Error fetching users:", error);
+      setUsers([]);
     }
   }, [emailUser]);
 
   useEffect(() => {
-    fetchPermissions();
-  }, [fetchPermissions]);
+    fetchUsers();
+  }, [fetchUsers]);
 
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;
