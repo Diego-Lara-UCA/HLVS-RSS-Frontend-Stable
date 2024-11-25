@@ -1,11 +1,15 @@
-import * as jwtDecode from "jwt-decode";
+import { decodeToken } from "@/utils/decodeToken";
+import { getFromLocalStorage } from "@/utils/storageUtils";
 
-const token = localStorage.getItem("token");
-let role = null; 
+const token = getFromLocalStorage("token");
+let role: string | null = null;
 
 if (token) {
-  const decodedToken = jwtDecode.jwtDecode(token);
-  role = decodedToken.rol ? decodedToken.rol.toLowerCase() : null;
+  const decodedToken = decodeToken();
+  role = decodedToken && decodedToken.rol ? decodedToken.rol.toLowerCase() : null;
+  if (role) {
+    role;
+  }
 }
 
 export const userRole = role; 

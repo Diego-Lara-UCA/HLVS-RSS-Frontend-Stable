@@ -25,7 +25,7 @@ import ReportList from "@/components/reportlist/ReportList";
 import { ErrorPage, PageTitle, ProtectedRoute } from "@/components";
 import { userRole } from "@/components/Sidebar/userRole";
 
-const getDefaultRoute = (role) => {
+const getDefaultRoute = (role: string) => {
   switch (role) {
     case "admin":
       return "/dashboard/entryhistory";
@@ -79,7 +79,7 @@ const AppRouter = () => {
           />
         }
       >
-        <Route path="" element={<Navigate to={getDefaultRoute(userRole)} />} />
+        <Route path="" element={<Navigate to={getDefaultRoute(userRole || "guest")} />} />
         <Route element={<Dashboard />}>
           <Route
             path="logofentries"
@@ -226,7 +226,7 @@ const AppRouter = () => {
           </Route>
           <Route  path="createreport" element={<CreateReport />} />
         </Route>
-        <Route path="reports" element={<ReportList />} />
+        <Route path="reports" element={<ReportList reportId="someReportId" />} />
       </Route>
       <Route path="*" element={<ErrorPage />} />
     </Routes>

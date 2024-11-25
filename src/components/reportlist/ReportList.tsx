@@ -1,31 +1,35 @@
 import React, { useEffect, useState } from "react";
-import { getReports } from "@/services/reportService"; // Asegúrate de que el servicio esté configurado
+import { getReports } from "@/services/reportService";
 import {
   Button,
   Card,
   CardBody,
   CardFooter
 } from "@nextui-org/react";
+import { redirectUser } from "@/utils/navigationUtils";
 
 export interface Report {
-  id: string; // UUID en formato string
+  id: string; 
   nombre: string;
   description: string;
   type: string;
-  date: string; // ISO-8601 date string
+  date: string; 
 }
 
 const ReportList = () => {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const handleBack = () => {
+    redirectUser("/dashboard");
+  };
+
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const token = localStorage.getItem("token") || ""; // Obtén el token
+        const token = localStorage.getItem("token") || ""; 
         const fetchedReports = await getReports(token);
 
-        // Ordenar por fecha descendente
         const sortedReports = fetchedReports.sort(
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
         );
@@ -50,11 +54,13 @@ const ReportList = () => {
   }
 
   return (
-    <div className="mt-5 px-4"> {/* Añadimos un padding general al contenedor */}
-      <div className="flex flex-col max-w-3xl gap-6 mx-auto"> {/* Alineamos al centro con mx-auto */}
+    <div className="mt-5 px-4"> 
+      <div className="flex flex-col max-w-3xl gap-6 mx-auto"> 
+        <Button onClick={handleBack} className="w-20">Regresar</Button>
         <h2 className="text-2xl font-bold mb-4">Lista de Reportes</h2>
+
         
-        <div className="overflow-y-auto max-h-[600px]"> {/* Activamos el scroll y limitamos la altura */}
+        <div className="overflow-y-auto max-h-[600px]"> 
           <div className="flex flex-col gap-6">
             {reports.map((report) => (
               <Card key={report.id} className="border border-gray-300 shadow-md">
