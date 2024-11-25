@@ -1,61 +1,18 @@
-import React, { useState, useEffect } from "react";
-import Title from "../../components/title/Title";
+import React, { useState } from "react";
+import Title from "@/components/Title/Title";
 import {
   Button,
-  Divider,
   Input,
   RadioGroup,
   Radio,
   Textarea,
 } from "@nextui-org/react";
-import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-import mqtt from "mqtt";
 
 const AnonymousAccess = () => {
   const [visitantName, setVisitantName] = useState("");
   const [reasonForVisit, setReasonForVisit] = useState("");
   const [typeOfEntrance, setTypeOfEntrance] = useState("");
-  const [client, setClient] = useState(null);
-  const [connectStatus, setConnectStatus] = useState('Conectando...');
-
-  useEffect(() => {
-    const connectUrl = 'wss://d326e3e9.ala.dedicated.aws.emqxcloud.com:8084/mqtt';
-    const options = {
-      keepalive: 30,
-      clientId: `mqtt_${Math.random().toString(16).slice(3)}`,
-      protocolId: 'MQTT',
-      protocolVersion: 4,
-      clean: true,
-      reconnectPeriod: 1000,
-      connectTimeout: 30 * 1000,
-      username: 'adminHLVS',
-      password: 'oscarin777',
-      will: {
-        topic: 'WillMsg',
-        payload: 'Connection Closed abnormally..!',
-        qos: 0,
-        retain: false
-      },
-      rejectUnauthorized: false
-    };
-
-    const mqttClient = mqtt.connect(connectUrl, options);
-    mqttClient.on('connect', () => {
-      setConnectStatus('Conectado');
-    });
-    mqttClient.on('error', (err) => {
-      console.error('Error de conexión:', err);
-      setConnectStatus('Error de conexión');
-      mqttClient.end();
-    });
-
-    setClient(mqttClient);
-
-    return () => {
-      mqttClient.end();
-    };
-  }, []);
 
   function emptyFields() {
     setVisitantName("");
@@ -63,53 +20,15 @@ const AnonymousAccess = () => {
     setTypeOfEntrance("");
   }
 
-  function sendAnonymousAccess() {
-    const currentDate = new Date();
-    const formattedDate = currentDate.toISOString().split("T")[0];
-    const formattedTime = currentDate.toTimeString().split(" ")[0];
-
-    if (visitantName === "" || reasonForVisit === "" || typeOfEntrance === "") {
-      toast("Please fill all the fields", { type: "error" });
+  const handleSendAccess = async () => {
+    if (!visitantName || !reasonForVisit || !typeOfEntrance) {
+      toast.error("Please fill all the fields");
       return;
     }
 
-    axios({
-      method: "post",
-      url: `https://api.securityhlvs.com/api/residential/entrance/anonymous-access`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: {
-        name: visitantName,
-        reason: reasonForVisit,
-        type: typeOfEntrance,
-        date: formattedDate,
-        time: formattedTime,
-      },
-    }).then(() => {
-      // Envía un mensaje MQTT diferente según el tipo de entrada
-      if (typeOfEntrance === 'VEHICULAR') {
-        publishMessage('usuario/feeds/button1', '1');
-      } else if (typeOfEntrance === 'PEDESTRIAN') {
-        publishMessage('usuario/feeds/button2', '1');
-      }
-      emptyFields();
-      toast("Entry opened successfully", { type: "success" });
-    });
-  }
-
-  const publishMessage = (topic, message) => {
-    if (client) {
-      client.publish(topic, message, { qos: 0, retain: false }, (error) => {
-        if (error) {
-          console.log('Error al publicar:', error);
-        } else {
-          console.log(`Mensaje publicado al tópico ${topic}: ${message}`);
-        }
-      });
-    } else {
-      console.log('No conectado a MQTT');
-    }
+    // Simula el envío mostrando un toast
+    toast.success("Entry opened successfully");
+    emptyFields();
   };
 
   return (
@@ -154,7 +73,7 @@ const AnonymousAccess = () => {
         </div>
         <div className="mt-8">
           <Button
-            onPress={sendAnonymousAccess}
+            onPress={handleSendAccess}
             className="bg-zinc-700 text-white"
             variant="shadow"
           >
@@ -163,7 +82,6 @@ const AnonymousAccess = () => {
         </div>
       </form>
       <ToastContainer stacked />
-      <h2>Estado de la Conexión MQTT: {connectStatus}</h2>
     </div>
   );
 };

@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import Title from "../../components/title/Title";
+import React, { useCallback, useEffect, useState } from "react";
+import Title from "@/components/Title/Title";
 import { Input, Button } from "@nextui-org/react";
-
 import {
   Table,
   TableHeader,
@@ -17,15 +16,16 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@nextui-org/react";
-import { DeleteIcon } from "../../assets/icons/DeleteIcon";
+import { DeleteIcon } from "@/assets/icons/DeleteIcon";
 import { columns } from "./data";
-import { SearchIcon } from "../../assets/icons/SearchIcon";
-import { ChevronDownIcon } from "../../assets/icons/ChevronDownIcon";
-import { capitalize } from "../../components/capitalize/utils";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import { add } from "date-fns";
+import { SearchIcon } from "@/assets/icons/SearchIcon";
+import { ChevronDownIcon } from "@/assets/icons/ChevronDownIcon";
+import { capitalize } from "@/components/capitalize/utils";
 import { toast, ToastContainer } from "react-toastify";
+import { decodeToken } from "@/utils/decodeToken";
+import { getHouseDetails, registerResident } from "@/services/houseService";
+import { IHouseDetailsResponse, IResident } from "@/interfaces/House";
+import { set } from "date-fns";
 
 const INITIAL_VISIBLE_COLUMNS = ["nombre", "correo_google", "actions"];
 
@@ -42,75 +42,61 @@ const ManageMembers = () => {
     direction: "ascending",
   });
   const [page, setPage] = useState(1);
-  const hasSearchFilter = Boolean(filterValue);
-
-  const [users, setUsers] = useState([]);
-  const [houseID, setHouseID] = useState("");
-  const [address, setAddress] = useState("");
-  const [residents, setResidents] = useState("");
-  const [emailResident, setEmailResident] = useState("");
   const [addResident, setAddResident] = useState("");
-
-  useEffect(() => {
-    getMemberDetails();
-  }, []);
-
-  const token = localStorage.getItem("token");
-  let emailSupervisor = "";
-  if (token) {
-    const decodedToken = jwtDecode(token);
-    emailSupervisor = decodedToken.email;
-  }
+  const [houseDetails, setHouseDetails] = useState<IHouseDetailsResponse>();
+  const [users, setUsers] = useState<IResident[]>([]);
+  const hasSearchFilter = Boolean(filterValue);
 
   function emptyFields() {
     setAddResident("");
   }
 
-  function getMemberDetails() {
-    axios({
-      method: "GET",
-      url: `https://api.securityhlvs.com/api/residential/house/user-house/${emailSupervisor}`,
-    })
-      .then((response) => {
-        console.log(response);
-        const userData = response.data.data.users;
-        setUsers(userData);
-        if (userData.length > 0) {
-          const user = userData[0];
-          setHouseID(response.data.data.house_number);
-          setAddress(response.data.data.direccion);
-          setResidents(response.data.data.cantidad_residentes);
-          setEmailResident(user.correo_google);
-        }
-      })
-      .catch((error) => {
-        toast("Error getting member details", { type: "error" });
-      });
-  }
+  const emailSupervisor = decodeToken()?.email;
 
-  function postAddResident() {
-    if (addResident === "") {
-      toast("Please fill all the fields", { type: "error" });
+  const fetchHouseDetails = useCallback(async () => {
+    if (!emailSupervisor) {
+      toast.error("Error: Supervisor email is undefined");
       return;
     }
 
-    axios({
-      method: "POST",
-      url: "https://api.securityhlvs.com/api/residential/house/register-residents",
-      data: {
-        house_id: houseID,
+    try {
+      const data = await getHouseDetails(emailSupervisor);
+      setHouseDetails(data);
+      setUsers(data.users);
+    } catch (error) {
+      toast.error("Error fetching house details");
+      console.error("Error fetching house details:", error);
+    }
+  }, [emailSupervisor]);
+
+  const postAddResident = async () => {
+    if (addResident === "") {
+      toast.error("Please fill all the fields");
+      return;
+    }
+
+    if (!houseDetails?.house_number) {
+      toast.error("House number is undefined");
+      return;
+    }
+
+    try {
+      await registerResident({
+        house_id: houseDetails.house_number,
         email: addResident,
-      },
-    })
-      .then((response) => {
-        toast("Resident added successfully", { type: "success" });
-        emptyFields();
-        getMemberDetails();
-      })
-      .catch((error) => {
-        toast("Error adding resident", { type: "error" });
       });
-  }
+      toast.success("Resident added successfully");
+      setAddResident("");
+      fetchHouseDetails(); // Actualizar los detalles después de agregar un residente
+    } catch (error) {
+      toast.error("Error adding resident");
+      console.error("Error adding resident:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchHouseDetails();
+  }, [fetchHouseDetails]);
 
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;
@@ -159,7 +145,7 @@ const ManageMembers = () => {
       case "actions":
         return (
           <div className="relative flex items-center gap-2">
-            <Tooltip color="danger" content="Delete guard">
+            <Tooltip color="danger" content="Delete Resident">
               <span className="text-lg text-danger cursor-pointer active:opacity-50">
                 <DeleteIcon />
               </span>
@@ -324,20 +310,25 @@ const ManageMembers = () => {
             label="House number (ID)"
             type="text"
             readOnly
-            value={houseID}
+            value={houseDetails?.house_number}
           />
-          <Input label="Address" type="text" readOnly value={address} />
+          <Input
+            label="Address"
+            type="text"
+            readOnly
+            value={houseDetails?.direccion}
+          />
           <Input
             label="Numbers of residents"
             type="text"
             readOnly
-            value={residents}
+            value={houseDetails?.cantidad_residentes}
           />
           <Input
             label="Resident in charge (email)"
             type="text"
             readOnly
-            value={emailResident}
+            value={emailSupervisor}
           />
           <h2 className="text-gray-600 font-semibold mt-5">Resident Details</h2>
           <div className="flex items-center max-w-6xl gap-3">

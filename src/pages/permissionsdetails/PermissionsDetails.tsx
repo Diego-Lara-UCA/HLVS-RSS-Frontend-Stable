@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import Title from "../../components/title/Title";
+import React, { useCallback, useEffect, useState } from "react";
+import Title from "@/components/Title/Title";
 import {
   Table,
   TableHeader,
@@ -16,13 +16,14 @@ import {
   Pagination,
   Chip,
 } from "@nextui-org/react";
-import { SearchIcon } from "../../assets/icons/SearchIcon";
-import { ChevronDownIcon } from "../../assets/icons/ChevronDownIcon";
-import { capitalize } from "../../components/capitalize/utils";
+import { SearchIcon } from "@/assets/icons/SearchIcon";
+import { ChevronDownIcon } from "@/assets/icons/ChevronDownIcon";
+import { capitalize } from "@/components/capitalize/utils";
 import { columns, statusOptions } from "./data";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import { toast, ToastContainer } from "react-toastify";
+import { getPermissionsDetails } from "@/services/permissionService";
+import { decodeToken } from "@/utils/decodeToken";
+import { IPermissionDetailsRequest } from "@/interfaces/House";
 
 const statusColorMap = {
   true: "success",
@@ -63,35 +64,27 @@ const PermissionsDetails = () => {
 
   const hasSearchFilter = Boolean(filterValue);
 
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<IPermissionDetailsRequest[]>([]);
+
+  const emailUser = decodeToken()?.email;
+  const fetchUsers = useCallback(async () => {
+    if (!emailUser) {
+      toast.error("Error: User email is undefined");
+      return;
+    }
+    try {
+      const response = await getPermissionsDetails(emailUser);
+      setUsers(response.data);
+    } catch (error) {
+      toast.error("Error getting permissions details");
+      console.error("Error fetching users:", error);
+      setUsers([]);
+    }
+  }, [emailUser]);
 
   useEffect(() => {
-    getPermissionsDetails();
-  }, []);
-
-  const token = localStorage.getItem("token");
-  let emailUser = "";
-  if (token) {
-    const decoded = jwtDecode(token);
-    emailUser = decoded.email;
-  }
-
-  function getPermissionsDetails() {
-    axios({
-      method: "get",
-      url: `https://api.securityhlvs.com/api/residential/permission/permission-details/${emailUser}`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
-        setUsers(response.data.data || []);
-      })
-      .catch(() => {
-        toast("Error getting permissions details", { type: "error" });
-        setUsers([]);
-      });
-  }
+    fetchUsers();
+  }, [fetchUsers]);
 
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;

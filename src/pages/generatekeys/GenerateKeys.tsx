@@ -1,23 +1,29 @@
 import React, { useEffect, useState } from "react";
-import Title from "../../components/title/Title";
+import Title from "../../components/Title/Title";
 import QRCode from "qrcode.react";
 import axios from "axios";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { Button } from "@nextui-org/react";
+import { getFromLocalStorage } from "@/utils/storageUtils";
+import { decode } from "punycode";
+import { decodeToken } from "@/utils/decodeToken";
+import { generateKey } from "@/services/generateKey";
 
 const GenerateKeys = () => {
   const initialQrCode = localStorage.getItem("qrCode") || "";
   const initialGraceTime = localStorage.getItem("graceTime") || "00:00";
   const initialCreationTime = localStorage.getItem("creationTime") || "";
-  const initialCreationTimeInSeconds = parseInt(localStorage.getItem("creationTimeInSeconds"), 10) || 0;
-  const totalGraceTime = parseInt(localStorage.getItem("totalGraceTime"), 10) || 0;
+  const initialCreationTimeInSeconds =
+    parseInt(localStorage.getItem("creationTimeInSeconds"), 10) || 0;
+  const totalGraceTime =
+    parseInt(localStorage.getItem("totalGraceTime"), 10) || 0;
 
   // Calculate the initial time left
   const now = new Date();
   const hours = now.getHours();
   const minutes = now.getMinutes();
   const seconds = now.getSeconds();
-  const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+  const totalSeconds = hours * 3600 + minutes * 60 + seconds;
 
   function convertToSeconds(timeStr) {
     if (!timeStr) return 0;
@@ -93,53 +99,34 @@ const GenerateKeys = () => {
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
 
-  const token = localStorage.getItem("token");
-  let emailUser = "";
-  if (token) {
-    const decodedToken = jwtDecode(token);
-    emailUser = decodedToken.email;
-  }
+  const getGenerateKey = async () => {
+    const emailUser = decodeToken()?.email;
+    console.log("Email user:", emailUser);
 
-  function getGenerateKey() {
-    axios({
-      method: "post",
-      url: `https://api.securityhlvs.com/api/entrance/key/create`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: {
-        email: emailUser,
-      },
-    }).then((response) => {
+    try {
+      const { key, graceTime, creationTime } = await generateKey(emailUser);
 
-      const newKey = response.data.data.key;
-      const newGraceTime = response.data.data.graceTime;
-      const newCreationTime = response.data.data.creationTime;
-      const newTimeLeft = parseInt(newGraceTime.split(':')[1], 10) * 60;
-
-      const creationSeconds = convertToSeconds(newCreationTime);
-      const graceTimeSeconds = convertToSeconds(newGraceTime);
+      const creationSeconds = convertToSeconds(creationTime);
+      const graceTimeSeconds = convertToSeconds(graceTime);
       const totalGraceTime = creationSeconds + graceTimeSeconds;
 
-      setKey(newKey);
-      setGraceTime(newGraceTime);
-      setCreationTime(newCreationTime);
-      setTimeLeft(newTimeLeft);
-      setQrCode(newKey);
+      setQrCode(key);
+      setGraceTime(graceTime);
+      setCreationTime(creationTime);
+      setTimeLeft(graceTimeSeconds);
 
-      localStorage.setItem("qrCode", newKey);
-      localStorage.setItem("timeLeft", newTimeLeft.toString());
-      localStorage.setItem("graceTime", newGraceTime);
-      localStorage.setItem("creationTime", newCreationTime);
+      localStorage.setItem("qrCode", key);
+      localStorage.setItem("timeLeft", graceTimeSeconds.toString());
+      localStorage.setItem("graceTime", graceTime);
+      localStorage.setItem("creationTime", creationTime);
       localStorage.setItem("totalGraceTime", totalGraceTime.toString());
       localStorage.setItem("creationTimeInSeconds", creationSeconds.toString());
 
       setShowButton(false);
-    }).catch((error) => {
-      console.error('Error al generar la clave:', error);
-      console.log(error);
-    });
-  }
+    } catch (error) {
+      console.error("Error generating key:", error);
+    }
+  };
 
   return (
     <div className="container-tab">

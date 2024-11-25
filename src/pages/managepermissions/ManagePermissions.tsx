@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import Title from "../../components/title/Title";
+import Title from "../../components/Title/Title";
 import {
   Table,
   TableHeader,
@@ -29,12 +29,10 @@ import { columns, statusOptions } from "./data";
 import { capitalize } from "../../components/capitalize/utils";
 import { DeleteIcon } from "../../assets/icons/DeleteIcon";
 import { EyeIcon } from "../../assets/icons/EyeIcon";
-import FormDetailsPermissions from "../../components/formdetailspermissions/FormDetailsPermissions";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import { set } from "date-fns";
-import { id } from "date-fns/locale";
+import FormDetailsPermissions from "../../components/FormDetailsPermissions/FormDetailsPermissions";
 import { toast, ToastContainer } from "react-toastify";
+import { approvePermission, deletePermission, getPermissionsHouse } from "@/services/permissionService";
+import { IManagePermissionsRequest } from "@/interfaces/Permissions";
 
 const statusColorMap = {
   true: "success",
@@ -59,64 +57,53 @@ const INITIAL_VISIBLE_COLUMNS = [
 ];
 
 const ManagePermissions = () => {
-  const [users, setUsers] = useState([]);
-  const [id_permission, setIdPermission] = useState("");
   const token = localStorage.getItem("token");
-  let houseNumber = "";
-  if (token) {
-    const decodedToken = jwtDecode(token);
-    houseNumber = decodedToken.house_number;
-  }
+  const [users, setUsers] = useState<IManagePermissionsRequest[]>([]);
+  const houseNumber = "1";
+
+  // Fetch permissions
+  const fetchPermissions = useCallback(async () => {
+    if (!houseNumber) {
+      toast.error("Error: House number is undefined");
+      return;
+    }
+
+    try {
+      const data = await getPermissionsHouse(houseNumber);
+      setUsers(data);
+    } catch (error) {
+      toast.error("Error fetching permissions");
+      console.error("Error fetching permissions:", error);
+    }
+  }, [houseNumber]);
 
   useEffect(() => {
-    getPermissionsHouse();
-  }, []);
+    fetchPermissions();
+  }, [fetchPermissions]);
 
-  function getPermissionsHouse() {
-    axios({
-      method: "get",
-      url: `https://api.securityhlvs.com/api/residential/permission/manage-permission/${houseNumber}`,
-    })
-      .then((response) => {
-        setUsers(response.data.data);
-        setIdPermission(response.data.data[0].id);
-      })
-      .catch((error) => {
-        console.error("error", error);
-      });
-  }
+  // Approve permission
+  const handleApprove = async (id_permission: string) => {
+    try {
+      await approvePermission(id_permission);
+      toast.success("Permission approved successfully");
+      fetchPermissions();
+    } catch (error) {
+      toast.error("Error approving permission");
+      console.error("Error approving permission:", error);
+    }
+  };
 
-  function postApprovePermission(id_permission) {
-    axios({
-      method: "post",
-      url: `https://api.securityhlvs.com/api/residential/permission/approve/${id_permission}`,
-    })
-      .then((response) => {
-        toast("Permission approved successfully", { type: "success" });
-        getPermissionsHouse();
-      })
-      .catch((error) => {
-        toast("Error to approve the permission", { type: "error" });
-      });
-  }
-
-  function deletePermission(id_permission) {
-    axios({
-      method: "DELETE",
-      url: `https://api.securityhlvs.com/api/residential/permission/delete/${id_permission}`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
-        getPermissionsHouse();
-        toast("Entry history deleted successfully", { type: "success" });
-      })
-      .catch((error) => {
-        toast("Error to delete the entry history", { type: "error" });
-        console.log(error)
-      });
-  }
+  // Delete permission
+  const handleDelete = async (id_permission: string) => {
+    try {
+      await deletePermission(id_permission);
+      toast.success("Permission deleted successfully");
+      fetchPermissions();
+    } catch (error) {
+      toast.error("Error deleting permission");
+      console.error("Error deleting permission:", error);
+    }
+  };
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [scrollBehavior, setScrollBehavior] = useState("inside");
@@ -200,7 +187,7 @@ const ManagePermissions = () => {
             <div className="relative flex items-center gap-2">
               <Tooltip content="Approve">
                 <Button
-                  onPress={() => postApprovePermission(user.id)}
+                  onPress={() => handleApprove(user.id)}
                   className="text-lg text-default-400 cursor-pointer active:opacity-50"
                   isIconOnly
                   variant="light"
@@ -210,7 +197,7 @@ const ManagePermissions = () => {
               </Tooltip>
               <Tooltip color="danger" content="Reject">
                 <Button
-                  onPress={() => deletePermission(user.id)}
+                  onPress={() => handleDelete(user.id)}
                   className="text-lg text-danger hover:bg-danger-50 cursor-pointer active:opacity-50"
                   isIconOnly
                   variant="light"
@@ -224,7 +211,7 @@ const ManagePermissions = () => {
           return cellValue;
       }
     },
-    [postApprovePermission, deletePermission]
+    [handleApprove, handleDelete]
   );
 
   const onNextPage = useCallback(() => {

@@ -1,28 +1,29 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import LogIn from "../pages/login/LogIn";
-import Home from "../pages/Home/Home";
-import Dashboard from "../pages/dashboard/Dashboard";
-import LogsEntries from "../pages/logofentries/LogOfEntries";
-import PermissionsDetails from "../pages/permissionsdetails/PermissionsDetails";
-import GenerateKeys from "../pages/generatekeys/GenerateKeys";
-import Profile from "../pages/profile/Profile";
-import EntryHistory from "../pages/entryhistory/EntryHistory";
-import ManageOvertime from "../pages/manageovertime/ManageOvertime";
-import ManageHouses from "../pages/managehouses/ManageHouses";
-import ManageGuards from "../pages/manageguards/ManageGuards";
-import PedestrianAccess from "../pages/pedestrianaccess/PedestrianAccess";
-import VehicularAccess from "../pages/vehicularaccess/VehicularAccess";
-import AnonymousAccess from "../pages/anonymousaccess/AnonymousAccess";
-import CreatePermission from "../pages/createpermission/CreatePermission";
-import RequestPermissions from "../pages/requestpermissions/RequestPermissions";
-import ManagePermissions from "../pages/managepermissions/ManagePermissions";
-import ManageMembers from "../pages/managemembers/ManageMembers";
-import AddHouse from "../pages/addhouse/AddHouse";
-import ErrorPage from "../pages/errorPage/ErrorPage";
-import ProtectedRoute from "./ProtectedRoute";
-import PageTitle from "../components/pageTitle/PageTitle";
-import { userRole } from "../components/sidebar/userRole";
+import {
+  LogIn,
+  Home,
+  Dashboard,
+  LogsEntries,
+  PermissionsDetails,
+  GenerateKeys,
+  Profile,
+  EntryHistory,
+  ManageOvertime,
+  ManageGuards,
+  PedestrianAccess,
+  VehicularAccess,
+  AnonymousAccess,
+  CreatePermission,
+  RequestPermissions,
+  ManagePermissions,
+  ManageMembers,
+  AddHouse,
+  CreateReport,
+} from "@/pages";
+import ReportList from "@/components/reportlist/ReportList";
+import { ErrorPage, PageTitle, ProtectedRoute } from "@/components";
+import { userRole } from "@/components/Sidebar/userRole";
 
 const getDefaultRoute = (role) => {
   switch (role) {
@@ -223,7 +224,9 @@ const AppRouter = () => {
               }
             />
           </Route>
+          <Route  path="createreport" element={<CreateReport />} />
         </Route>
+        <Route path="reports" element={<ReportList />} />
       </Route>
       <Route path="*" element={<ErrorPage />} />
     </Routes>
