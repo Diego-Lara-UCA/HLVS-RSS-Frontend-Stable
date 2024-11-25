@@ -224,9 +224,9 @@ const AppRouter = () => {
               }
             />
           </Route>
+            <Route path="reports" element={<ReportList reportId="someReportId" />} />
           <Route  path="createreport" element={<CreateReport />} />
         </Route>
-        <Route path="reports" element={<ReportList reportId="someReportId" />} />
       </Route>
       <Route path="*" element={<ErrorPage />} />
     </Routes>
