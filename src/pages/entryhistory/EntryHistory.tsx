@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Title from "../../components/Title/Title";
+import Title from "@/components/Title/Title";
 import {
   Table,
   TableHeader,
@@ -9,20 +9,11 @@ import {
   TableCell,
   Input,
   Button,
-  DropdownTrigger,
-  Dropdown,
-  DropdownMenu,
-  DropdownItem,
   Pagination,
   DatePicker,
   Divider,
   Card,
-  CardBody,
 } from "@nextui-org/react";
-import { SearchIcon } from "../../assets/icons/SearchIcon";
-import { ChevronDownIcon } from "../../assets/icons/ChevronDownIcon";
-import { capitalize } from "../../components/capitalize/utils";
-import { columns } from "./data";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -34,9 +25,12 @@ import {
   LinearScale,
   PointElement,
 } from "chart.js";
+import { SearchIcon } from "@/assets/icons/SearchIcon";
+import { columns } from "./data";
 import { Doughnut, Line, Bar } from "react-chartjs-2";
-import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import { getEntryHistory } from "@/services/entryHistoryService";
+import { IEntry } from "@/interfaces/EntryHistory";
 
 ChartJS.register(
   ArcElement,
@@ -50,9 +44,9 @@ ChartJS.register(
 );
 
 const INITIAL_VISIBLE_COLUMNS = ["email", "house", "type", "date", "hour"];
-
 const EntryHistory = () => {
-  const [users, setUsers] = useState([]);
+  
+  const [users, setUsers] = useState<IEntry[]>([]);
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = useState(
@@ -108,29 +102,23 @@ const EntryHistory = () => {
     ],
   });
 
-  useEffect(() => {
-    getEntryHistory();
+   // Cargar datos al montar el componente
+   useEffect(() => {
+    fetchEntryHistory();
   }, []);
 
-  function getEntryHistory() {
-    axios({
-      method: "GET",
-      url: `https://api.securityhlvs.com/api/residential/entrance/all`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
-        setUsers(response.data.data);
-        updateChartData(response.data.data);
-        updateLineChartData(response.data.data);
-        updateBarChartData(response.data.data);
-        toast("Entry history loaded successfully", { type: "success" });
-      })
-      .catch((error) => {
-        toast("Error to get the entry history", { type: "error" });
-      });
-  }
+  const fetchEntryHistory = async () => {
+    try {
+      const data = await getEntryHistory();
+      setUsers(data);
+      updateChartData(data);
+      updateLineChartData(data);
+      updateBarChartData(data);
+      toast.success("Entry history loaded successfully");
+    } catch (error) {
+      toast.error("Error loading entry history");
+    }
+  };
 
   function updateChartData(data) {
     const typeCounts = data.reduce((acc, entry) => {

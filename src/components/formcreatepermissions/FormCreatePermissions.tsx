@@ -14,6 +14,7 @@ import axios from "axios";
 import { parseDate, parseAbsoluteToLocal } from "@internationalized/date";
 import { jwtDecode } from "jwt-decode";
 import { toast, ToastContainer } from "react-toastify";
+import { createPermission } from "@/services/permissionService";
 
 const days = [
   { key: "1", label: "Monday" },
@@ -104,50 +105,36 @@ const FormCreatePermissions = () => {
     emailUser = decoded.email;
   }
 
-  function postCreatePermissions() {
-    const firstDateRangeFormatted = formatDate(firstDateRange);
-    const secondDateRangeFormatted = formatDate(secondDateRange);
-    const singleDateFormatted = formatDate(singleDate);
-    const initialHourFormatted = formatTime(initialHour);
-    const finalHourFormatted = formatTime(finalHour);
-    const singleHourFormatted = formatTime(singleHour);
-
-    if (!emailVisitant || !selectedDays || !expirationType) {
-      toast("Please fill all the fields", { type: "error" });
+  const handleCreatePermission = async () => {
+    if (!emailVisitant || !selectedDays.size || !expirationType) {
+      toast.error("Please fill all the fields");
       return;
     }
 
-    axios({
-      method: "post",
-      url: `https://api.securityhlvs.com/api/residential/permission/create`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: {
-        email_house: emailUser,
-        email_permission: emailVisitant,
-        days: Array.from(selectedDays),
-        firstDate: isMultipleDate
-          ? firstDateRangeFormatted
-          : singleDateFormatted,
-        secondDate: isMultipleDate
-          ? secondDateRangeFormatted
-          : singleDateFormatted,
-        initialHour: isMultipleHour
-          ? initialHourFormatted
-          : singleHourFormatted,
-        finalHour: isMultipleHour ? finalHourFormatted : singleHourFormatted,
-        expirationType: isMultipleHour ? expirationType : "ByEntry",
-      },
-    })
-      .then(() => {
-        toast("Permission created successfully", { type: "success" });
-        emptyFields();
-      })
-      .catch(() => {
-        toast("Error creating permission", { type: "error" });
-      });
-  }
+    const data = {
+      email_house: emailUser,
+      email_permission: emailVisitant,
+      days: Array.from(selectedDays),
+      firstDate: isMultipleDate
+        ? formatDate(firstDateRange)
+        : formatDate(singleDate),
+      secondDate: isMultipleDate
+        ? formatDate(secondDateRange)
+        : formatDate(singleDate),
+      initialHour: isMultipleHour
+        ? formatTime(initialHour)
+        : formatTime(singleHour),
+      finalHour: isMultipleHour ? formatTime(finalHour) : formatTime(singleHour),
+      expirationType: isMultipleHour ? expirationType : "ByEntry",
+    };
+
+    try {
+      await createPermission(data);
+      toast.success("Permission created successfully");
+    } catch (error) {
+      toast.error("Error creating permission");
+    }
+  };
 
   return (
     <div>
@@ -291,7 +278,7 @@ const FormCreatePermissions = () => {
           )}
           <div className="mt-8 py-4 flex justify-center lg:justify-end ">
             <Button
-              onClick={postCreatePermissions}
+              onClick={handleCreatePermission}
               className=" bg-zinc-700 text-white"
               variant="shadow"
             >
