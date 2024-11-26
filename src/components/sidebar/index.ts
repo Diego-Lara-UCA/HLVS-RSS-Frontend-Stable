@@ -36,6 +36,11 @@ const getLinks = (role: string) => {
           icon: VscShield,
         },
         {
+          name: "Create Report",
+          to: "dashboard/createreport",
+          icon: IoCreateOutline,
+        },
+        {
           name: "Report List",
           to: "dashboard/reports",
           icon: VscHistory,
@@ -121,12 +126,7 @@ const getLinks = (role: string) => {
           name: "Create Report",
           to: "dashboard/createreport",
           icon: IoCreateOutline,
-        },
-        {
-          name: "Report List",
-          to: "dashboard/reports",
-          icon: VscHistory,
-        },
+        }
       ];
 
     // Usuario común
