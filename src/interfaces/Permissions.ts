@@ -15,11 +15,11 @@ export interface IPermissionDetailsRequest {
   house: string;
   fecha_inicio: string;
   fecha_final: string;
-  dias_semana: string[];
+  dias_semana?: string[];
   hora_inicio: string;
   hora_fin: string;
-  tipo_expiracion: string;
-  activo: boolean;
+  tipo_expiracion?: string;
+  activo?: boolean;
 }
 
 export interface IManagePermissionsRequest {

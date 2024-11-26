@@ -1,4 +1,4 @@
-import React, { useState } from "react"; 
+import React, { useState } from "react";
 import { Button, Select, SelectItem, Textarea } from "@nextui-org/react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -6,16 +6,16 @@ import { createReport } from "@/services/reportService";
 import { jwtDecode } from "jwt-decode";
 
 const reportTypes = [
-  { key: "SUSPICIOUS_ACTIVITY", label: "Actividad sospechosa" },
-  { key: "PROPERTY_DAMAGE", label: "Daño en la propiedad" },
-  { key: "EXCESSIVE_NOISE", label: "Exceso de ruido" },
+  { key: "SUSPICIOUS_ACTIVITY", label: "Suspicius activity" },
+  { key: "PROPERTY_DAMAGE", label: "Property damage" },
+  { key: "EXCESSIVE_NOISE", label: "Noise excessive" },
 ];
 
 const FormCreateReport = () => {
   const [description, setDescription] = useState("");
-  const [type, setType] = useState("SUSPICIOUS_ACTIVITY"); // Inicializamos con una cadena
+  const [type, setType] = useState("SUSPICIOUS_ACTIVITY");
 
-  const token = localStorage.getItem("token"); // Obtener el token del localStorage
+  const token = localStorage.getItem("token");
   let email = "";
   if (token) {
     const decodedToken: any = jwtDecode(token);
@@ -30,14 +30,14 @@ const FormCreateReport = () => {
 
     const data = {
       description,
-      type, // Aquí será una cadena simple
+      type,
       email,
     };
 
     try {
-      await createReport(data); // Llama al servicio con datos y token
+      await createReport(data);
       toast.success("Reporte creado exitosamente.");
-      setDescription(""); // Limpia los campos del formulario
+      setDescription("");
       setType("SUSPICIOUS_ACTIVITY");
     } catch (error: any) {
       console.error("Error al crear el reporte:", error);
@@ -50,20 +50,19 @@ const FormCreateReport = () => {
   return (
     <div className="mt-5">
       <div className="flex flex-col max-w-3xl gap-4">
-        <h1 className="text-2xl font-bold mb-4">Crear Reporte</h1>
         <Textarea
-          label="Descripción del Reporte"
+          label="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Ingresa una breve descripción del problema..."
+          placeholder="Type here..."
           rows={4}
           required
         />
         <Select
-          label="Tipo de Reporte"
-          selectedKeys={new Set([type])} // Ajustamos para que acepte un conjunto
+          label="Type of report"
+          selectedKeys={new Set([type])}
           onSelectionChange={(keys) => {
-            const selectedKey = Array.from(keys).join(""); // Convertimos el Set a una cadena
+            const selectedKey = Array.from(keys).join("");
             setType(selectedKey);
           }}
           required
@@ -78,7 +77,7 @@ const FormCreateReport = () => {
             className="bg-zinc-700 text-white"
             variant="shadow"
           >
-            Crear Reporte
+            Create Report
           </Button>
         </div>
       </div>

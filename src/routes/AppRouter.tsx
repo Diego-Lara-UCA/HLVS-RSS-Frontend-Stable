@@ -79,7 +79,10 @@ const AppRouter = () => {
           />
         }
       >
-        <Route path="" element={<Navigate to={getDefaultRoute(userRole || "guest")} />} />
+        <Route
+          path=""
+          element={<Navigate to={getDefaultRoute(userRole || "guest")} />}
+        />
         <Route element={<Dashboard />}>
           <Route
             path="logofentries"
@@ -224,8 +227,28 @@ const AppRouter = () => {
               }
             />
           </Route>
-            <Route path="reports" element={<ReportList reportId="someReportId" />} />
-          <Route  path="createreport" element={<CreateReport />} />
+          <Route element={<ProtectedRoute allowedRoles={["admin", "guard"]} />}>
+            <Route
+              path="reports"
+              element={
+                <>
+                  <PageTitle title="HLVS | Report List" />{" "}
+                  <ReportList reportId="someReportId" />{" "}
+                </>
+              }
+            />
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={["supervisor", "user", "guest", "admin"]} />}>
+            <Route
+              path="createreport"
+              element={
+                <>
+                  <PageTitle title="HLVS | Create Report" /> 
+                  <CreateReport />
+                </>
+              }
+            />
+          </Route>
         </Route>
       </Route>
       <Route path="*" element={<ErrorPage />} />

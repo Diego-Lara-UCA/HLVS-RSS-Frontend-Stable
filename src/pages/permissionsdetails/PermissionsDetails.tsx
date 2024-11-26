@@ -23,7 +23,7 @@ import { columns, statusOptions } from "./data";
 import { toast, ToastContainer } from "react-toastify";
 import { getPermissionsDetails } from "@/services/permissionService";
 import { decodeToken } from "@/utils/decodeToken";
-import { IPermissionDetailsRequest } from "@/interfaces/House";
+import { IPermissionDetailsRequest } from "@/interfaces/Permissions";
 
 const statusColorMap = {
   true: "success",
@@ -67,6 +67,7 @@ const PermissionsDetails = () => {
   const [users, setUsers] = useState<IPermissionDetailsRequest[]>([]);
 
   const emailUser = decodeToken()?.email;
+  
   const fetchUsers = useCallback(async () => {
     if (!emailUser) {
       toast.error("Error: User email is undefined");
@@ -74,14 +75,15 @@ const PermissionsDetails = () => {
     }
     try {
       const response = await getPermissionsDetails(emailUser);
-      setUsers(response.data);
+      const data = Array.isArray(response.data) ? response.data : [];
+      setUsers(data);
     } catch (error) {
       toast.error("Error getting permissions details");
       console.error("Error fetching users:", error);
       setUsers([]);
     }
   }, [emailUser]);
-
+  
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
@@ -95,8 +97,8 @@ const PermissionsDetails = () => {
   }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
-    let filteredUsers = [...users];
-
+    let filteredUsers = Array.isArray(users) ? [...users] : [];
+  
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter((user) =>
         user.house.toLowerCase().includes(filterValue.toLowerCase())
@@ -107,9 +109,10 @@ const PermissionsDetails = () => {
         statusFilter.has(String(user.activo))
       );
     }
-
+  
     return filteredUsers;
   }, [users, filterValue, statusFilter]);
+  
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 

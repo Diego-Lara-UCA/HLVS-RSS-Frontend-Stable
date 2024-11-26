@@ -16,28 +16,24 @@ const ReportList = () => {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const handleBack = () => {
-    redirectUser("/dashboard");
+  const fetchReports = async () => {
+    try {
+      const token = localStorage.getItem("token") || "";
+      const fetchedReports = await getReports(token);
+
+      const sortedReports = fetchedReports.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+
+      setReports(sortedReports);
+    } catch (error) {
+      console.error("Error fetching reports:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    const fetchReports = async () => {
-      try {
-        const token = localStorage.getItem("token") || "";
-        const fetchedReports = await getReports(token);
-
-        const sortedReports = fetchedReports.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-
-        setReports(sortedReports);
-      } catch (error) {
-        console.error("Error fetching reports:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchReports();
   }, []);
 
