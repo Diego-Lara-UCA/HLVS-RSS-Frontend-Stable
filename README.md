@@ -32,8 +32,8 @@ Este proyecto utiliza las siguientes tecnologías:
 
 Puedes acceder a las aplicaciones desplegadas mediante las siguientes direcciones:
 
-- **Frontend**: [https://100.28.135.89](https://100.28.135.89)
-- **Backend**: [http://54.85.119.151](http://54.85.119.151)
+- **Frontend**: [https://api.hlvs.me/](https://api.hlvs.me/)
+- **Backend**: [https://hlvs.me/](https://hlvs.me/)
 
 ## Estructura del proyecto
 
